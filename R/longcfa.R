@@ -119,6 +119,7 @@ longcfa <- function(
 longcfa_syntax <- function(
     ind_matrix,
     lv_names,
+    # pattern,
     lag_cov = FALSE,
     long_equal = NULL,
     long_partial = NULL,
@@ -126,8 +127,9 @@ longcfa_syntax <- function(
 ) {
     if ("loadings" %in% long_equal) {
         load_labels <- gen_labels(
-            dim(ind_matrix),
-            ".l",
+            seq_len(nrow(ind_matrix)),
+            ncol(ind_matrix),
+            prefix = ".l",
             partial = long_partial$loadings
         )
         latvar_syntax <- latent_var_syntax(lv_names[1])
@@ -138,9 +140,10 @@ longcfa_syntax <- function(
     if ("thresholds" %in% long_equal || "intercepts" %in% long_equal) {
         ind_cat <- rowMeans(nthres) > 0
         if ("thresholds" %in% long_equal && !is.null(nthres)) {
-            thres_labels <- gen_labels2(
-                dim(ind_matrix),
-                size2 = nthres,
+            thres_labels <- gen_labels(
+                seq_len(nrow(ind_matrix)),
+                ncol(ind_matrix),
+                cell_len = nthres,
                 prefix = ".t",
                 partial = long_partial$thresholds
             )
@@ -149,7 +152,8 @@ longcfa_syntax <- function(
         }
         if ("intercepts" %in% long_equal) {
             int_labels <- gen_labels(
-                dim(ind_matrix),
+                seq_len(nrow(ind_matrix)),
+                ncol(ind_matrix),
                 prefix = ".i",
                 partial = long_partial$intercepts
             )
@@ -164,8 +168,9 @@ longcfa_syntax <- function(
     }
     if ("residuals" %in% long_equal) {
         uniq_labels <- gen_labels(
-            dim(ind_matrix),
-            ".u",
+            seq_len(nrow(ind_matrix)),
+            ncol(ind_matrix),
+            prefix = ".u",
             partial = long_partial$residuals
         )
     } else {
@@ -273,34 +278,48 @@ lag_cov_syntax <- function(ind_matrix) {
     paste(out, collapse = "\n")
 }
 
-gen_labels <- function(size, prefix, equal = TRUE, partial = NULL) {
-    if (equal) {
-        out <- matrix(seq_len(size[1]), nrow = size[1], ncol = size[2])
-        if (!is.null(partial)) {
-            partial <- as.matrix(partial)
-            out[partial] <- apply(
-                partial,
-                MARGIN = 1,
-                FUN = paste0,
-                collapse = ""
-            )
-        }
-    } else {
-        out <- outer(seq_len(size[1]), Y = seq_len(size[2]), FUN = paste0)
+gen_labels <- function(
+    row_nm,
+    nt,
+    cell_len = NULL,
+    prefix = NULL,
+    equal = TRUE,
+    partial = NULL
+) {
+    out <- matrix(row_nm, nrow = length(row_nm), ncol = nt)
+    if (!is.null(cell_len)) {
+        out <- lapply(
+            seq_along(cell_len),
+            FUN = function(l) {
+                paste0(out[l], seq_len(cell_len[l]))
+            }
+        )
+        out <- structure(out, dim = c(length(row_nm), nt))
     }
-    out[] <- paste0(prefix, out)
-    out
-}
-
-gen_labels2 <- function(size, size2, prefix, equal = TRUE, partial = NULL) {
-    out1 <- gen_labels(size, prefix = prefix, equal = equal, partial = partial)
-    out <- lapply(
-        seq_along(size2),
-        FUN = function(l) {
-            paste0(out1[l], "_", seq_len(size2[l]))
+    if (!equal) {
+        out[] <- mapply(
+            \(x, y) paste(x, y, sep = "_"),
+            out,
+            rep(seq_len(nt), each = length(row_nm))
+        )
+    } else if (!is.null(partial)) {
+        partial <- as.matrix(partial)
+        for (r in seq_len(nrow(partial))) {
+            new <- paste(
+                out[partial[r, 1], partial[r, 2]][[1]],
+                partial[r, 2],
+                sep = "_"
+            )
+            if (is.list(out[partial[r, 1], partial[r, 2]])) {
+                new <- list(new)
+            }
+            out[partial[r, 1], partial[r, 2]] <- new
         }
-    )
-    structure(out, dim = size)
+    }
+    if (!is.null(prefix)) {
+        out[] <- lapply(seq_along(out), \(i) paste0(prefix, out[i][[1]]))
+    }
+    structure(out, dim = c(length(row_nm), nt))
 }
 
 latent_var_syntax <- function(lv_names) {
