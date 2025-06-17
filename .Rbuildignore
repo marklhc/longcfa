@@ -1,3 +1,5 @@
 ^longcfa\.Rproj$
 ^\.Rproj\.user$
 ^air.toml
+^.vscode/
+^LICENSE\.md$
