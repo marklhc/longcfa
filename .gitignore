@@ -1,3 +1,5 @@
 .Rproj.user
 air.toml
 /.vscode/
+inst/doc
+docs

@@ -1,0 +1,77 @@
+---
+title: "Quick Start"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{longcfa}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+```
+
+```{r setup}
+library(longcfa)
+library(lavaan)
+```
+
+The data is the `PoliticalDemocracy` dataset from the `lavaan` package, which is a longitudinal dataset on political democracy scores across multiple countries over several years. One can read the [documentation](https://rdrr.io/cran/lavaan/man/PoliticalDemocracy.html) for more details.
+
+```{r}
+data("PoliticalDemocracy", package = "lavaan")
+head(PoliticalDemocracy)
+```
+
+In this data set, `y1` to `y4` are indicators of political democracy in 1960, and `y5` to `y8` are the same indicators in 1965. Using `lavaan`, one can specify a longitudinal confirmatory factor analysis (CFA) model as follows:
+
+```{r}
+# Configural invariance: no constraints across time
+lconfig_mod <- "
+  dem60 =~ y1 + y2 + y3 + y4
+  dem65 =~ y5 + y6 + y7 + y8
+"
+lconfig_fit <- cfa(lconfig_mod, data = PoliticalDemocracy, std.lv = TRUE)
+lconfig_fit
+```
+
+Because the same indicators are used at both time points, what is unique for an indicator at one time point may remain at the other time point. We can allow covariances between the unique factors of the same indicators across time points:
+
+```{r}
+lconfig2_mod <- "
+  dem60 =~ y1 + y2 + y3 + y4
+  dem65 =~ y5 + y6 + y7 + y8
+  y1 ~~ y5
+  y2 ~~ y6
+  y3 ~~ y7
+  y4 ~~ y8
+"
+lconfig2_fit <- cfa(lconfig2_mod, data = PoliticalDemocracy, std.lv = TRUE)
+lconfig2_fit
+```
+
+The `longcfa` approach uses an input matrix to specify the indicators in rows, and the time points in columns. In this case, with four indicators measured at two time points, the input matrix would look like this:
+
+```{r}
+ind_mat <- matrix(c(
+  "y1", "y2", "y3", "y4",
+  "y5", "y6", "y7", "y8"
+), nrow = 4)
+ind_mat
+```
+
+and the model `lconfig2_mod` can be specified as follows, with the `lag_cov = TRUE` argument indicating that we want to allow covariances between the unique factors of the same indicators across time points:
+
+```{r}
+lconfig2_fit2 <- longcfa(
+    ind_mat,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    lag_cov = TRUE)
+summary(lconfig2_fit2)
+```
+
+The goal is to make it less error-prone when specifying longitudinal CFA models, and save time when the number of indicators and/or time points are large.
