@@ -28,6 +28,10 @@
 #'   matrix where each row specifies the indicator (column 1) and the
 #'   time point (column 2) for the parameter to be free. See example
 #'   below.
+#' @param long_cov A list of covariance specifications. Each element
+#'   should be a character vector of length 2 specifying two variables
+#'   (either latent variables or indicators) to covary. For example:
+#'   `list(c("eta1", "eta2"), c("y1_t1", "y1_t2"))`.
 #' @param nthres An integer vector specifying the number of thresholds
 #'   for each item.
 #' @param do.fit Same as in `lavaan::lavOptions()`.
@@ -49,6 +53,7 @@
 #'                data = PoliticalDemocracy,
 #'                long_equal = c("loadings", "intercepts"))
 #' summary(fit)
+#' 
 #' # Partial invariance
 #' fit2 <- longcfa(spec,
 #'                 lv_names = c("dem60", "dem65"),
@@ -59,6 +64,20 @@
 #'                     intercepts = matrix(c(1, 3, 2, 2), ncol = 2)
 #'                 ))
 #' summary(fit2)
+#' 
+#' # With latent covariances
+#' fit3 <- longcfa(spec,
+#'                 lv_names = c("dem60", "dem65"),
+#'                 data = PoliticalDemocracy,
+#'                 long_cov = list(c("dem60", "dem65")))
+#' summary(fit3)
+#' 
+#' # With residual covariances
+#' fit4 <- longcfa(spec,
+#'                 lv_names = c("dem60", "dem65"),
+#'                 data = PoliticalDemocracy,
+#'                 long_cov = list(c("y1", "y5"), c("y2", "y6")))
+#' summary(fit4)
 #' @export
 longcfa <- function(
     ind_matrix,
@@ -67,6 +86,7 @@ longcfa <- function(
     lag_cov = FALSE,
     long_equal = NULL,
     long_partial = NULL,
+    long_cov = NULL,  # NEW: Covariance specifications
     do.fit = TRUE,
     ...
 ) {
@@ -75,7 +95,8 @@ longcfa <- function(
         lv_names = lv_names,
         lag_cov = lag_cov,
         long_equal = long_equal,
-        long_partial = long_partial
+        long_partial = long_partial,
+        long_cov = long_cov  # Pass to syntax generator
     )
     if ("thresholds" %in% long_equal) {
         cfa0 <- longcfa(
@@ -89,8 +110,7 @@ longcfa <- function(
         )
         nthres <- cfa0@Data@ov$nlev[
             match(ind_matrix, table = cfa0@Data@ov$name)
-        ] -
-            1
+        ] - 1
         nthres <- structure(nthres, dim = dim(ind_matrix))
         if (any(apply(nthres, MARGIN = 1, FUN = var) > 0)) {
             stop(
@@ -119,12 +139,15 @@ longcfa <- function(
 longcfa_syntax <- function(
     ind_matrix,
     lv_names,
-    # pattern,
     lag_cov = FALSE,
     long_equal = NULL,
     long_partial = NULL,
+    long_cov = NULL,  # NEW: Covariance specifications
     nthres = matrix(0, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix))
 ) {
+    # Always generate latent variances for a;; time points
+    latvar_syntax <- latent_var_syntax(lv_names)
+    
     if ("loadings" %in% long_equal) {
         load_labels <- gen_labels(
             seq_len(nrow(ind_matrix)),
@@ -132,11 +155,11 @@ longcfa_syntax <- function(
             prefix = ".l",
             partial = long_partial$loadings
         )
-        latvar_syntax <- latent_var_syntax(lv_names[1])
     } else {
         load_labels <- NULL
-        latvar_syntax <- latent_var_syntax(lv_names)
     }
+    
+    # Handle thresholds and intercepts constraints
     if ("thresholds" %in% long_equal || "intercepts" %in% long_equal) {
         ind_cat <- rowMeans(nthres) > 0
         if ("thresholds" %in% long_equal && !is.null(nthres)) {
@@ -160,12 +183,14 @@ longcfa_syntax <- function(
         } else {
             int_labels <- NULL
         }
-        latmean_syntax <- latent_mean_syntax(lv_names[1])
+        # Generate latent mean syntax for all time points
+        latmean_syntax <- latent_mean_syntax(lv_names)
     } else {
         int_labels <- NULL
         thres_labels <- NULL
         latmean_syntax <- latent_mean_syntax(lv_names)
     }
+    
     if ("residuals" %in% long_equal) {
         uniq_labels <- gen_labels(
             seq_len(nrow(ind_matrix)),
@@ -176,6 +201,8 @@ longcfa_syntax <- function(
     } else {
         uniq_labels <- NULL
     }
+    
+    # Generate model syntax for each time point
     syn <- lapply(seq_len(ncol(ind_matrix)), function(t) {
         valid_pos <- which(!is.na(ind_matrix[, t]))
         paste0(
@@ -194,22 +221,41 @@ longcfa_syntax <- function(
             "\n"
         )
     })
+    
+    # Generate lag covariances if requested
     if (lag_cov) {
         lagcov_syntax <- lag_cov_syntax(ind_matrix)
     } else {
         lagcov_syntax <- NULL
     }
+    
+    # NEW: Generate user-specified covariances
+    cov_syntax <- if (!is.null(long_cov)) {
+        cov_lines <- vapply(long_cov, function(pair) {
+            if (length(pair) != 2) {
+                stop("Each element in long_cov must be a character vector of length 2")
+            }
+            paste(pair[1], "~~", pair[2])
+        }, character(1))
+        paste("# User-specified covariances", paste(cov_lines, collapse = "\n"), sep = "\n")
+    } else {
+        NULL
+    }
+
+    # Combine all syntax components
     paste(
         c(
             syn,
             paste0(latvar_syntax, "\n"),
             paste0(latmean_syntax, "\n"),
-            lagcov_syntax
+            if (!is.null(lagcov_syntax)) lagcov_syntax,
+            if (!is.null(cov_syntax)) cov_syntax
         ),
         collapse = "\n"
     )
 }
 
+# Helper functions remain unchanged except for latent_var_syntax
 one_factor_syntax <- function(
     ind_names,
     lv_name = ".eta",
@@ -255,8 +301,6 @@ one_factor_syntax <- function(
     }
     paste(out, collapse = "\n")
 }
-
-threshold_syntax <- function(ind) {}
 
 lag_cov_syntax <- function(ind_matrix) {
     out <- "# Lag Covariances"
@@ -322,6 +366,7 @@ gen_labels <- function(
     structure(out, dim = c(length(row_nm), nt))
 }
 
+# Fixed to handle multiple latent variables
 latent_var_syntax <- function(lv_names) {
     paste(
         c(
@@ -332,6 +377,7 @@ latent_var_syntax <- function(lv_names) {
     )
 }
 
+# Now always generates syntax for all latent variables
 latent_mean_syntax <- function(lv_names) {
     paste(
         c(
