@@ -125,57 +125,78 @@ longcfa_syntax <- function(
     long_partial = NULL,
     nthres = matrix(0, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix))
 ) {
-    if ("loadings" %in% long_equal) {
-        load_labels <- gen_labels(
+    if (
+        !is.null(long_partial) &&
+            (!is.list(long_partial) ||
+                !all(
+                    names(long_partial) %in%
+                        c("loadings", "intercepts", "thresholds", "residuals")
+                ))
+    ) {
+        stop(
+            "`long_partial` must be a named list with names ",
+            "'loadings', 'intercepts', 'thresholds', and/or 'residuals'."
+        )
+    }
+    # if ("loadings" %in% long_equal) {
+    #     load_labels <- gen_labels(
+    #         seq_len(nrow(ind_matrix)),
+    #         ncol(ind_matrix),
+    #         prefix = ".l",
+    #         partial = long_partial$loadings
+    #     )
+    #     latvar_syntax <- latent_var_syntax(lv_names[1])
+    # } else {
+    #     load_labels <- NULL
+    #     latvar_syntax <- latent_var_syntax(lv_names)
+    # }
+    load_labels <- gen_labels(
+        seq_len(nrow(ind_matrix)),
+        ncol(ind_matrix),
+        prefix = ".l",
+        equal = "loadings" %in% long_equal,
+        partial = long_partial$loadings
+    )
+    latvar_syntax <- latent_var_syntax(
+        lv_names,
+        fix = if ("loadings" %in% long_equal) "first" else "all"
+    )
+    scalar_inv <- "thresholds" %in% long_equal | "intercepts" %in% long_equal
+    ind_cat <- rowMeans(nthres) > 0
+    if (!all(ind_cat)) {
+        int_labels <- gen_labels(
             seq_len(nrow(ind_matrix)),
             ncol(ind_matrix),
-            prefix = ".l",
-            partial = long_partial$loadings
+            prefix = ".i",
+            equal = "intercepts" %in% long_equal,
+            partial = long_partial$intercepts
         )
-        latvar_syntax <- latent_var_syntax(lv_names[1])
-    } else {
-        load_labels <- NULL
-        latvar_syntax <- latent_var_syntax(lv_names)
-    }
-    if ("thresholds" %in% long_equal || "intercepts" %in% long_equal) {
-        ind_cat <- rowMeans(nthres) > 0
-        if ("thresholds" %in% long_equal && !is.null(nthres)) {
-            thres_labels <- gen_labels(
-                seq_len(nrow(ind_matrix)),
-                ncol(ind_matrix),
-                cell_len = nthres,
-                prefix = ".t",
-                partial = long_partial$thresholds
-            )
-        } else {
-            thres_labels <- NULL
-        }
-        if ("intercepts" %in% long_equal) {
-            int_labels <- gen_labels(
-                seq_len(nrow(ind_matrix)),
-                ncol(ind_matrix),
-                prefix = ".i",
-                partial = long_partial$intercepts
-            )
-        } else {
-            int_labels <- NULL
-        }
-        latmean_syntax <- latent_mean_syntax(lv_names[1])
     } else {
         int_labels <- NULL
-        thres_labels <- NULL
-        latmean_syntax <- latent_mean_syntax(lv_names)
     }
-    if ("residuals" %in% long_equal) {
-        uniq_labels <- gen_labels(
+    if (any(ind_cat)) {
+        thres_labels <- gen_labels(
             seq_len(nrow(ind_matrix)),
             ncol(ind_matrix),
-            prefix = ".u",
-            partial = long_partial$residuals
+            cell_len = nthres,
+            prefix = ".t",
+            equal = "thresholds" %in% long_equal,
+            partial = long_partial$thresholds
         )
     } else {
-        uniq_labels <- NULL
+        thres_labels <- NULL
     }
+    latmean_syntax <- latent_mean_syntax(
+        lv_names,
+        fix = if (scalar_inv) "first" else "all"
+    )
+    uniq_labels <- gen_labels(
+        seq_len(nrow(ind_matrix)),
+        ncol(ind_matrix),
+        prefix = ".u",
+        equal = "residuals" %in% long_equal,
+        partial = long_partial$residuals
+    )
     syn <- lapply(seq_len(ncol(ind_matrix)), function(t) {
         valid_pos <- which(!is.na(ind_matrix[, t]))
         paste0(
@@ -322,21 +343,31 @@ gen_labels <- function(
     structure(out, dim = c(length(row_nm), nt))
 }
 
-latent_var_syntax <- function(lv_names) {
+latent_var_syntax <- function(lv_names, fix = c("first", "all")) {
+    fix <- match.arg(fix)
+    lv_labs <- rep_len("1", length(lv_names))
+    if (fix == "first") {
+        lv_labs[-1] <- "NA"
+    }
     paste(
         c(
             "# Latent variances",
-            paste(lv_names, "~~ 1 *", lv_names)
+            paste(lv_names, "~~", lv_labs, "*", lv_names)
         ),
         collapse = "\n"
     )
 }
 
-latent_mean_syntax <- function(lv_names) {
+latent_mean_syntax <- function(lv_names, fix = c("first", "all")) {
+    fix <- match.arg(fix)
+    lv_labs <- rep_len("0", length(lv_names))
+    if (fix == "first") {
+        lv_labs[-1] <- "NA"
+    }
     paste(
         c(
             "# Latent means",
-            paste(lv_names, "~ 0 * 1")
+            paste(lv_names, "~", lv_labs, "* 1")
         ),
         collapse = "\n"
     )
