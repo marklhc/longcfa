@@ -328,7 +328,8 @@ gen_labels <- function(
     cell_len = NULL,
     prefix = NULL,
     equal = TRUE,
-    partial = NULL
+    partial = NULL,
+    use_na_for_partial = FALSE
 ) {
     out <- matrix(row_nm, nrow = length(row_nm), ncol = nt)
     if (!is.null(cell_len)) {
@@ -340,29 +341,38 @@ gen_labels <- function(
         )
         out <- structure(out, dim = c(length(row_nm), nt))
     }
+    if (!is.null(prefix)) {
+        out[] <- lapply(seq_along(out), \(i) paste0(prefix, out[i][[1]]))
+        out <- structure(out, dim = c(length(row_nm), nt))
+    }
     if (!equal) {
-        out[] <- mapply(
-            \(x, y) paste(x, y, sep = "_"),
-            out,
-            rep(seq_len(nt), each = length(row_nm))
-        )
+        if (use_na_for_partial) {
+            out[] <- "NA"
+        } else {
+            out[] <- mapply(
+                \(x, y) paste(x, y, sep = "_"),
+                out,
+                rep(seq_len(nt), each = length(row_nm))
+            )
+        }
     } else if (!is.null(partial)) {
         partial <- as.matrix(partial)
         partial[, 1] <- match(partial[, 1], table = row_nm)
         for (r in seq_len(nrow(partial))) {
-            new <- paste(
-                out[partial[r, 1], partial[r, 2]][[1]],
-                partial[r, 2],
-                sep = "_"
-            )
+            if (use_na_for_partial) {
+                new <- rep("NA", length(out[partial[r, 1], partial[r, 2]])[[1]])
+            } else {
+                new <- paste(
+                    out[partial[r, 1], partial[r, 2]][[1]],
+                    partial[r, 2],
+                    sep = "_"
+                )
+            }
             if (is.list(out[partial[r, 1], partial[r, 2]])) {
                 new <- list(new)
             }
             out[partial[r, 1], partial[r, 2]] <- new
         }
-    }
-    if (!is.null(prefix)) {
-        out[] <- lapply(seq_along(out), \(i) paste0(prefix, out[i][[1]]))
     }
     structure(out, dim = c(length(row_nm), nt))
 }
