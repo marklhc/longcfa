@@ -1,0 +1,267 @@
+---
+title: "Longitudinal Invariance"
+author: "Hok Chio (Mark) Lai"
+bibliography: references.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(longcfa)
+library(lavaan)
+```
+
+## Continuous Indicators
+
+### General considerations
+
+Latent variable scaling:
+
+- One constraint per latent construct is needed to identify the construct unit (i.e., latent variance). By default, we fix latent variances to 1 for all time points when `"loadings"` is not in `long_partial`, and fix latent variance to 1 for the first time point when `"loadings"` is in `long_partial`.
+- One constraint per latent construct is needed to identify the construct zero point (i.e., latent mean). By default, we fix latent means to 0 for all time points when `"intercepts"` is not in `long_partial`, and fix latent mean to 0 for the first time point when `"intercepts"` is in `long_partial`.
+
+Hierarchical principle:
+
+- When the loading of an indicator for a particular time point is free (i.e., latent variable by time interaction is present), the corresponding intercept (i.e., the main/marginal effect) should be free as well.
+- The unique variance (aka `"residuals"`) can be held equal across time points even when the loadings or the intercepts are not constrained equal.
+
+### Summary table
+
+Stages of invariance for continuous indicators:
+
+| Model | Equal parameters | Latent Variance | Latent Mean|
+|:---|:---|:---|:---|
+| Configural | None | 1 for all time points | 0 for all time points |
+| Metric | Loadings | 1 for first time point | 0 for all time points |
+| Scalar | Loadings, Intercepts | 1 for first time point | 0 for first time point |
+| Strict | Loadings, Intercepts, Unique Variances and Covariances | 1 for first time point | 0 for first time point |
+
+### Requirement for estimating latent variances and means
+
+Technically speaking, one can freely estimate the latent variances for each time point (except for the first, which is fixed to 1) when metric invariance holds or is assumed for at least one indicator. In practice, when less than half of the indicators are metric invariant, it is quite difficult to identify one indicator that truly satisfies metric invariant, so one should be cautious with such models. Similarly, one can freely estimate the latent means for each time point (except for the first, which is fixed to 0) when scalar invariance holds or is assumed for at least one indicator. Again, it is quite difficult to identify one indicator that truly satisfies scalar invariant when less than half of the indicators are scalar invariant.
+
+### Example
+
+```{r}
+# Load the PoliticalDemocracy data
+data("PoliticalDemocracy", package = "lavaan")
+# Configural invariance
+pd_ind <- matrix(
+    c("y1", "y2", "y3", "y4", "y5", "y6", "y7", "y8"),
+    nrow = 4
+)
+config <- longcfa(
+    pd_ind,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    lag_cov = TRUE
+)
+metric <- longcfa(
+    pd_ind,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    lag_cov = TRUE,
+    long_equal = "loadings"
+)
+scalar <- longcfa(
+    pd_ind,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    lag_cov = TRUE,
+    long_equal = c("loadings", "intercepts")
+)
+strict <- longcfa(
+    pd_ind,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    lag_cov = TRUE,
+    long_equal = c("loadings", "intercepts", "residuals")
+)
+anova(config, metric, scalar, strict)
+```
+
+There isn't strong evidence for violations of invariance. But just for illustration, let's fit a partial scalar invariance model
+
+```{r}
+# Check modification indices
+modindices(scalar, sort = TRUE, free.remove = FALSE, min = 3.84)
+# Free the intercept of y2 at time 1
+pscalar <- longcfa(
+    pd_ind,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    lag_cov = TRUE,
+    long_equal = c("loadings", "intercepts"),
+    long_partial = list(
+        intercepts = matrix(c(2, 1), nrow = 1)
+    )
+)
+anova(scalar, pscalar)
+summary(pscalar)
+# Estimates of latent means and variances
+parameterEstimates(scalar) |>
+    subset(lhs %in% c("dem60", "dem65") & op %in% c("~1", "~~"))
+parameterEstimates(pscalar) |>
+    subset(lhs %in% c("dem60", "dem65") & op %in% c("~1", "~~"))
+```
+
+Note that even when there was not strong evidence for violations of invariance, the latent mean estimates are quite different across the scalar and partial scalar invariance models, which is partly due to the small sample size.
+
+## Categorical Indicators
+
+The `longcfa` package supports the latent response variate model for categorical indicators, which assumes an underlying normal variate for each indicator. The factor model is then imposed on the normal latent variates.
+
+See [@tse2024](https://doi.org/10.3758/s13428-023-02247-6) for more detailed discussion.
+
+### General considerations
+
+#### Parameterization:
+
+- Only `theta` parameterization is supported, which estimates the unique variance of the normal latent variates. The `delta` parameterization is not recommended nor supported, as equality of the scale parameters (i.e., total variances of the normal latent variates) across time points does not imply factorial invariance.
+
+#### Latent variable scaling:
+
+In addition to the identification conditions for the latent factors, each item also has an underlying latent variate, which requires identification of its mean and variance. This makes things tricky when trying to apply the invariance steps for continuous indicators to categorical indicators, as discussed in @wu2016 and @tse2024.
+
+A rather **general solution** is to follow the norm in item response theory (IRT), which generally fix the unique variance of the latent variates to 1 (for normal ogive models, meaning that the latent variate has a normal distribution), and the intercept to 0. This is achieved with the `fix_theta = TRUE` argument in `longcfa()`, with is the default for categorical indicators. With this, the unique variance is no longer a free parameter, and so one only considers loadings and thresholds invariance. In IRT terminology, loadings invariance implies no non-uniform differential item functioning (DIF), and loadings and thresholds invariance implies no uniform and non-uniform DIF, aka strict invariance.
+
+More technical details:
+
+For an indicator $Y$ with $C$ categories and $C - 1$ thresholds, the latent response variate is $Y^* = \nu + \lambda \eta + \epsilon$, where $\nu$ is the intercept, $\lambda$ is the loading, $\eta$ is the latent factor, and $\epsilon$ is the unique factor with mean 0 and variance $\theta$, and assumed normally distributed. The thresholds are denoted as $\tau^{c}$ for $c = 1, \ldots, C - 1$.
+
+The probability of observing $Y$ to be $c$ or lower, given the latent standing $\eta_1$, is:
+
+$$
+\begin{aligned}
+  P(Y \leq c | \eta_1) & = P(Y^* \leq \tau^{c}) \\
+  & = P(\nu + \lambda \eta_1 + \epsilon \leq \tau^{c}) \\
+  & = P(\epsilon \leq \tau^{c} - \nu - \lambda \eta_1) \\
+  & = P\left(\frac{\epsilon}{\sqrt{\theta}} \leq \frac{\tau^{c} - \nu - \lambda \eta_1}{\sqrt{\theta}}\right) \\
+  & = \Phi\left(\frac{\tau^{c} - \nu - \lambda \eta_1}{\sqrt{\theta}}\right),
+\end{aligned}
+$$
+
+where $\Phi(\cdot)$ denotes the cumulative standard normal density, as $\epsilon / \sqrt{\theta}$ $\sim$ $N(0, 1)$. We can further show the quantity inside $\Phi(\cdot)$ is a linear function of $\eta$:
+
+$$
+P(Y \leq c | \eta_1) = \Phi\left(\underbrace{\frac{\tau^{c} - \nu}{\sqrt{\theta}}}_\text{intercept} - \underbrace{\frac{\lambda}{\sqrt{\theta}}}_\text{slope} \eta_1\right).
+$$
+
+
+The above shows that the unique variance $\theta$ affects both the intercept and the slope of inside the cumulative probability function. This implies that, **even when the loadings, thresholds, and intercepts are equal across time points**, no level of meaningful invariance is achieved when the unique variance is not equal.
+
+The following graph shows the probability of observing $Y$ to be 0 in a binary item as a function of $\eta$, with equal $\lambda$ = 1, $\nu$ = 0$, $\tau$ = 0.5 for three time points, but different unique variances $\theta$ = 1, 2, and 3.
+
+```{r}
+# Define function for probability of observing Y = 0
+prob_y0 <- function(eta, lambda = 1, nu = 0, tau = 0.5, theta) {
+    pnorm((tau - nu - lambda * eta) / sqrt(theta))
+}
+curve(
+    prob_y0(x, theta = 1),
+    from = -3, to = 3, col = "red", lwd = 2,
+    xlab = "Latent standing (eta)", ylab = "P(Y <= 0)"
+)
+curve(
+    prob_y0(x, theta = 2),
+    from = -3, to = 3, col = "blue", lwd = 2, add = TRUE
+)
+curve(
+    prob_y0(x, theta = 3),
+    from = -3, to = 3, col = "green", lwd = 2, add = TRUE
+)
+legend(
+    "topright",
+    legend = c("Time 1 (theta = 1)", "Time 2 (theta = 2)", "Time 3 (theta = 3)"),
+    col = c("red", "blue", "green"), lwd = 2
+)
+```
+
+Therefore, I recommend fixing the unique variance to 1 for all categorical indicators, which is the default in `longcfa()`.
+
+### Summary table
+
+| Model | Equal parameters | Latent Variance | Latent Mean|
+|:---|:---|:---|:---|
+| Configural | None | 1 for all time points | 0 for all time points |
+| Metric | Loadings | 1 for first time point | 0 for all time points |
+| Scalar | Loadings, Intercepts | 1 for first time point | 0 for first time point |
+| Strict | Loadings, Intercepts, Unique Variances and Covariances | 1 for first time point | 0 for first time point |
+
+### Binary Item Example
+
+```{r}
+# Dichotomized the PoliticalDemocracy data
+pd_bin <- PoliticalDemocracy
+# Dichotomize first two indicators
+pd_bin[, 1:8] <- lapply(PoliticalDemocracy[, 1:8], function(x) {
+    cut(x, breaks = c(-Inf, 5.0, Inf), labels = FALSE)
+})
+```
+
+```{r}
+# Configural (with fixed theta)
+config_bin <- longcfa(
+    pd_ind,
+    lv_names = c("dem60", "dem65"),
+    data = pd_bin,
+    lag_cov = TRUE,
+    ordered = TRUE
+)
+# Loading invariance
+metric_bin <- longcfa(
+    pd_ind,
+    lv_names = c("dem60", "dem65"),
+    data = pd_bin,
+    lag_cov = TRUE,
+    ordered = TRUE,
+    long_equal = "loadings"
+)
+# Threshold + loading invariance = strict invariance
+strict_bin <- longcfa(
+    pd_ind,
+    lv_names = c("dem60", "dem65"),
+    data = pd_bin,
+    lag_cov = TRUE,
+    ordered = TRUE,
+    long_equal = c("loadings", "thresholds")
+)
+anova(config_bin, metric_bin, strict_bin)
+```
+
+There isn't strong evidence for violations of invariance. But just for illustration, let's fit a partial metric invariance model
+
+```{r}
+# Check modification indices
+modindices(metric_bin, sort = TRUE, free.remove = FALSE, min = 3.84)
+# Free the loading of y3 at time 2
+pmetric_bin <- longcfa(
+    pd_ind,
+    lv_names = c("dem60", "dem65"),
+    data = pd_bin,
+    lag_cov = TRUE,
+    ordered = TRUE,
+    long_equal = "loadings",
+    long_partial = list(
+        loadings = matrix(c(3, 2), nrow = 1)
+    )
+)
+anova(metric_bin, pmetric_bin)
+summary(pmetric_bin)
+# Estimates of latent variances
+parameterEstimates(metric_bin) |>
+    subset(lhs %in% c("dem60", "dem65") & op %in% c("~~"))
+parameterEstimates(pmetric_bin) |>
+    subset(lhs %in% c("dem60", "dem65") & op %in% c("~~"))
+```
+
+Note that even when there was not strong evidence for violations of metric invariance, the latent variance estimates are quite different across the metric and partial metric invariance models, which is partly due to the small sample size.
+
+### A Note on Intercept Invariance
+
+In theory, instead of fixing the intercepts to 0, one can also fix the thresholds to be equal, but allow the intercept to shift across time points. This would imply that all thresholds shift by the same amount for a particular time point. However, this is relatively uncommon in my experience, so `longcfa` currently does not support this option.
