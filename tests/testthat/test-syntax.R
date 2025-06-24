@@ -206,3 +206,31 @@ test_that("strict invariance", {
 #         lag_cov = TRUE
 #     )
 # })
+
+test_that("convert syntax to partial string", {
+    expect_equal(
+        partial_string_to_list(
+            c("eta1 =~ cog1", "verb7 ~~ verb7", "write4~1"),
+            ind_mat1
+        ),
+        list(
+            loadings = matrix(c(1, 1), nrow = 1),
+            residuals = matrix(c(2, 3), nrow = 1),
+            intercepts = matrix(c(3, 2), nrow = 1)
+        )
+    )
+    expect_error(
+        partial_string_to_list(
+            c("eta1 =~ cog1", "verb8 ~~ verb8"),
+            ind_mat1
+        ),
+        "not part of `ind_matrix`."
+    )
+    expect_error(
+        partial_string_to_list(
+            c("eta1 ~ cog1", "verb8 ~~ verb8"),
+            ind_mat1
+        ),
+        "Unrecognized operator"
+    )
+})

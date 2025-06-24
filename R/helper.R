@@ -31,3 +31,34 @@ get_nlev_ordered <- function(
         return(length(sort(unique(x))))
     }
 }
+
+partial_string_to_list <- function(x, ind_matrix) {
+    out <- list()
+    for (xi in x) {
+        if (grepl("=~", xi)) {
+            type_xi <- "loadings"
+            vi <- strsplit(xi, "=~")[[1]][2]
+        } else if (grepl("~1", xi)) {
+            type_xi <- "intercepts"
+            vi <- strsplit(xi, "~1")[[1]][1]
+        } else if (grepl("~~", xi)) {
+            type_xi <- "residuals"
+            vi <- strsplit(xi, "~~")[[1]][1]
+        } else {
+            stop("Unrecognized operator in ", xi)
+        }
+        vi <- trimws(vi)
+        if (!vi %in% ind_matrix) {
+            stop(vi, " is not part of `ind_matrix`.")
+        }
+        out[[type_xi]] <- rbind(
+            out[[type_xi]],
+            which(
+                ind_matrix == vi,
+                arr.ind = TRUE,
+                useNames = FALSE
+            )
+        )
+    }
+    out
+}
