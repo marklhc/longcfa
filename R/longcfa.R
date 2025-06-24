@@ -28,9 +28,12 @@
 #'   matrix where each row specifies the indicator (column 1) and the
 #'   time point (column 2) for the parameter to be free. See example
 #'   below.
-#' @param nthres An integer vector specifying the number of thresholds
-#'   for each item.
-#' @param do.fit Same as in `lavaan::lavOptions()`.
+#' @param nthres A matrix specifying the number of thresholds for each
+#'   item, in the same dimension as `ind_matrix`.
+#' @param fix_theta Logical; whether to fix the unique variances to 1.
+#'   This is default for ordered categorical data.
+#' @param data,do.fit,ordered,allow.empty.cell Same as in
+#'   `lavaan::lavOptions()`.
 #' @param ... Other arguments passed to `lavaan::cfa()`, such as `data`.
 #'
 #' @return A fit object as returned by `lavaan::cfa()`.
@@ -63,10 +66,15 @@
 longcfa <- function(
     ind_matrix,
     lv_names,
+    data = NULL,
     model = NULL,
+    ordered = NULL,
+    allow.empty.cell = FALSE,
     lag_cov = FALSE,
     long_equal = NULL,
     long_partial = NULL,
+    nthres = NULL,
+    fix_theta = NULL,
     do.fit = TRUE,
     ...
 ) {
@@ -77,34 +85,43 @@ longcfa <- function(
         long_equal = long_equal,
         long_partial = long_partial
     )
-    if ("thresholds" %in% long_equal) {
-        cfa0 <- longcfa(
-            ind_matrix,
-            lv_names = lv_names,
-            lag_cov = lag_cov,
-            long_equal = NULL,
-            long_partial = NULL,
-            do.fit = FALSE,
-            ...
-        )
-        nthres <- cfa0@Data@ov$nlev[
-            match(ind_matrix, table = cfa0@Data@ov$name)
-        ] -
-            1
-        nthres <- structure(nthres, dim = dim(ind_matrix))
-        if (any(apply(nthres, MARGIN = 1, FUN = var) > 0)) {
+    is_ordered <- !is.null(ordered) && !isFALSE(ordered)
+    if (is_ordered) {
+        if (!is.null(data) && is.null(nthres)) {
+            nlev <- get_nlev_data(
+                data[, unique(sort(ind_matrix)), drop = FALSE],
+                ordered = ordered,
+                allow.empty.cell = allow.empty.cell
+            )
+            nthres <- nlev[
+                match(ind_matrix, table = names(nlev))
+            ] -
+                1
+            nthres <- structure(pmax(nthres, 0), dim = dim(ind_matrix))
+        }
+        if (
+            "thresholds" %in%
+                long_equal &&
+                any(apply(nthres, MARGIN = 1, FUN = var) > 0)
+        ) {
             stop(
                 "Number of thresholds of the same item must be",
                 "equal over time."
             )
+        }
+        if (is.null(fix_theta)) {
+            syn_args$fix_theta <- TRUE
         }
         syn_args <- c(syn_args, list(nthres = nthres))
     }
     syn <- do.call(longcfa_syntax, args = syn_args)
     lavaan::cfa(
         c(syn, model),
+        data = data,
         do.fit = do.fit,
+        ordered = ordered,
         ...,
+        parameterization = if (is_ordered) "theta" else "delta",
         auto.fix.first = FALSE,
         int.lv.free = TRUE,
     )
@@ -123,7 +140,8 @@ longcfa_syntax <- function(
     lag_cov = FALSE,
     long_equal = NULL,
     long_partial = NULL,
-    nthres = matrix(0, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix))
+    nthres = matrix(0, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix)),
+    fix_theta = FALSE
 ) {
     if (
         !is.null(long_partial) &&
@@ -197,6 +215,9 @@ longcfa_syntax <- function(
         equal = "residuals" %in% long_equal,
         partial = long_partial$residuals
     )
+    if (fix_theta) {
+        uniq_labels[ind_cat, ] <- "1"
+    }
     syn <- lapply(seq_len(ncol(ind_matrix)), function(t) {
         valid_pos <- which(!is.na(ind_matrix[, t]))
         paste0(
@@ -247,9 +268,11 @@ one_factor_syntax <- function(
     }
     out <- paste0(lv_name, " =~ ", paste0(load_ind, collapse = " + "))
     if (!is.null(int_lab)) {
+        int_lab <- int_lab[!ind_cat, , drop = FALSE]
         out <- c(out, paste(ind_names[!ind_cat], "~", int_lab, "* 1"))
     }
     if (!is.null(thres_lab)) {
+        thres_lab <- thres_lab[ind_cat, , drop = FALSE]
         out <- c(
             out,
             vapply(
@@ -325,6 +348,7 @@ gen_labels <- function(
         )
     } else if (!is.null(partial)) {
         partial <- as.matrix(partial)
+        partial[, 1] <- match(partial[, 1], table = row_nm)
         for (r in seq_len(nrow(partial))) {
             new <- paste(
                 out[partial[r, 1], partial[r, 2]][[1]],

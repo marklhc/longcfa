@@ -8,10 +8,15 @@
 longcfa(
   ind_matrix,
   lv_names,
+  data = NULL,
   model = NULL,
+  ordered = NULL,
+  allow.empty.cell = FALSE,
   lag_cov = FALSE,
   long_equal = NULL,
   long_partial = NULL,
+  nthres = NULL,
+  fix_theta = NULL,
   do.fit = TRUE,
   ...
 )
@@ -22,7 +27,8 @@ longcfa_syntax(
   lag_cov = FALSE,
   long_equal = NULL,
   long_partial = NULL,
-  nthres = matrix(0, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix))
+  nthres = matrix(0, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix)),
+  fix_theta = FALSE
 )
 }
 \arguments{
@@ -31,6 +37,9 @@ names of the indicator variables across time points. Each column
 corresponds to a time point.}
 
 \item{lv_names}{A vector of names of $T$ latent variables.}
+
+\item{data, do.fit, ordered, allow.empty.cell}{Same as in
+\code{lavaan::lavOptions()}.}
 
 \item{model}{A character string showing additional syntax to be
 added to the model. Defaults to \code{NULL}.}
@@ -52,12 +61,13 @@ matrix where each row specifies the indicator (column 1) and the
 time point (column 2) for the parameter to be free. See example
 below.}
 
-\item{do.fit}{Same as in \code{lavaan::lavOptions()}.}
+\item{nthres}{A matrix specifying the number of thresholds for each
+item, in the same dimension as \code{ind_matrix}.}
+
+\item{fix_theta}{Logical; whether to fix the unique variances to 1.
+This is default for ordered categorical data.}
 
 \item{...}{Other arguments passed to \code{lavaan::cfa()}, such as \code{data}.}
-
-\item{nthres}{An integer vector specifying the number of thresholds
-for each item.}
 }
 \value{
 A fit object as returned by \code{lavaan::cfa()}.

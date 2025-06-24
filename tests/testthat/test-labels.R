@@ -14,6 +14,16 @@ test_that("Unequal loadings", {
     expect_equal(anyDuplicated(c(lmat)), 0)
 })
 
+test_that("Partial with item subset", {
+    lmat <- gen_labels(
+        c(1, 3, 7),
+        3,
+        prefix = ".l",
+        partial = matrix(c(7, 1), nrow = 1)
+    )
+    expect_equal(lmat[3, 1], list(".l7_1"))
+})
+
 test_that("Allow equality constraints across items", {
     lmat <- gen_labels(c(1, 1, 3, 4), 3, prefix = ".l")
     expect_equal(lmat[1, ], lmat[2, ])
