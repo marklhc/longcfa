@@ -24,6 +24,22 @@ test_that("Partial with item subset", {
     expect_equal(lmat[3, 1], list(".l7_1"))
 })
 
+test_that("array of loading labels", {
+    lmats <- gen_labels(
+        1:7,
+        4,
+        prefix = ".l",
+        cell_len = matrix(
+                        c(3, 2, 2, 2), nrow = 7, ncol = 4,
+                    byrow = TRUE),
+        partial = matrix(c(3, 2), nrow = 1)
+    )
+    expect_equal(
+        matrix(unlist(lmats[, 2]), nrow = nrow(lmats), byrow = TRUE)[3, 2],
+        ".l32_2"
+    )
+})
+
 test_that("Allow equality constraints across items", {
     lmat <- gen_labels(c(1, 1, 3, 4), 3, prefix = ".l")
     expect_equal(lmat[1, ], lmat[2, ])

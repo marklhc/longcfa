@@ -234,3 +234,40 @@ test_that("convert syntax to partial string", {
         "Unrecognized operator"
     )
 })
+
+test_that("lavaan syntax for subset of loadings", {
+    lmat <- gen_labels(1:7, 3, prefix = ".l")
+    ynames <- paste0("y", 1:7)
+    pat <- c(2, 3, 5, 7)
+    expect_equal(
+        ld_syntax(ynames[pat], ".eta22", lmat[pat, 2, drop = FALSE]),
+        ".eta22 =~ .l2 * y2 + .l3 * y3 + .l5 * y5 + .l7 * y7"
+    )
+})
+
+test_that("lavaan syntax for multiple factors", {
+    syn1 <- longcfa_syntax(
+        ind_mat = ind_mat2,
+        lv_names = list(
+            c("F11", "F21"),
+            c("F12", "F22"),
+            c("F13", "F23")
+        ),
+        pattern = list(
+            list(
+                c(1:3),
+                c(1, 4:5)
+            )
+        ),
+        lag_cov = TRUE
+    )
+    expect_match(
+        syn1,
+        "F22 =~ .l12_2 * cog4 + .l42_2 * math4 + .l52_2 * sci4",
+        fixed = TRUE
+    )
+    fit1 <- lavaan::cfa(syn1, do.fit = FALSE)
+    free1 <- lavaan::lavInspect(fit1)
+    expect_equal(sum(free1$psi != 0), 30)
+    expect_true(all(free1$alpha == 0))
+})

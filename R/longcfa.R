@@ -12,6 +12,15 @@
 #'   names of the indicator variables across time points. Each column
 #'   corresponds to a time point.
 #' @param lv_names A vector of names of $T$ latent variables.
+#' @param pattern A list of $T$ elements specifying the pattern of which
+#'   indicators load on which latent variable. Each element can be a
+#'   \eqn{p \times q} matrix, where \eqn{q} is the number of latent
+#'   variables and can be different across time points. Alternatively,
+#'   each element can be a list of $q$ integer vectors, specifying
+#'   which indicators load on which latent variable. If a list of length
+#'   1 is provided, the same pattern is used across all time points.
+#'   The default is `NULL`, which assumes only one latent variable per
+#'   time point, and all indicators load on it.
 #' @param model A character string showing additional syntax to be
 #'   added to the model. Defaults to `NULL`.
 #' @param lag_cov Logical; whether the same indicator is allowed to
@@ -66,6 +75,7 @@
 longcfa <- function(
     ind_matrix,
     lv_names,
+    pattern = NULL,
     data = NULL,
     model = NULL,
     ordered = NULL,
@@ -81,6 +91,7 @@ longcfa <- function(
     syn_args <- list(
         ind_matrix,
         lv_names = lv_names,
+        pattern = pattern,
         lag_cov = lag_cov,
         long_equal = long_equal,
         long_partial = long_partial
@@ -136,7 +147,7 @@ longcfa <- function(
 longcfa_syntax <- function(
     ind_matrix,
     lv_names,
-    # pattern,
+    pattern = NULL,
     lag_cov = FALSE,
     long_equal = NULL,
     long_partial = NULL,
@@ -156,21 +167,37 @@ longcfa_syntax <- function(
             "'loadings', 'intercepts', 'thresholds', and/or 'residuals'."
         )
     }
-    # if ("loadings" %in% long_equal) {
-    #     load_labels <- gen_labels(
-    #         seq_len(nrow(ind_matrix)),
-    #         ncol(ind_matrix),
-    #         prefix = ".l",
-    #         partial = long_partial$loadings
-    #     )
-    #     latvar_syntax <- latent_var_syntax(lv_names[1])
-    # } else {
-    #     load_labels <- NULL
-    #     latvar_syntax <- latent_var_syntax(lv_names)
-    # }
+    if (
+        !is.null(pattern) &&
+            (!is.list(pattern) ||
+                (length(pattern) != 1 & length(pattern) != ncol(ind_matrix)))
+    ) {
+        stop(
+            "`pattern` must be `NULL`, a list with length 1 to indicate same factor pattern ",
+            " across time, or a list with length equal to the number of time points for ",
+            "time-specific patterns."
+        )
+    }
+    if (length(pattern) == 1) {
+        pattern <- rep(pattern, ncol(ind_matrix))
+    }
+    nf <- vapply(as.list(lv_names), length, integer(1))
+    if (!is.null(long_equal) && any(nf != nf[1])) {
+        warning(
+            "`long_equal` is likely problematic when the number ",
+            "of latent variables is different across time points."
+        )
+    }
     load_labels <- gen_labels(
         seq_len(nrow(ind_matrix)),
         ncol(ind_matrix),
+        cell_len = if (any(nf > 1)) {
+            matrix(nf, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix),
+                byrow = TRUE
+            )
+        } else {
+            NULL
+        },
         prefix = ".l",
         equal = "loadings" %in% long_equal,
         partial = long_partial$loadings
@@ -224,10 +251,14 @@ longcfa_syntax <- function(
             "# Time ",
             t,
             "\n",
-            one_factor_syntax(
+            factor_syntax(
                 ind_matrix[valid_pos, t, drop = FALSE],
-                lv_name = lv_names[t],
-                load_lab = load_labels[valid_pos, t, drop = FALSE],
+                lv_names = lv_names[[t]],
+                pattern = process_pattern(
+                    pattern[[t]],
+                    ynames = ind_matrix[, t, drop = FALSE]
+                )[valid_pos, , drop = FALSE],
+                load_labs = load_labels[valid_pos, t, drop = FALSE],
                 int_lab = int_labels[valid_pos, t, drop = FALSE],
                 thres_lab = thres_labels[valid_pos, t, drop = FALSE],
                 ind_cat = ind_cat[valid_pos],
@@ -252,6 +283,15 @@ longcfa_syntax <- function(
     )
 }
 
+ld_syntax <- function(ind_names, lv_name, load_lab = NULL) {
+    if (is.null(load_lab)) {
+        load_ind <- ind_names
+    } else {
+        load_ind <- paste(load_lab, ind_names, sep = " * ")
+    }
+    paste0(lv_name, " =~ ", paste0(load_ind, collapse = " + "))
+}
+
 one_factor_syntax <- function(
     ind_names,
     lv_name = ".eta",
@@ -261,12 +301,90 @@ one_factor_syntax <- function(
     ind_cat = rep(FALSE, length(ind_names)),
     uniq_lab = NULL
 ) {
-    if (is.null(load_lab)) {
-        load_ind <- ind_names
-    } else {
-        load_ind <- paste(load_lab, ind_names, sep = " * ")
+    out <- ld_syntax(ind_names, lv_name, load_lab)
+    if (!is.null(int_lab)) {
+        int_lab <- int_lab[!ind_cat, , drop = FALSE]
+        out <- c(out, paste(ind_names[!ind_cat], "~", int_lab, "* 1"))
     }
-    out <- paste0(lv_name, " =~ ", paste0(load_ind, collapse = " + "))
+    if (!is.null(thres_lab)) {
+        thres_lab <- thres_lab[ind_cat, , drop = FALSE]
+        out <- c(
+            out,
+            vapply(
+                seq_along(ind_names[ind_cat]),
+                FUN = function(j) {
+                    paste(
+                        ind_names[ind_cat][j],
+                        "|",
+                        paste0(
+                            thres_lab[[j]],
+                            " * ",
+                            "t",
+                            seq_along(thres_lab[[j]]),
+                            collapse = " + "
+                        )
+                    )
+                },
+                FUN.VALUE = character(1)
+            )
+        )
+    }
+    if (!is.null(uniq_lab)) {
+        out <- c(out, paste(ind_names, "~~", uniq_lab, "*", ind_names))
+    }
+    paste(out, collapse = "\n")
+}
+
+process_pattern <- function(pattern, ynames = NULL) {
+    if (is.matrix(pattern)) {
+        return(pattern)
+    }
+    p <- length(ynames)
+    if (is.null(pattern)) {
+        return(matrix(1, nrow = p))
+    } else if (is.list(pattern)) {
+        out <- matrix(0, nrow = p, ncol = length(pattern))
+        for (l in seq_along(pattern)) {
+            if (is.character(l)) {
+                yl <- match(pattern[[l]], table = ynames)
+                if (any(is.na(yl))) {
+                    stop(
+                        "Some names in `pattern` are not found in `ind_names`."
+                    )
+                }
+            } else if (is.numeric(l)) {
+                yl <- pattern[[l]]
+            }
+            out[yl, l] <- 1
+        }
+        return(out)
+    }
+}
+
+listcol_to_mat <- function(x) {
+    matrix(unlist(x), nrow = nrow(x), byrow = TRUE)
+}
+
+factor_syntax <- function(
+    ind_names,
+    lv_names,
+    pattern = matrix(1, nrow = length(ind_names)),
+    load_labs = NULL,
+    int_lab = NULL,
+    thres_lab = NULL,
+    ind_cat = rep(FALSE, length(ind_names)),
+    uniq_lab = NULL
+) {
+    out <- NULL
+    load_labs <- listcol_to_mat(load_labs)
+    nf <- ncol(pattern)
+    for (f in seq_len(nf)) {
+        ind_f <- which(pattern[, f] == 1)
+        out <- c(
+            out,
+            ld_syntax(ind_names[ind_f], lv_names[f], load_labs[ind_f, f])
+        )
+    }
     if (!is.null(int_lab)) {
         int_lab <- int_lab[!ind_cat, , drop = FALSE]
         out <- c(out, paste(ind_names[!ind_cat], "~", int_lab, "* 1"))
@@ -342,7 +460,9 @@ gen_labels <- function(
         out <- structure(out, dim = c(length(row_nm), nt))
     }
     if (!is.null(prefix)) {
-        out[] <- lapply(seq_along(out), \(i) paste0(prefix, out[i][[1]]))
+        out[] <- lapply(seq_along(out), function(i) {
+            paste0(prefix, out[i][[1]])
+        })
         out <- structure(out, dim = c(length(row_nm), nt))
     }
     if (!equal) {
@@ -352,7 +472,8 @@ gen_labels <- function(
             out[] <- mapply(
                 \(x, y) paste(x, y, sep = "_"),
                 out,
-                rep(seq_len(nt), each = length(row_nm))
+                rep(seq_len(nt), each = length(row_nm)),
+                SIMPLIFY = FALSE
             )
         }
     } else if (!is.null(partial)) {
@@ -386,7 +507,14 @@ latent_var_syntax <- function(lv_names, fix = c("first", "all")) {
     paste(
         c(
             "# Latent variances",
-            paste(lv_names, "~~", lv_labs, "*", lv_names)
+            # paste(lv_names, "~~", lv_labs, "*", lv_names)
+            c(
+                mapply(
+                    function(x, y) paste(x, "~~", y, "*", x),
+                    lv_names,
+                    lv_labs
+                )
+            )
         ),
         collapse = "\n"
     )
@@ -401,7 +529,14 @@ latent_mean_syntax <- function(lv_names, fix = c("first", "all")) {
     paste(
         c(
             "# Latent means",
-            paste(lv_names, "~", lv_labs, "* 1")
+            # paste(lv_names, "~", lv_labs, "* 1")
+            c(
+                mapply(
+                    function(x, y) paste(x, "~", y, "* 1"),
+                    lv_names,
+                    lv_labs
+                )
+            )
         ),
         collapse = "\n"
     )

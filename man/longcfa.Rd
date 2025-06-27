@@ -8,6 +8,7 @@
 longcfa(
   ind_matrix,
   lv_names,
+  pattern = NULL,
   data = NULL,
   model = NULL,
   ordered = NULL,
@@ -24,6 +25,7 @@ longcfa(
 longcfa_syntax(
   ind_matrix,
   lv_names,
+  pattern = NULL,
   lag_cov = FALSE,
   long_equal = NULL,
   long_partial = NULL,
@@ -37,6 +39,16 @@ names of the indicator variables across time points. Each column
 corresponds to a time point.}
 
 \item{lv_names}{A vector of names of $T$ latent variables.}
+
+\item{pattern}{A list of $T$ elements specifying the pattern of which
+indicators load on which latent variable. Each element can be a
+\eqn{p \times q} matrix, where \eqn{q} is the number of latent
+variables and can be different across time points. Alternatively,
+each element can be a list of $q$ integer vectors, specifying
+which indicators load on which latent variable. If a list of length
+1 is provided, the same pattern is used across all time points.
+The default is \code{NULL}, which assumes only one latent variable per
+time point, and all indicators load on it.}
 
 \item{data, do.fit, ordered, allow.empty.cell}{Same as in
 \code{lavaan::lavOptions()}.}
