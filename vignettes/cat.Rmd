@@ -1,0 +1,126 @@
+---
+title: "Categorical Indicators"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Categorical Indicators}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+```
+
+```{r setup}
+library(longcfa)
+library(lavaan)
+```
+
+## All Indicators Categorical
+
+We first discretize the indicators of the `PoliticalDemocracy` dataset from the `lavaan` package. The first two indicators will be dichotomized, and the last two indicators will be trichotomized.
+
+```{r}
+# Discretized the PoliticalDemocracy data
+data("PoliticalDemocracy", package = "lavaan")
+pd_cat <- PoliticalDemocracy
+# Dichotomize first two indicators
+pd_cat[, c(1:2, 5:6)] <- lapply(PoliticalDemocracy[, c(1:2, 5:6)], function(x) {
+    cut(x, breaks = c(-Inf, 5.0, Inf), labels = FALSE)
+})
+# Trichotomize the last two indicators
+pd_cat[, c(3:4, 7:8)] <- lapply(PoliticalDemocracy[, c(3:4, 7:8)], function(x) {
+    cut(x, breaks = c(-Inf, 2.5, 7.5, Inf), labels = FALSE)
+})
+```
+
+### Configural model
+
+Same factor structure across time points, no constraints on measurement parameters.
+
+```{r}
+# Using lavaan
+cfa(
+    "
+dem60 =~ y1 + y2 + y3 + y4
+dem65 =~ y5 + y6 + y7 + y8
+",
+    data = pd_cat,
+    std.lv = TRUE,
+    ordered = TRUE,
+    parameterization = "theta"
+) |>
+    summary()
+# Using longcfa
+ind_mat <- matrix(
+    c("y1", "y2", "y3", "y4",
+      "y5", "y6", "y7", "y8"
+    ),
+    nrow = 4
+)
+longcfa(
+    ind_mat,
+    lv_names = c("dem60", "dem65"),
+    data = pd_cat,
+    ordered = TRUE
+) |> 
+    summary()
+```
+
+The warning message is likely due to the latent correlation being estimated to be larger than 1, which could be due to the arbitrary discretization of the indicators.
+
+### Strict invariance
+
+```{r}
+longcfa(
+    ind_mat,
+    lv_names = c("dem60", "dem65"),
+    data = pd_cat,
+    ordered = TRUE,
+    long_equal = c("loadings", "thresholds")
+) |>
+    summary()
+```
+
+## Mixed Continuous and Categorical
+
+Here, only the first two indicators are categorical.
+
+```{r}
+pd_mixed <- pd_cat
+pd_mixed[, c(1:2, 5:6)] <- PoliticalDemocracy[, c(1:2, 5:6)]
+# Configural, using lavaan
+cfa(
+    "
+dem60 =~ y1 + y2 + y3 + y4
+dem65 =~ y5 + y6 + y7 + y8
+",
+    data = pd_mixed,
+    std.lv = TRUE,
+    ordered = paste0("y", c(3:4, 7:8)),
+    parameterization = "theta"
+) |>
+    summary()
+# configural, using longcfa
+longcfa(
+    ind_mat,
+    lv_names = c("dem60", "dem65"),
+    data = pd_mixed,
+    ordered = c("y3", "y4", "y7", "y8")
+)
+```
+
+```{r}
+# strict invariance, using longcfa
+longcfa(
+    ind_mat,
+    lv_names = c("dem60", "dem65"),
+    data = pd_mixed,
+    ordered = c("y3", "y4", "y7", "y8"),
+    long_equal = c("loadings", "intercepts", "thresholds", "residuals")
+) |>
+    summary()
+```

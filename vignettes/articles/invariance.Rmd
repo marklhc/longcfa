@@ -16,6 +16,8 @@ library(longcfa)
 library(lavaan)
 ```
 
+The discussion of invariance in this note applies to not just longitudinal confirmatory factor analysis (CFA), but also to cross-sectional CFA.
+
 ## Continuous Indicators
 
 ### General considerations
@@ -265,3 +267,5 @@ Note that even when there was not strong evidence for violations of metric invar
 ### A Note on Intercept Invariance
 
 In theory, instead of fixing the intercepts to 0, one can also fix the thresholds to be equal, but allow the intercept to shift across time points. This would imply that all thresholds shift by the same amount for a particular time point. However, this is relatively uncommon in my experience, so `longcfa` currently does not support this option.
+
+## References

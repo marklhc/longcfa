@@ -2,7 +2,7 @@
 title: "Quick Start"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{longcfa}
+  %\VignetteIndexEntry{Quick Start}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -56,10 +56,11 @@ lconfig2_fit
 The `longcfa` approach uses an input matrix to specify the indicators in rows, and the time points in columns. In this case, with four indicators measured at two time points, the input matrix would look like this:
 
 ```{r}
-ind_mat <- matrix(c(
-  "y1", "y2", "y3", "y4",
-  "y5", "y6", "y7", "y8"
-), nrow = 4)
+ind_mat <- matrix(
+    c("y1", "y2", "y3", "y4",
+      "y5", "y6", "y7", "y8"),
+    nrow = 4
+)
 ind_mat
 ```
 
@@ -70,8 +71,60 @@ lconfig2_fit2 <- longcfa(
     ind_mat,
     lv_names = c("dem60", "dem65"),
     data = PoliticalDemocracy,
-    lag_cov = TRUE)
+    lag_cov = TRUE
+)
 summary(lconfig2_fit2)
 ```
 
-The goal is to make it less error-prone when specifying longitudinal CFA models, and save time when the number of indicators and/or time points are large.
+## Invariance Constraints
+
+The goal of `longcfa` is to make it less error-prone when specifying longitudinal CFA models, and save time when the number of indicators and/or time points are large. It is perhaps most useful when needing to impose invariance constraints across time points, which is a prerequisite for interpreting changes in the latent constructs over time. For example, we can see the `lavaan` syntax for a longitudinal partial scalar invariance model using the `longcfa_syntax()` function:
+
+```{r}
+longcfa_syntax(
+    ind_mat,
+    lv_names = c("dem60", "dem65"),
+    lag_cov = TRUE,
+    long_equal = c("loadings", "intercepts"),
+    long_partial = list(
+        # noninvariant loading for y6 at time 2
+        loadings = matrix(c(2, 2), nrow = 1),
+        # noninvariant intercept for y6 at time 2, and
+        # for y3 at time 1
+        intercepts = matrix(c(2, 3, 2, 1), nrow = 2)
+    )
+) |>
+    cat()
+```
+
+See the [Longitudinal Invariance](invariance.html) article for more details on invariance constraints.
+
+### `long_equal` and `long_partial`
+
+The `long_equal` and `long_partial` arguments are the longitudinal analogues of the `group.equal` and `group.partial` arguments in `lavaan`, and they specify which parameters should be equal across time points, and which parameters should be allowed to vary across time points, respectively. The `long_equal` argument can take the following values: `"loadings"`, `"intercepts"`, `"thresholds"`, and `"residuals"`. `longcfa` generates syntax that labels all measurement parameters (loadings, intercepts, thresholds, and residual variances) across time points, and when `long_equal` is specified, it uses the same labels for the specified parameters.
+
+The `long_partial` argument, on the other hand, uses a different input format than `group.equal` in `lavaan::lavaan()`. Specifically, it should be a named list (with names `"loadings"`, `"intercepts"`, `"thresholds"`, and/or `"residuals"`), where each element is a matrix with two columns. The first column specifies the time point (1 for the first time point, 2 for the second time point, etc.), and the second column specifies the indicator number (1 for the first indicator, 2 for the second indicator, etc.). The example above has the input:
+
+```{r}
+list(
+    # noninvariant loading for y6 at time 2
+    loadings = matrix(c(2, 2), nrow = 1),
+    # noninvariant intercept for y6 at time 2, and
+    # for y3 at time 1
+    intercepts = matrix(c(2, 3, 2, 1), nrow = 2)
+)
+```
+
+which specifies one noninvariant loading for the second indicator at the second time point (`y6`), and two noninvariant intercepts: one for the second indicator at the second time point (`y6`), and one for the third indicator at the first time point (`y3`). Those parameters have their time points added to the labels.
+
+## Models Supported by `longcfa()`
+
+The `longcfa()` only supports a subset of longitudinal CFA models, all with the following restrictions:
+
+- No unique covariances within time points (which can be relaxed by adding to the model with the `longcfa(..., model)` argument)
+- Single-group models (no multiple groups; may be supported in the future)
+
+It currently does not support:
+
+- Invariance of only a subset of thresholds for a categorical indicator over time; for example, for an indicator with three thresholds, one cannot specify that only the first two thresholds are invariant across time points.
+- Labels and equality constraints on the cross-time covariances of the unique factors of the same indicators (which can be achieved by manually adding to the `model` argument of `longcfa()`).
