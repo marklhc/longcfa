@@ -7,7 +7,9 @@
 
 <!-- badges: end -->
 
-The goal of longcfa is to …
+The goal of longcfa is to simplify the specification of longitudinal
+confirmatory factor analysis (CFA) using the `lavaan` package using a
+matrix-like approach.
 
 ## Installation
 
@@ -21,7 +23,12 @@ pak::pak("marklhc/longcfa")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example. See `vignette("longcfa")` for a longer example.
+The package also supports
+
+- Invariance constraints and partial invariance, as discussed in [this
+  article](articles/invariance.html).
+- Categorical indicators, as discussed in `vignette("cat")`.
 
 ``` r
 library(longcfa)
