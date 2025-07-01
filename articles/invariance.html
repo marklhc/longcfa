@@ -6,7 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Longitudinal Invariance • longcfa</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -391,75 +397,45 @@ loadings invariance implies no non-uniform differential item functioning
 (DIF), and loadings and thresholds invariance implies no uniform and
 non-uniform DIF, aka strict invariance.</p>
 <p>More technical details:</p>
-<p>For an indicator
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
-with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
-categories and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">C - 1</annotation></semantics></math>
-thresholds, the latent response variate is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>Y</mi><mo>*</mo></msup><mo>=</mo><mi>ν</mi><mo>+</mo><mi>λ</mi><mi>η</mi><mo>+</mo><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">Y^* = \nu + \lambda \eta + \epsilon</annotation></semantics></math>,
-where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ν</mi><annotation encoding="application/x-tex">\nu</annotation></semantics></math>
-is the intercept,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
-is the loading,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
-is the latent factor, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>
-is the unique factor with mean 0 and variance
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>,
-and assumed normally distributed. The thresholds are denoted as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>τ</mi><mi>c</mi></msup><annotation encoding="application/x-tex">\tau^{c}</annotation></semantics></math>
-for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>C</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">c = 1, \ldots, C - 1</annotation></semantics></math>.</p>
-<p>The probability of observing
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
-to be
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>
-or lower, given the latent standing
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>η</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\eta_1</annotation></semantics></math>,
-is:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>≤</mo><mi>c</mi><mo stretchy="false" form="prefix">|</mo><msub><mi>η</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>Y</mi><mo>*</mo></msup><mo>≤</mo><msup><mi>τ</mi><mi>c</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>ν</mi><mo>+</mo><mi>λ</mi><msub><mi>η</mi><mn>1</mn></msub><mo>+</mo><mi>ϵ</mi><mo>≤</mo><msup><mi>τ</mi><mi>c</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>ϵ</mi><mo>≤</mo><msup><mi>τ</mi><mi>c</mi></msup><mo>−</mo><mi>ν</mi><mo>−</mo><mi>λ</mi><msub><mi>η</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>ϵ</mi><msqrt><mi>θ</mi></msqrt></mfrac><mo>≤</mo><mfrac><mrow><msup><mi>τ</mi><mi>c</mi></msup><mo>−</mo><mi>ν</mi><mo>−</mo><mi>λ</mi><msub><mi>η</mi><mn>1</mn></msub></mrow><msqrt><mi>θ</mi></msqrt></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msup><mi>τ</mi><mi>c</mi></msup><mo>−</mo><mi>ν</mi><mo>−</mo><mi>λ</mi><msub><mi>η</mi><mn>1</mn></msub></mrow><msqrt><mi>θ</mi></msqrt></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<p>For an indicator <span class="math inline">\(Y\)</span> with <span class="math inline">\(C\)</span> categories and <span class="math inline">\(C - 1\)</span> thresholds, the latent response
+variate is <span class="math inline">\(Y^* = \nu + \lambda \eta +
+\epsilon\)</span>, where <span class="math inline">\(\nu\)</span> is the
+intercept, <span class="math inline">\(\lambda\)</span> is the loading,
+<span class="math inline">\(\eta\)</span> is the latent factor, and
+<span class="math inline">\(\epsilon\)</span> is the unique factor with
+mean 0 and variance <span class="math inline">\(\theta\)</span>, and
+assumed normally distributed. The thresholds are denoted as <span class="math inline">\(\tau^{c}\)</span> for <span class="math inline">\(c = 1, \ldots, C - 1\)</span>.</p>
+<p>The probability of observing <span class="math inline">\(Y\)</span>
+to be <span class="math inline">\(c\)</span> or lower, given the latent
+standing <span class="math inline">\(\eta_1\)</span>, is:</p>
+<p><span class="math display">\[
 \begin{aligned}
   P(Y \leq c | \eta_1) &amp; = P(Y^* \leq \tau^{c}) \\
   &amp; = P(\nu + \lambda \eta_1 + \epsilon \leq \tau^{c}) \\
   &amp; = P(\epsilon \leq \tau^{c} - \nu - \lambda \eta_1) \\
-  &amp; = P\left(\frac{\epsilon}{\sqrt{\theta}} \leq \frac{\tau^{c} - \nu - \lambda \eta_1}{\sqrt{\theta}}\right) \\
-  &amp; = \Phi\left(\frac{\tau^{c} - \nu - \lambda \eta_1}{\sqrt{\theta}}\right),
+  &amp; = P\left(\frac{\epsilon}{\sqrt{\theta}} \leq \frac{\tau^{c} -
+\nu - \lambda \eta_1}{\sqrt{\theta}}\right) \\
+  &amp; = \Phi\left(\frac{\tau^{c} - \nu - \lambda
+\eta_1}{\sqrt{\theta}}\right),
 \end{aligned}
-</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Phi(\cdot)</annotation></semantics></math>
-denotes the cumulative standard normal density, as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϵ</mi><mi>/</mi><msqrt><mi>θ</mi></msqrt></mrow><annotation encoding="application/x-tex">\epsilon / \sqrt{\theta}</annotation></semantics></math><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∼</mo><annotation encoding="application/x-tex">\sim</annotation></semantics></math><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">N(0, 1)</annotation></semantics></math>.
-We can further show the quantity inside
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Phi(\cdot)</annotation></semantics></math>
-is a linear function of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>≤</mo><mi>c</mi><mo stretchy="false" form="prefix">|</mo><msub><mi>η</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><munder><munder><mfrac><mrow><msup><mi>τ</mi><mi>c</mi></msup><mo>−</mo><mi>ν</mi></mrow><msqrt><mi>θ</mi></msqrt></mfrac><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">intercept</mtext></munder><mo>−</mo><munder><munder><mfrac><mi>λ</mi><msqrt><mi>θ</mi></msqrt></mfrac><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">slope</mtext></munder><msub><mi>η</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
-P(Y \leq c | \eta_1) = \Phi\left(\underbrace{\frac{\tau^{c} - \nu}{\sqrt{\theta}}}_\text{intercept} - \underbrace{\frac{\lambda}{\sqrt{\theta}}}_\text{slope} \eta_1\right).
-</annotation></semantics></math></p>
-<p>The above shows that the unique variance
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-affects both the intercept and the slope of inside the cumulative
-probability function. This implies that, <strong>even when the loadings,
-thresholds, and intercepts are equal across time points</strong>, no
-level of meaningful invariance is achieved when the unique variance is
-not equal.</p>
-<p>The following graph shows the probability of observing
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
-to be 0 in a binary item as a function of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>,
-with equal
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
-= 1,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ν</mi><annotation encoding="application/x-tex">\nu</annotation></semantics></math>
-= 0$,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">\tau</annotation></semantics></math>
-= 0.5 for three time points, but different unique variances
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-= 1, 2, and 3.</p>
+\]</span></p>
+<p>where <span class="math inline">\(\Phi(\cdot)\)</span> denotes the
+cumulative standard normal density, as <span class="math inline">\(\epsilon / \sqrt{\theta}\)</span> <span class="math inline">\(\sim\)</span> <span class="math inline">\(N(0,
+1)\)</span>. We can further show the quantity inside <span class="math inline">\(\Phi(\cdot)\)</span> is a linear function of <span class="math inline">\(\eta\)</span>:</p>
+<p><span class="math display">\[
+P(Y \leq c | \eta_1) = \Phi\left(\underbrace{\frac{\tau^{c} -
+\nu}{\sqrt{\theta}}}_\text{intercept} -
+\underbrace{\frac{\lambda}{\sqrt{\theta}}}_\text{slope} \eta_1\right).
+\]</span></p>
+<p>The above shows that the unique variance <span class="math inline">\(\theta\)</span> affects both the intercept and the
+slope of inside the cumulative probability function. This implies that,
+<strong>even when the loadings, thresholds, and intercepts are equal
+across time points</strong>, no level of meaningful invariance is
+achieved when the unique variance is not equal.</p>
+<p>The following graph shows the probability of observing <span class="math inline">\(Y\)</span> to be 0 in a binary item as a function
+of <span class="math inline">\(\eta\)</span>, with equal <span class="math inline">\(\lambda\)</span> = 1, <span class="math inline">\(\nu\)</span> = 0$, <span class="math inline">\(\tau\)</span> = 0.5 for three time points, but
+different unique variances <span class="math inline">\(\theta\)</span> =
+1, 2, and 3.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Define function for probability of observing Y = 0</span></span>
 <span><span class="va">prob_y0</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">eta</span>, <span class="va">lambda</span> <span class="op">=</span> <span class="fl">1</span>, <span class="va">nu</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">tau</span> <span class="op">=</span> <span class="fl">0.5</span>, <span class="va">theta</span><span class="op">)</span> <span class="op">{</span></span>
