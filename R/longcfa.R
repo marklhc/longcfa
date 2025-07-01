@@ -11,12 +11,12 @@
 #' @param ind_matrix A \eqn{p \times T} character matrix specifying the
 #'   names of the indicator variables across time points. Each column
 #'   corresponds to a time point.
-#' @param lv_names A vector of names of $T$ latent variables.
-#' @param pattern A list of $T$ elements specifying the pattern of which
+#' @param lv_names A vector of names of \eqn{T} latent variables.
+#' @param pattern A list of \eqn{T} elements specifying the pattern of which
 #'   indicators load on which latent variable. Each element can be a
 #'   \eqn{p \times q} matrix, where \eqn{q} is the number of latent
 #'   variables and can be different across time points. Alternatively,
-#'   each element can be a list of $q$ integer vectors, specifying
+#'   each element can be a list of \eqn{q} integer vectors, specifying
 #'   which indicators load on which latent variable. If a list of length
 #'   1 is provided, the same pattern is used across all time points.
 #'   The default is `NULL`, which assumes only one latent variable per

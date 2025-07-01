@@ -38,13 +38,13 @@ longcfa_syntax(
 names of the indicator variables across time points. Each column
 corresponds to a time point.}
 
-\item{lv_names}{A vector of names of $T$ latent variables.}
+\item{lv_names}{A vector of names of \eqn{T} latent variables.}
 
-\item{pattern}{A list of $T$ elements specifying the pattern of which
+\item{pattern}{A list of \eqn{T} elements specifying the pattern of which
 indicators load on which latent variable. Each element can be a
 \eqn{p \times q} matrix, where \eqn{q} is the number of latent
 variables and can be different across time points. Alternatively,
-each element can be a list of $q$ integer vectors, specifying
+each element can be a list of \eqn{q} integer vectors, specifying
 which indicators load on which latent variable. If a list of length
 1 is provided, the same pattern is used across all time points.
 The default is \code{NULL}, which assumes only one latent variable per
