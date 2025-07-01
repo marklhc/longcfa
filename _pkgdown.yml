@@ -1,4 +1,4 @@
 url: https://marklhc.github.io/longcfa/
 template:
   bootstrap: 5
-
+  math-rendering: mathjax
