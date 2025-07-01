@@ -2,7 +2,8 @@ Package: longcfa
 Title: Helper for Longitudinal Confirmatory Factor Analysis
 Version: 0.0.1
 Authors@R: 
-    person("Hok Chio", "Lai", "Mark", "marklhc@gmail.com", role = c("aut", "cre"))
+    person("Hok Chio (Mark)", "Lai", , "marklhc@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-9196-7406"))
 Description: 
     Simplifies the specification of longitudinal confirmatory factor analysis (CFA) using the `lavaan` package using a matrix-like approach, with indicators in rows and time points in columns. Supports longitudinal invariance constraints, continuous and categorical indicators, etc.
 License: MIT + file LICENSE
