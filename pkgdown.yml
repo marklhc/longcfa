@@ -1,0 +1,11 @@
+pandoc: 3.1.11
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  cat: cat.html
+  articles/invariance: invariance.html
+  longcfa: longcfa.html
+last_built: 2025-07-01T03:31Z
+urls:
+  reference: https://marklhc.github.io/longcfa/reference
+  article: https://marklhc.github.io/longcfa/articles
