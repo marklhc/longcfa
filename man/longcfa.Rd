@@ -30,7 +30,9 @@ longcfa_syntax(
   long_equal = NULL,
   long_partial = NULL,
   nthres = matrix(0, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix)),
-  fix_theta = FALSE
+  fix_theta = FALSE,
+  free_latvars = FALSE,
+  free_latmeans = FALSE
 )
 }
 \arguments{
@@ -80,6 +82,12 @@ item, in the same dimension as \code{ind_matrix}.}
 This is default for ordered categorical data.}
 
 \item{...}{Other arguments passed to \code{lavaan::cfa()}, such as \code{data}.}
+
+\item{free_latvars}{Logical; whether to free all latent variances,
+regardless of \code{long_equal} specifications.}
+
+\item{free_latmeans}{Logical; whether to free all latent means,
+regardless of \code{long_equal} specifications.}
 }
 \value{
 A fit object as returned by \code{lavaan::cfa()}.

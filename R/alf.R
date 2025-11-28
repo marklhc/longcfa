@@ -214,6 +214,9 @@ penalized_obj <- function(
 #' # Compare log-likelihoods
 #' c("scalar invariance" = logLik(fit), "penalized" = logLik(pen_fit))
 #' }
+#'
+#' @importFrom stats update
+#' @export
 penalized_est <- function(
     x,
     w,

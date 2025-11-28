@@ -1,9 +1,9 @@
 get_op_idx <- function(pt, op = c("=~", "~1"), ind_matrix) {
-  op <- match.arg(op)
-  ind_col <- switch(op, "=~" = "rhs", "~1" = "lhs")
-  pt_sub <- pt[pt[["op"]] == op, , drop = FALSE]
-  idx <- match(ind_matrix, pt_sub[[ind_col]])
-  pt_sub$free[idx]
+    op <- match.arg(op)
+    ind_col <- switch(op, "=~" = "rhs", "~1" = "lhs")
+    pt_sub <- pt[pt[["op"]] == op, , drop = FALSE]
+    idx <- match(ind_matrix, pt_sub[[ind_col]])
+    pt_sub$free[idx]
 }
 
 #' Convert Parameter Vector to Matrix
@@ -21,10 +21,10 @@ get_op_idx <- function(pt, op = c("=~", "~1"), ind_matrix) {
 #' @return A matrix with dimensions matching `ind_matrix`, filled with parameter
 #'   values from `x` according to the free parameter indices.
 par_to_mat <- function(x, op, pt, ind_matrix) {
-  free_idx <- get_op_idx(pt, op, ind_matrix)
-  out <- matrix(NA, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix))
-  out[] <- x[free_idx]
-  out
+    free_idx <- get_op_idx(pt, op, ind_matrix)
+    out <- matrix(NA, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix))
+    out[] <- x[free_idx]
+    out
 }
 
 #' Extract Parameter Matrix from lavaan Object
@@ -43,12 +43,12 @@ par_to_mat <- function(x, op, pt, ind_matrix) {
 #'
 #' @export
 get_lav_par_mat <- function(
-  x,
-  op = c("=~", "~1"),
-  ind_matrix
+    x,
+    op = c("=~", "~1"),
+    ind_matrix
 ) {
-  pt <- lavaan::partable(x)
-  par_to_mat(pt$est[pt$free != 0], op, pt, ind_matrix)
+    pt <- lavaan::partable(x)
+    par_to_mat(pt$est[pt$free != 0], op, pt, ind_matrix)
 }
 
 #' Update User Starting Values for Specific Parameters by ID
@@ -61,7 +61,8 @@ get_lav_par_mat <- function(
 #'   table) to update.
 #' @param new_start Numeric vector of new starting values corresponding to
 #'   `par_id`.
-#' @param ... Additional arguments passed to [lavaan::update()].
+#' @param ... Additional arguments passed to the `update()` method for lavaan
+#'   objects.
 #'
 #' @return A refitted lavaan object with updated starting values.
 #'
@@ -80,8 +81,8 @@ get_lav_par_mat <- function(
 #'
 #' @export
 update_ustart <- function(x, par_id, new_start, ...) {
-  pt <- lavaan::partable(x)
-  pt$ustart[par_id] <- new_start
-  pt <- pt[setdiff(names(pt), c("start", "est", "se"))]
-  lavaan::update(x, pt, ...)
+    pt <- lavaan::partable(x)
+    pt$ustart[par_id] <- new_start
+    pt <- pt[setdiff(names(pt), c("start", "est", "se"))]
+    lavaan::update(x, pt, ...)
 }
