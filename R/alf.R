@@ -4,97 +4,253 @@
 # Obtain analytic gradient from lavaan
 # Write function for optimization using optim . . .
 
-composite_pair_loss <- function(x, fun = alf, trans = identity, ...) {
-  x <- as.matrix(trans(x))
-  combn_idx <- combn(nrow(x), 2)
-  out <- fun(x[combn_idx[1, ], ] - x[combn_idx[2, ], ], ...)
-  sum(out)
+#' Composite Pairwise Loss Function
+#'
+#' Computes the total loss across all pairwise combinations of rows in a matrix.
+#'
+#' @param x A numeric vector, matrix, or data frame. If not a matrix, it will be
+#'   coerced to one after applying the transformation function.
+#' @param fun A function to compute the loss for each pairwise difference.
+#'   The package supports the alignment loss (`alf`) and the approximate L0 penalty
+#'   (`l0a`), but users can provide custom functions as well.
+#' @param trans A transformation function to apply to `x` before computing
+#'   pairwise differences. Default is `identity` (no transformation).
+#' @param rescale Either `"df"` (default) to rescale the total loss by the degrees
+#'   of freedom (number of rows - 1), or a numeric value (likely between 0 and 1)
+#'   to multiply the total loss by.
+#' @param ... Additional arguments passed to the loss function `fun`.
+#'
+#' @return A numeric scalar representing the sum of losses across all pairwise
+#'   combinations of rows.
+#'
+#' @details
+#' The function works by:
+#' \enumerate{
+#'   \item Applying the transformation function `trans` to the input `x`
+#'   \item Converting the result to a matrix
+#'   \item Generating all possible pairwise combinations of row indices
+#'   \item Computing the difference between each pair of rows
+#'   \item Applying the loss function `fun` to each difference
+#'   \item Summing all the individual losses
+#' }
+#'
+#' @examples
+#' # Example with a simple matrix
+#' x <- matrix(runif(12), nrow = 4)
+#' composite_pair_loss(x, fun = alf)
+#'
+#' # Example with log transformation and L2 loss
+#' composite_pair_loss(x, fun = function(x) x^2, trans = log)
+#'
+#' @importFrom utils combn
+#' @export
+composite_pair_loss <- function(x, fun, trans = identity, rescale = "df", ...) {
+    x <- as.matrix(trans(x))
+    combn_idx <- combn(nrow(x), 2)
+    if (rescale == "df") {
+        dof <- nrow(x) - 1
+        ncombn <- ncol(combn_idx)
+        rescale <- dof / ncombn
+    }
+    if (!is.numeric(rescale)) {
+        stop("rescale must be 'df' or a numeric value.")
+    }
+    out <- fun(x[combn_idx[1, ], ] - x[combn_idx[2, ], ], ...)
+    sum(out) * rescale
 }
 
 gr_cpl_alf <- function(x, eps = .001) {
-  x_mat <- as.matrix(x)
-  combn_idx <- combn(nrow(x_mat), 2)
-  diffs <- x_mat[combn_idx[1, ], , drop = FALSE] -
-    x_mat[combn_idx[2, ], drop = FALSE]
-  signs <- sign(diffs)
-  denom <- 2 * (diffs^2 + eps)^.75
-  grad_contribs <- diffs / denom
-  grad <- matrix(0, nrow = nrow(x_mat), ncol = ncol(x_mat))
-  for (i in seq_len(nrow(x_mat))) {
-    idx1 <- which(combn_idx[1, ] == i)
-    idx2 <- which(combn_idx[2, ] == i)
-    grad[i, ] <- colSums(grad_contribs[idx1, , drop = FALSE]) -
-      colSums(grad_contribs[idx2, , drop = FALSE])
-  }
-  as.vector(grad)
+    x_mat <- as.matrix(x)
+    combn_idx <- combn(nrow(x_mat), 2)
+    diffs <- x_mat[combn_idx[1, ], , drop = FALSE] -
+        x_mat[combn_idx[2, ], drop = FALSE]
+    signs <- sign(diffs)
+    denom <- 2 * (diffs^2 + eps)^.75
+    grad_contribs <- diffs / denom
+    grad <- matrix(0, nrow = nrow(x_mat), ncol = ncol(x_mat))
+    for (i in seq_len(nrow(x_mat))) {
+        idx1 <- which(combn_idx[1, ] == i)
+        idx2 <- which(combn_idx[2, ] == i)
+        grad[i, ] <- colSums(grad_contribs[idx1, , drop = FALSE]) -
+            colSums(grad_contribs[idx2, , drop = FALSE])
+    }
+    as.vector(grad)
 }
 
+#' Loss functions
+#'
+#' For small eps this provides a smooth,
+#' numerically stable approximation of |x|^(1/2) (i.e. the square root of
+#' the absolute value). The function is vectorized over x.
+#'
+#' @param x Numeric vector. Input values to transform.
+#' @param eps Positive numeric scalar (default .001 for `alf()` and .01
+#'   for `l0a()`). Small regularization constant to avoi
+#'   non-differentiability and division-by-zero issues.
+#' @return Numeric vector of the same length as x.
+#' @name loss
+NULL
+#> NULL
+
+#' @rdname loss
+#'
+#' @details The ALF, (x^2 + eps)^(1/4), is useful when a smooth
+#'   surrogate for sqrt(|x|) is required (for optimization or
+#'   regularization) while maintaining numerical stability near x = 0.
+#'
+#' @examples
+#' alf(0)
+#' alf(c(-4, -1, 0, 1, 4))
+#' alf(0.5, eps = 1e-6)
+#' @export
 alf <- function(x, eps = .001) {
-  (x^2 + eps)^.25
+    (x^2 + eps)^.25
+}
+
+#' @rdname loss
+#'
+#' @details L0a, x^2/(x^2 + eps), is an approximation of the L0 penalty.
+#'
+#' @examples
+#' l0a(0)
+#' l0a(c(0, 1e-3, 0.1, 1))
+#' l0a(c(-2, 0, 2), eps = 1e-4)
+#' @export
+l0a <- function(x, eps = .01) {
+    x^2 / (x^2 + eps)
 }
 
 # Penalized objective function
 penalized_obj <- function(
-  x,
-  obj_fn,
-  pt,
-  ind_matrix,
-  w,
-  pen_fn = composite_pair_loss,
-  pen_op = c("=~", "~1")
+    x,
+    obj_fn,
+    pt,
+    ind_matrix,
+    w,
+    pen_fn,
+    pen_op = c("=~", "~1")
 ) {
-  par_mats <- lapply(
-    pen_op,
-    function(op) par_to_mat(x, op, pt, ind_matrix)
-  )
-  obj_fn(x) +
-    w *
-      Reduce(
-        function(acc, mat) acc + pen_fn(t(mat)),
-        par_mats,
-        init = 0
-      )
+    par_mats <- lapply(
+        pen_op,
+        function(op) par_to_mat(x, op, pt, ind_matrix)
+    )
+    obj_fn(x) +
+        w *
+            Reduce(
+                function(acc, mat) acc + pen_fn(t(mat)),
+                par_mats,
+                init = 0
+            )
 }
 
+#' Penalized Parameter Estimation for Longitudinal CFA Models
+#'
+#' Performs penalized estimation on a lavaan model object by optimizing a
+#' penalized objective function. The function extracts the objective function
+#' from a lavaan model, applies a penalty function to the difference in the
+#' loading and intercept parameters, and returns an updated model with
+#' the optimized parameter estimates.
+#'
+#' @param x A fitted lavaan model object from which estimation components will
+#'   be extracted.
+#' @param w Penalty weights applied to the parameters.
+#' @param ind_matrix Matrix defining the structure of indicators. See
+#'   [longcfa()] for details on the structure.
+#' @param pen_fn A function that computes the penalty. Default is a composite
+#'   pair loss using the [alf()] penalty. The function should
+#'   take parameter values and return a penalty value.
+#' @param pen_op A character vector specifying which lavaan operators to apply
+#'   penalties to. Default is `c("=~", "~1")` for factor loadings and intercepts.
+#' @param opt_control A list of control parameters passed to `nlminb()` optimizer.
+#'   Default includes `eval.max = 2e4`, `iter.max = 1e4`, and `abs.tol = 1e-20`.
+#' @param data2 An optional second dataset. If provided, the optimized parameters
+#'   will be used to fit a model on this dataset, and the result will be stored
+#'   in the `"fit2"` attribute of the output.
+#'
+#' @return A lavaan model object updated with the penalized parameter estimates.
+#'   The returned object includes two attributes:
+#'   \item{opt_info}{The optimization information returned by `nlminb()`}
+#'   \item{fit2}{(Optional) A fitted model on `data2` if provided}
+#'
+#' @details
+#' The function uses `nlminb()` to minimize a penalized objective function that
+#' combines the standard lavaan objective function with a penalty term. Only the
+#' parameter estimates and the log-likelihood should be interpreted. The
+#' returned object was not "fitted" (`do.fit = FALSE`) to avoid users
+#' interpreting the standard errors, which are generally not valid with
+#' penalized estimation. The degrees of freedom may also be inaccurate. If the
+#' optimization does not converge (convergence code != 0), a warning is issued.
+#'
+#' @seealso \code{\link[lavaan]{lavaan}}, \code{\link[stats]{nlminb}}
+#'
+#' @importFrom stats nlminb
+#' @examples
+#' \dontrun{
+#' library(lavaan)
+#'
+#' # Fit a longitudinal factor model using PoliticalDemocracy data
+#' ind_mat <- cbind(c("y1", "y2", "y3", "y4"), c("y5", "y6", "y7", "y8"))
+#' fit <- longcfa(ind_mat, lv_names = c("dem60", "dem65"), data = PoliticalDemocracy,
+#'                long_equal = c("loadings", "intercepts"), lag_cov = TRUE)
+#' # Obtain an unidentified model
+#' mod_un <- longcfa_syntax(
+#'     ind_mat, lv_names = c("dem60", "dem65"),
+#'     lag_cov = TRUE,
+#'     free_latvars = TRUE, free_latmeans = TRUE
+#' )
+#' fit_un <- cfa(mod_un, data = PoliticalDemocracy, do.fit = FALSE, std.lv = TRUE,
+#'               start = fit)
+#'
+#' # Apply penalized estimation with alignment loss
+#' pen_fit <- penalized_est(
+#'     x = fit_un,
+#'     w = 0.1,
+#'     ind_matrix = ind_mat
+#' )
+#'
+#' # Compare parameter estimates
+#' cbind(coef(fit), coef(pen_fit))
+#'
+#' # Compare log-likelihoods
+#' c("scalar invariance" = logLik(fit), "penalized" = logLik(pen_fit))
+#' }
 penalized_est <- function(
-  x,
-  w,
-  ind_matrix,
-  pen_fn = composite_pair_loss,
-  pen_op = c("=~", "~1"),
-  opt_control = list(
-    eval.max = 2e4,
-    iter.max = 1e4,
-    abs.tol = 1e-20
-  ),
-  data2 = NULL
+    x,
+    w,
+    ind_matrix,
+    pen_fn = function(x) composite_pair_loss(x, fun = alf),
+    pen_op = c("=~", "~1"),
+    opt_control = list(
+        eval.max = 2e4,
+        iter.max = 1e4,
+        abs.tol = 1e-20
+    ),
+    data2 = NULL
 ) {
-  ff <- lavaan::lav_export_estimation(x)
-  opt <- nlminb(
-    ff$starting_values,
-    objective = penalized_obj,
-    obj_fn = function(pars) ff$objective_function(pars, lavaan_model = x),
-    pt = lavaan::partable(x),
-    ind_matrix = ind_matrix,
-    w = w,
-    pen_fn = pen_fn,
-    pen_op = pen_op,
-    control = opt_control
-  )
-  if (opt$convergence != 0) {
-    warning("Optimization did not converge.")
-  }
-  pfit1 <- update(x, start = opt$par, data = x@Data)
-  if (!is.null(data2)) {
-    pfit2 <- update(x, start = opt$par, data = data2)
-  } else {
-    pfit2 <- NULL
-  }
-  list(
-    opt = opt,
-    pfit1 = pfit1,
-    pfit2 = pfit2
-  )
+    ff <- lavaan::lav_export_estimation(x)
+    opt <- nlminb(
+        ff$starting_values,
+        objective = penalized_obj,
+        obj_fn = function(pars) ff$objective_function(pars, lavaan_model = x),
+        pt = lavaan::partable(x),
+        ind_matrix = ind_matrix,
+        w = w,
+        pen_fn = pen_fn,
+        pen_op = pen_op,
+        control = opt_control
+    )
+    if (opt$convergence != 0) {
+        warning(
+            "Optimization did not converge. Try using better starting values, ",
+            "or adjusting optimization control parameters."
+        )
+    }
+    out <- update(x, start = opt$par, data = x@Data)
+    attr(out, "opt_info") <- opt
+    if (!is.null(data2)) {
+        attr(out, "fit2") <- update(x, start = opt$par, data = data2)
+    }
+    out
 }
 
 # Need to write functions for CV (for choosing w) and penalized estimation
