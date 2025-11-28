@@ -1,0 +1,201 @@
+---
+title: "Penalized Estimation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Penalized Estimation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+```
+
+```{r, include=FALSE}
+eval_lconfig <- !file.exists("lconfig_fit.rds")
+eval_lscalar <- !file.exists("lscalar_fit.rds")
+eval_alf <- !file.exists("alf_fit.rds")
+eval_dbic <- !file.exists("dbic_fit.rds")
+```
+
+```{r setup}
+library(longcfa)
+library(lavaan)
+```
+
+The data is the `PoliticalDemocracy` dataset from the `lavaan` package, which is a longitudinal dataset on political democracy scores across multiple countries over several years. One can read the [documentation](https://rdrr.io/cran/lavaan/man/PoliticalDemocracy.html) for more details.
+
+```{r}
+data("mackinnon_etal_wide", package = "longcfa")
+mackinnon_etal_wide[-1] <- lapply(mackinnon_etal_wide[-1], as.integer)
+head(mackinnon_etal_wide)
+```
+
+```{r}
+ind_mat <- matrix(
+    grep("^ssa", names(mackinnon_etal_wide), value = TRUE),
+    nrow = 7
+)
+ind_mat
+```
+
+```{r, eval=eval_lconfig}
+lconfig_fit <- longcfa(
+    ind_mat,
+    lv_names = paste0("SSA", 2:8),
+    data = mackinnon_etal_wide,
+    lag_cov = TRUE,
+    missing = "fiml",
+    estimator = "mlr"
+)
+summary(lconfig_fit, fit.measures = TRUE)
+```
+
+```{r, eval=eval_lconfig, include=FALSE}
+saveRDS(lconfig_fit, "lconfig_fit.rds")
+```
+
+```{r, eval=!eval_lconfig, include=FALSE}
+lconfig_fit <- readRDS("lconfig_fit.rds")
+```
+
+Scalar Invariance model
+
+```{r, eval=eval_lscalar}
+lscalar_fit <- longcfa(
+    ind_mat,
+    lv_names = paste0("SSA", 2:8),
+    data = mackinnon_etal_wide,
+    lag_cov = TRUE,
+    missing = "fiml",
+    estimator = "mlr",
+    long_equal = c("loadings", "intercepts")
+)
+```
+
+```{r, eval=eval_lscalar, include=FALSE}
+saveRDS(lscalar_fit, "lscalar_fit.rds")
+```
+
+```{r, eval=!eval_lscalar, include=FALSE}
+lscalar_fit <- readRDS("lscalar_fit.rds")
+```
+
+```{r}
+anova(lconfig_fit, lscalar_fit)
+```
+
+With 7 time points and 7 items, there are 49 loadings and 49 intercepts. For loadings, we reduce 49 loadings to 7 by imposing equality constraints across time, while in the mean time allowing the latent variances for the 6 time points after time 1 to be free, so in total we have save $p(T - 1) - (T - 1) = (p - 1)(T - 1) = 36$ parameters. Same for intercepts, which result in 72 fewer parameters in the scalar invariance model.
+
+## Loss Function
+
+We can compute the loss values for the loadings and intercepts, for the configural and the scalar model. In theory, the loss should be zero for the scalar model, although it will be a non-zero value as we use a continuous function to approximate $L_0$ penalty.
+
+```{r}
+# Loss function for configural model
+ld_mat_c <- get_lav_par_mat(lconfig_fit, "=~", ind_mat)
+int_mat_c <- get_lav_par_mat(lconfig_fit, "~1", ind_mat)
+composite_pair_loss(t(ld_mat_c), fun = alf)
+composite_pair_loss(t(int_mat_c), fun = alf)
+```
+
+```{r}
+# Loss function for scalar model
+ld_mat_s <- get_lav_par_mat(lscalar_fit, "=~", ind_mat)
+int_mat_s <- get_lav_par_mat(lscalar_fit, "~1", ind_mat)
+composite_pair_loss(t(ld_mat_s), fun = alf)
+composite_pair_loss(t(int_mat_s), fun = alf)
+```
+
+## Penalized Estimation
+
+With penalized estimation, we first specify an over-parameterized model that estimates all measurement (loadings and intercepts) and structural parameters (latent means and variances) freely across time points, except that the latent variable in Time 1 is standardized. Currently we do not allow that in `longcfa()`, but we can do this with the `free_latvars = TRUE` and `free_latmeans = TRUE` arguments in `longcfa_syntax()`.
+
+```{r}
+lconfig_mod_un <- longcfa_syntax(
+    ind_mat,
+    lv_names = paste0("SSA", 2:8),
+    lag_cov = TRUE,
+    free_latvars = TRUE,
+    free_latmeans = TRUE
+)
+cat(lconfig_mod_un)
+# Specify the under-identified model
+lconfig_fit_un <- cfa(
+    lconfig_mod_un,
+    data = mackinnon_etal_wide,
+    do.fit = FALSE,
+    std.lv = TRUE,
+    start = lscalar_fit,
+    missing = "fiml",
+    estimator = "mlr"
+)
+```
+
+First, we try the ALF penalty with a tuning parameter of 0.1 (which is arbitrary).
+
+```{r, eval=eval_alf}
+alf_fit <- penalized_est(lconfig_fit_un, w = 0.1, ind_matrix = ind_mat)
+```
+
+```{r, eval=eval_alf, include=FALSE}
+saveRDS(alf_fit, "alf_fit.rds")
+```
+
+```{r, eval=!eval_alf, include=FALSE}
+alf_fit <- readRDS("alf_fit.rds")
+```
+
+```{r}
+# Loss function
+ld_mat_a <- get_lav_par_mat(alf_fit, "=~", ind_mat)
+int_mat_a <- get_lav_par_mat(alf_fit, "~1", ind_mat)
+composite_pair_loss(t(ld_mat_a), fun = alf)
+composite_pair_loss(t(int_mat_a), fun = alf)
+```
+
+```{r, eval=eval_dbic}
+dbic_fit <- penalized_est(
+    lconfig_fit_un,
+    w = log(261) / 261 / 2, # based on eq (13) of https://www.mdpi.com/2624-8611/5/4/75#FD9-psych-05-00075
+    ind_matrix = ind_mat,
+    pen_fn = \(x) composite_pair_loss(x, fun = l0a)
+)
+# AIC penalty
+# l0fit_2 <- penalized_est(
+#     lconfig_fit_un,
+#     w = 1 / 261,
+#     ind_matrix = ind_mat,
+#     pen_fn = \(x) composite_pair_loss(x, fun = l0a)
+# )
+```
+
+```{r, eval=eval_dbic, include=FALSE}
+saveRDS(dbic_fit, "dbic_fit.rds")
+```
+
+```{r, eval=!eval_dbic, include=FALSE}
+dbic_fit <- readRDS("dbic_fit.rds")
+```
+
+```{r}
+# Loss function
+ld_mat_p <- get_lav_par_mat(dbic_fit, "=~", ind_mat)
+int_mat_p <- get_lav_par_mat(dbic_fit, "~1", ind_mat)
+composite_pair_loss(t(ld_mat_p), fun = l0a)
+composite_pair_loss(t(int_mat_p), fun = l0a)
+```
+
+Compare log-likelihoods
+
+```{r}
+c(
+    "Configural" = logLik(lconfig_fit),
+    "Scalar" = logLik(lscalar_fit),
+    "ALF (w = 0.1)" = logLik(alf_fit),
+    "L0 (DBIC)" = logLik(dbic_fit)
+)
+```
