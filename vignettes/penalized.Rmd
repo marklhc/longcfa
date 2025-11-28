@@ -98,7 +98,7 @@ With 7 time points and 7 items, there are 49 loadings and 49 intercepts. For loa
 
 The idea of penalized estimation for measurement invariance is to impose a penalty on the pairwise differences of loadings and intercepts across time points, so that a model with fewer large differences in the measurement parameters would be favoured. Here we illustrate two penalty functions: the alignment loss function (ALF, discussed in [Asparouhov & Muthen, 2024](https://www.statmodel.com/download/PSEM.pdf)) and the $L_0$ approximation function (L0a, discussed in [Robitzsch, 2023](https://www.mdpi.com/2624-8611/5/4/75)). The following shows the two loss functions:
 
-```{r}
+```{r, fig.alt="ALF and L0a Loss functions"}
 curve(l0a, from = -0.5, to = 0.5, ylab = "Loss", ylim = c(0, 1))
 curve(alf, from = -0.5, to = 0.5, add = TRUE, col = "red")
 ```
