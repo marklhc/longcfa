@@ -26,13 +26,15 @@ library(longcfa)
 library(lavaan)
 ```
 
-The data is the `PoliticalDemocracy` dataset from the `lavaan` package, which is a longitudinal dataset on political democracy scores across multiple countries over several years. One can read the [documentation](https://rdrr.io/cran/lavaan/man/PoliticalDemocracy.html) for more details.
+The data used in this vignette is a subset from the daily dairy data described in [Mackinnon et al. (2020)](https://open.lnu.se/index.php/metapsychology/article/view/2595), which contains 7 waves of daily level of state social anxiety (SSA) measured with 7 items at each wave. The data is already converted to wide format, with some missing data.
 
 ```{r}
 data("mackinnon_etal_wide", package = "longcfa")
 mackinnon_etal_wide[-1] <- lapply(mackinnon_etal_wide[-1], as.integer)
-head(mackinnon_etal_wide)
+summary(mackinnon_etal_wide)
 ```
+
+To use `longcfa()`, we first create an indicator matrix that specifies how the indicators align across time points.
 
 ```{r}
 ind_mat <- matrix(
@@ -41,6 +43,8 @@ ind_mat <- matrix(
 )
 ind_mat
 ```
+
+### Configural invariance model
 
 ```{r, eval=eval_lconfig}
 lconfig_fit <- longcfa(
@@ -62,7 +66,7 @@ saveRDS(lconfig_fit, "lconfig_fit.rds")
 lconfig_fit <- readRDS("lconfig_fit.rds")
 ```
 
-Scalar Invariance model
+### Scalar invariance model
 
 ```{r, eval=eval_lscalar}
 lscalar_fit <- longcfa(
@@ -90,9 +94,16 @@ anova(lconfig_fit, lscalar_fit)
 
 With 7 time points and 7 items, there are 49 loadings and 49 intercepts. For loadings, we reduce 49 loadings to 7 by imposing equality constraints across time, while in the mean time allowing the latent variances for the 6 time points after time 1 to be free, so in total we have save $p(T - 1) - (T - 1) = (p - 1)(T - 1) = 36$ parameters. Same for intercepts, which result in 72 fewer parameters in the scalar invariance model.
 
-## Loss Function
+## Loss/Penalty Function
 
-We can compute the loss values for the loadings and intercepts, for the configural and the scalar model. In theory, the loss should be zero for the scalar model, although it will be a non-zero value as we use a continuous function to approximate $L_0$ penalty.
+The idea of penalized estimation for measurement invariance is to impose a penalty on the pairwise differences of loadings and intercepts across time points, so that a model with fewer large differences in the measurement parameters would be favoured. Here we illustrate two penalty functions: the alignment loss function (ALF, discussed in [Asparouhov & Muthen, 2024](https://www.statmodel.com/download/PSEM.pdf)) and the $L_0$ approximation function (L0a, discussed in [Robitzsch, 2023](https://www.mdpi.com/2624-8611/5/4/75)). The following shows the two loss functions:
+
+```{r}
+curve(l0a, from = -0.5, to = 0.5, ylab = "Loss", ylim = c(0, 1))
+curve(alf, from = -0.5, to = 0.5, add = TRUE, col = "red")
+```
+
+Note that the ALF is an approximation of the $L_{0.5}$ penalty. We can compute the loss values for the loadings and intercepts, for the configural and the scalar model. In theory, the loss should be zero for the scalar model, although it will be a non-zero value as we use a continuous function to approximate $L_0$ penalty.
 
 ```{r}
 # Loss function for configural model
@@ -157,6 +168,8 @@ composite_pair_loss(t(ld_mat_a), fun = alf)
 composite_pair_loss(t(int_mat_a), fun = alf)
 ```
 
+Next, we try the L0a penalty while setting the tuning parameter to $\log(N) / N / 2$, which approximately corresponds to minimizing the Bayesian information criterion (BIC) (as discussed in Robitzsch, 2023).
+
 ```{r, eval=eval_dbic}
 dbic_fit <- penalized_est(
     lconfig_fit_un,
@@ -189,7 +202,7 @@ composite_pair_loss(t(ld_mat_p), fun = l0a)
 composite_pair_loss(t(int_mat_p), fun = l0a)
 ```
 
-Compare log-likelihoods
+### Comparing log-likelihoods
 
 ```{r}
 c(
@@ -198,4 +211,23 @@ c(
     "ALF (w = 0.1)" = logLik(alf_fit),
     "L0 (DBIC)" = logLik(dbic_fit)
 )
+```
+
+### Comparing the latent means and variances
+
+The first seven numbers are the latent means, and the last seven numbers are the latent variances. The configural model is not included here as the latent means and variances are arbitrarily set to 0 and 1, respectively, for all waves.
+
+```{r}
+ests <- lapply(
+    list(
+        "Scalar" = lscalar_fit,
+        "ALF (w = 0.1)" = alf_fit,
+        "L0 (DBIC)" = dbic_fit
+    ),
+    function(fit) {
+        est <- lavInspect(fit, "est")
+        c(est$alpha, diag(est$psi))
+    }
+)
+do.call(rbind, ests)
 ```

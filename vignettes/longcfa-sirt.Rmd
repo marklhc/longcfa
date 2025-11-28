@@ -9,8 +9,8 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>"
 )
 ```
 
@@ -36,49 +36,53 @@ lconfig_mod <- "
   dem65 =~ y5 + y6 + y7 + y8
 "
 lconfig_fit <- cfa(
-  lconfig_mod,
-  data = PoliticalDemocracy,
-  std.lv = TRUE,
-  meanstructure = TRUE
+    lconfig_mod,
+    data = PoliticalDemocracy,
+    std.lv = TRUE,
+    meanstructure = TRUE
 )
 lconfig_fit
 ```
 
 ```{r}
 ind_mat <- matrix(
-  c("y1", "y2", "y3", "y4", "y5", "y6", "y7", "y8"),
-  nrow = 4
+    c("y1", "y2", "y3", "y4", "y5", "y6", "y7", "y8"),
+    nrow = 4
 )
 ```
 
-Alignment optimization
+## Alignment optimization
+
+The idea of alignment optimization ([Asparouhov & Muthén, 2014](https://www.statmodel.com/examples/webnotes/webnote18_3.pdf)) is to find, among all solutions that have the same fit as the configural invariance model, approximate measurement invariance by minimizing the amount of non-invariance in the model parameters. 
+
+The package does not directly import functions from `sirt`, but instead contains some helper functions to help prepare inputs to pass to `sirt::invariance.alignment()`, as shown below.
 
 ```{r}
 ld_mat <- get_lav_par_mat(lconfig_fit, op = "=~", ind_matrix = ind_mat)
 int_mat <- get_lav_par_mat(lconfig_fit, op = "~1", ind_matrix = ind_mat)
 aligned <- invariance.alignment(t(ld_mat), t(int_mat), meth = 2)
 aligned_fit <- update_ustart(
-  lconfig_fit,
-  c(18, 29),
-  c(aligned$pars$psi0[2]^2, aligned$pars$alpha0[2]),
-  se = "none" # SE not trustworthy after alignment with arbitrary constraints
+    lconfig_fit,
+    c(18, 29),
+    c(aligned$pars$psi0[2]^2, aligned$pars$alpha0[2]),
+    se = "none" # SE not trustworthy after alignment with arbitrary constraints
 )
 ```
 
-Two-stage estimation
+### Two-stage estimation
 
 ```{r}
 fs_aligned <- lavPredict(aligned_fit, method = "Bartlett", acov = TRUE)
 colnames(fs_aligned) <- paste0("fs_", colnames(fs_aligned))
 attr(fs_aligned, "acov")
 step2_fit <- cfa(
-  "dem60 =~ 1 * fs_dem60
+    "dem60 =~ 1 * fs_dem60
    dem65 =~ 1 * fs_dem65
    fs_dem60 ~~ 1.294956e-01 * fs_dem60
    fs_dem65 ~~ 1.084581e-01 * fs_dem65
    dem60 ~~ dem65",
-  data = fs_aligned,
-  meanstructure = TRUE
+    data = fs_aligned,
+    meanstructure = TRUE
 )
 summary(step2_fit)
 ```
