@@ -143,6 +143,10 @@ longcfa <- function(
 # - Or a data.frame with named columns? item, group (list column), thresholds?
 
 #' @rdname longcfa
+#' @param free_latvars Logical; whether to free all latent variances,
+#'   regardless of `long_equal` specifications.
+#' @param free_latmeans Logical; whether to free all latent means,
+#'   regardless of `long_equal` specifications.
 #' @export
 longcfa_syntax <- function(
     ind_matrix,
@@ -152,7 +156,9 @@ longcfa_syntax <- function(
     long_equal = NULL,
     long_partial = NULL,
     nthres = matrix(0, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix)),
-    fix_theta = FALSE
+    fix_theta = FALSE,
+    free_latvars = FALSE,
+    free_latmeans = FALSE
 ) {
     if (
         !is.null(long_partial) &&
@@ -192,7 +198,10 @@ longcfa_syntax <- function(
         seq_len(nrow(ind_matrix)),
         ncol(ind_matrix),
         cell_len = if (any(nf > 1)) {
-            matrix(nf, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix),
+            matrix(
+                nf,
+                nrow = nrow(ind_matrix),
+                ncol = ncol(ind_matrix),
                 byrow = TRUE
             )
         } else {
@@ -204,7 +213,7 @@ longcfa_syntax <- function(
     )
     latvar_syntax <- latent_var_syntax(
         lv_names,
-        fix = if ("loadings" %in% long_equal) "first" else "all"
+        fix = if (free_latvars || "loadings" %in% long_equal) "first" else "all"
     )
     scalar_inv <- "thresholds" %in% long_equal | "intercepts" %in% long_equal
     ind_cat <- rowMeans(nthres) > 0
@@ -233,7 +242,7 @@ longcfa_syntax <- function(
     }
     latmean_syntax <- latent_mean_syntax(
         lv_names,
-        fix = if (scalar_inv) "first" else "all"
+        fix = if (free_latmeans || scalar_inv) "first" else "all"
     )
     uniq_labels <- gen_labels(
         seq_len(nrow(ind_matrix)),
