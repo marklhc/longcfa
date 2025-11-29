@@ -81,8 +81,17 @@ get_lav_par_mat <- function(
 #'
 #' @export
 update_ustart <- function(x, par_id, new_start, ...) {
+    x_opt <- x@Options
+    x_ss <- x@SampleStats
+    x_dat <- x@Data
     pt <- lavaan::partable(x)
     pt$ustart[par_id] <- new_start
     pt <- pt[setdiff(names(pt), c("start", "est", "se"))]
-    lavaan::update(x, pt, ...)
+    lavaan::lavaan(
+        pt,
+        slotOptions = x_opt,
+        slotSampleStats = x_ss,
+        slotData = x_dat,
+        ...
+    )
 }
