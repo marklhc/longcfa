@@ -59,14 +59,23 @@ composite_pair_loss <- function(x, fun, trans = identity, rescale = "df", ...) {
     sum(out) * rescale
 }
 
-gr_cpl_alf <- function(x, eps = .001) {
+hot_gr <- function(x, hot, fun, ...) {
+    out <- 0 * x
+    if (is.matrix(hot)) {
+        x_hot <- matrix(x[hot], nrow = nrow(hot), ncol = ncol(hot))
+    } else {
+        x_hot <- x[hot]
+    }
+    out[hot] <- fun(x_hot, ...)
+    out
+}
+
+gr_cpl <- function(x, gr_fun, eps) {
     x_mat <- as.matrix(x)
     combn_idx <- combn(nrow(x_mat), 2)
     diffs <- x_mat[combn_idx[1, ], , drop = FALSE] -
-        x_mat[combn_idx[2, ], drop = FALSE]
-    signs <- sign(diffs)
-    denom <- 2 * (diffs^2 + eps)^.75
-    grad_contribs <- diffs / denom
+        x_mat[combn_idx[2, ], , drop = FALSE]
+    grad_contribs <- gr_fun(diffs)
     grad <- matrix(0, nrow = nrow(x_mat), ncol = ncol(x_mat))
     for (i in seq_len(nrow(x_mat))) {
         idx1 <- which(combn_idx[1, ] == i)
@@ -107,6 +116,10 @@ alf <- function(x, eps = .001) {
     (x^2 + eps)^.25
 }
 
+gr_alf <- function(v, eps = .001) {
+    v / (2 * (v^2 + eps)^.75)
+}
+
 #' @rdname loss
 #'
 #' @details L0a, x^2/(x^2 + eps), is an approximation of the L0 penalty.
@@ -120,27 +133,40 @@ l0a <- function(x, eps = .01) {
     x^2 / (x^2 + eps)
 }
 
+gr_l0a <- function(v, eps = .01) {
+    2 * v * eps / (v^2 + eps)^2
+}
+
 # Penalized objective function
 penalized_obj <- function(
     x,
     obj_fn,
-    pt,
-    ind_matrix,
     w,
     pen_fn,
-    pen_op = c("=~", "~1")
+    pen_par_id = NULL,
+    pen_diff_id = NULL
 ) {
-    par_mats <- lapply(
-        pen_op,
-        function(op) par_to_mat(x, op, pt, ind_matrix)
-    )
-    obj_fn(x) +
-        w *
-            Reduce(
-                function(acc, mat) acc + pen_fn(t(mat)),
-                par_mats,
-                init = 0
-            )
+    out <- obj_fn(x)
+    if (!is.null(pen_par_id)) {
+        out <- out + w * sum(pen_fn(x[pen_par_id]))
+    }
+    if (!is.null(pen_diff_id)) {
+        out <- out +
+            w *
+                Reduce(
+                    function(acc, mat) {
+                        x_mat <- matrix(
+                            x[mat],
+                            nrow = nrow(mat),
+                            ncol = ncol(mat)
+                        )
+                        acc + composite_pair_loss(x_mat, fun = pen_fn)
+                    },
+                    pen_diff_id,
+                    init = 0
+                )
+    }
+    out
 }
 
 #' Penalized Parameter Estimation for Longitudinal CFA Models
@@ -154,23 +180,22 @@ penalized_obj <- function(
 #' @param x A fitted lavaan model object from which estimation components will
 #'   be extracted.
 #' @param w Penalty weights applied to the parameters.
-#' @param ind_matrix Matrix defining the structure of indicators. See
-#'   [longcfa()] for details on the structure.
-#' @param pen_fn A function that computes the penalty. Default is a composite
-#'   pair loss using the [alf()] penalty. The function should
-#'   take parameter values and return a penalty value.
-#' @param pen_op A character vector specifying which lavaan operators to apply
-#'   penalties to. Default is `c("=~", "~1")` for factor loadings and intercepts.
+#' @param pen_par_id Integer vector of parameter IDs to apply the penalty function
+#'   directly to, in the same order as returned by `lavaan::coef()` and by
+#'   [lavaan::partable()], with only the free elements.
+#' @param pen_diff_id List of matrices containing parameter IDs. For each matrix,
+#'   the penalty is applied to the pairwise differences of parameters in the same
+#'   column indicated by the IDs.
+#' @param pen_fn A character string ("l0a" or "alf") or a function that computes
+#'   the penalty. Default is `"l0a"`.
+#' @param pen_gr A function that computes the gradient of the penalty function.
+#'   If `pen_fn` is "l0a" or "alf", this is automatically set.
 #' @param opt_control A list of control parameters passed to `nlminb()` optimizer.
 #'   Default includes `eval.max = 2e4`, `iter.max = 1e4`, and `abs.tol = 1e-20`.
-#' @param data2 An optional second dataset. If provided, the optimized parameters
-#'   will be used to fit a model on this dataset, and the result will be stored
-#'   in the `"fit2"` attribute of the output.
 #'
 #' @return A lavaan model object updated with the penalized parameter estimates.
-#'   The returned object includes two attributes:
-#'   \item{opt_info}{The optimization information returned by `nlminb()`}
-#'   \item{fit2}{(Optional) A fitted model on `data2` if provided}
+#'   The returned object includes an attribute `opt_info` containing the
+#'   optimization information returned by `nlminb()`.
 #'
 #' @details
 #' The function uses `nlminb()` to minimize a penalized objective function that
@@ -201,11 +226,16 @@ penalized_obj <- function(
 #' fit_un <- cfa(mod_un, data = PoliticalDemocracy, do.fit = FALSE, std.lv = TRUE,
 #'               start = fit)
 #'
+#' # Get parameter IDs for loadings
+#' load_ids <- get_lav_par_id(fit_un, op = "=~", ind_matrix = ind_mat)
+#' int_ids <- get_lav_par_id(fit_un, op = "~1", ind_matrix = ind_mat)
+#'
 #' # Apply penalized estimation with alignment loss
 #' pen_fit <- penalized_est(
 #'     x = fit_un,
 #'     w = 0.1,
-#'     ind_matrix = ind_mat
+#'     pen_diff_id = list(cbind(t(load_ids), t(int_ids))),
+#'     pen_fn = "alf"
 #' )
 #'
 #' # Compare parameter estimates
@@ -220,26 +250,51 @@ penalized_obj <- function(
 penalized_est <- function(
     x,
     w,
-    ind_matrix,
-    pen_fn = function(x) composite_pair_loss(x, fun = alf),
-    pen_op = c("=~", "~1"),
+    pen_par_id = NULL,
+    pen_diff_id = NULL,
+    pen_fn = "l0a",
+    pen_gr = NULL,
     opt_control = list(
         eval.max = 2e4,
         iter.max = 1e4,
         abs.tol = 1e-20
-    ),
-    data2 = NULL
+    )
 ) {
     ff <- lavaan::lav_export_estimation(x)
+    if (pen_fn %in% c("l0a", "alf")) {
+        pen_gr <- switch(
+            pen_fn,
+            l0a = gr_l0a,
+            alf = gr_alf
+        )
+        pen_fn <- get(pen_fn)
+    }
+    f1 <- function(v) {
+        penalized_obj(
+            v,
+            obj_fn = function(pars) {
+                ff$objective_function(pars, lavaan_model = x)
+            },
+            w = w,
+            pen_fn = pen_fn,
+            pen_par_id = pen_par_id,
+            pen_diff_id = pen_diff_id
+        )
+    }
+    gr1 <- function(v) {
+        penalized_gr(
+            v,
+            gr_fn = function(pars) ff$gradient_function(pars, lavaan_model = x),
+            w = w,
+            pen_gr = pen_gr,
+            pen_par_id = pen_par_id,
+            pen_diff_id = pen_diff_id
+        )
+    }
     opt <- nlminb(
         ff$starting_values,
-        objective = penalized_obj,
-        obj_fn = function(pars) ff$objective_function(pars, lavaan_model = x),
-        pt = lavaan::partable(x),
-        ind_matrix = ind_matrix,
-        w = w,
-        pen_fn = pen_fn,
-        pen_op = pen_op,
+        objective = f1,
+        gradient = gr1,
         control = opt_control
     )
     if (opt$convergence != 0) {
@@ -248,10 +303,41 @@ penalized_est <- function(
             "or adjusting optimization control parameters."
         )
     }
-    out <- update(x, start = opt$par, data = x@Data)
+    out <- lavaan::lavaan(
+        lavaan::partable(x),
+        slotOptions = x@Options,
+        slotSampleStats = x@SampleStats,
+        slotData = x@Data,
+        do.fit = FALSE,
+        start = opt$par
+    )
     attr(out, "opt_info") <- opt
-    if (!is.null(data2)) {
-        attr(out, "fit2") <- update(x, start = opt$par, data = data2)
+    out
+}
+
+penalized_gr <- function(
+    x,
+    gr_fn,
+    w,
+    pen_gr,
+    pen_par_id = NULL,
+    pen_diff_id = NULL,
+    ...
+) {
+    out <- gr_fn(x)
+    if (!is.null(pen_par_id)) {
+        out <- out + w * hot_gr(x, pen_par_id, pen_gr, ...)
+    }
+    if (!is.null(pen_diff_id)) {
+        out <- out +
+            w *
+                Reduce(
+                    function(acc, mat) {
+                        acc + hot_gr(x, mat, gr_cpl, gr_fun = pen_gr, ...)
+                    },
+                    pen_diff_id,
+                    init = 0
+                )
     }
     out
 }
