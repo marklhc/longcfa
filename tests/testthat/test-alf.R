@@ -124,3 +124,65 @@ test_that("par_to_mat works correctly", {
     expect_equal(ld_mat, matrix(c(4:6, NA, 1:3, NA, 7:10), ncol = 3))
     expect_equal(int_mat, matrix(c(13:15, NA, 16:18, NA, 19:22), ncol = 3))
 })
+
+test_that("gr_cpl() computes the right gradient", {
+    ld_mat <- structure(
+        c(
+            2.13324692100505,
+            2.98948361240368,
+            2.26448876139142,
+            2.92469178270292,
+            1.95718901005903,
+            2.6885288670966,
+            2.69142987862754,
+            2.81722345109902
+        ),
+        dim = c(4L, 2L)
+    )
+    g1 <- gr_cpl(t(ld_mat), gr_alf, .001)
+    g2 <- numDeriv::grad(
+        function(x) composite_pair_loss(matrix(x, nrow = 2), fun = alf),
+        as.vector(t(ld_mat))
+    )
+    expect_equal(g1, g2)
+    g3 <- gr_cpl(t(ld_mat), gr_l0a, .01)
+    g4 <- numDeriv::grad(
+        function(x) composite_pair_loss(matrix(x, nrow = 2), fun = l0a),
+        as.vector(t(ld_mat))
+    )
+    expect_equal(g3, g4)
+})
+
+test_that("gr_cpl() computes the right gradient with multiple groups", {
+    ld_mat <- structure(
+        c(
+            0.949629979618972,
+            1.03082275557671,
+            0.994691979624166,
+            1.09084353768524,
+            1.03546694498492,
+            1.07190071490556,
+            1.01064097248655,
+            1.14899911389366,
+            1.044765508461,
+            1.12567318028583,
+            1.01011416906684,
+            1.10052636664253,
+            1.02154340252047,
+            1.17087864385868
+        ),
+        dim = c(2L, 7L)
+    )
+    g1 <- gr_cpl(t(ld_mat), gr_alf, .001)
+    g2 <- numDeriv::grad(
+        function(x) composite_pair_loss(matrix(x, nrow = 7), fun = alf),
+        as.vector(t(ld_mat))
+    )
+    expect_equal(g1, g2)
+    g3 <- gr_cpl(t(ld_mat), gr_l0a, .01)
+    g4 <- numDeriv::grad(
+        function(x) composite_pair_loss(matrix(x, nrow = 7), fun = l0a),
+        as.vector(t(ld_mat))
+    )
+    expect_equal(g3, g4)
+})

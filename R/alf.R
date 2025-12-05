@@ -70,7 +70,7 @@ hot_gr <- function(x, hot, fun, ...) {
     out
 }
 
-gr_cpl <- function(x, gr_fun, eps) {
+gr_cpl <- function(x, gr_fun, eps, rescale = "df") {
     x_mat <- as.matrix(x)
     combn_idx <- combn(nrow(x_mat), 2)
     diffs <- x_mat[combn_idx[1, ], , drop = FALSE] -
@@ -83,7 +83,15 @@ gr_cpl <- function(x, gr_fun, eps) {
         grad[i, ] <- colSums(grad_contribs[idx1, , drop = FALSE]) -
             colSums(grad_contribs[idx2, , drop = FALSE])
     }
-    as.vector(grad)
+    if (rescale == "df") {
+        dof <- nrow(x_mat) - 1
+        ncombn <- ncol(combn_idx)
+        rescale <- dof / ncombn
+    }
+    if (!is.numeric(rescale)) {
+        stop("rescale must be 'df' or a numeric value.")
+    }
+    as.vector(grad) * rescale
 }
 
 #' Loss functions
