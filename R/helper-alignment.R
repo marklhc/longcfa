@@ -38,8 +38,8 @@ par_to_mat <- function(x, op, pt, ind_matrix) {
 #' @param ind_matrix Matrix defining the structure of indicators. See
 #'   [longcfa()] for details on the structure.
 #'
-#' @return A matrix containing the estimated parameters from the lavaan object,
-#'   organized according to `ind_matrix`.
+#' @return A matrix containing the estimated parameters (or IDs) from the
+#'   lavaan object, organized according to `ind_matrix`.
 #'
 #' @export
 get_lav_par_mat <- function(
@@ -49,6 +49,18 @@ get_lav_par_mat <- function(
 ) {
     pt <- lavaan::partable(x)
     par_to_mat(pt$est[pt$free != 0], op, pt, ind_matrix)
+}
+
+#' @rdname get_lav_par_mat
+#'
+#' @details `get_lav_par_id()` extracts the parameter IDs from a fitted lavaan object,
+#' based on the specified operator and indicator matrix.
+#'
+#' @export
+get_lav_par_id <- function(x, op = c("=~", "~1"), ind_matrix) {
+    pt <- lavaan::partable(x)
+    out <- get_op_idx(pt, op, ind_matrix)
+    matrix(out, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix))
 }
 
 #' Update User Starting Values for Specific Parameters by ID
