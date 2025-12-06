@@ -2,9 +2,12 @@
 % Please edit documentation in R/helper-alignment.R
 \name{get_lav_par_mat}
 \alias{get_lav_par_mat}
+\alias{get_lav_par_id}
 \title{Extract Parameter Matrix from lavaan Object}
 \usage{
 get_lav_par_mat(x, op = c("=~", "~1"), ind_matrix)
+
+get_lav_par_id(x, op = c("=~", "~1"), ind_matrix)
 }
 \arguments{
 \item{x}{A fitted lavaan object.}
@@ -16,10 +19,14 @@ get_lav_par_mat(x, op = c("=~", "~1"), ind_matrix)
 \code{\link[=longcfa]{longcfa()}} for details on the structure.}
 }
 \value{
-A matrix containing the estimated parameters from the lavaan object,
-organized according to \code{ind_matrix}.
+A matrix containing the estimated parameters (or IDs) from the
+lavaan object, organized according to \code{ind_matrix}.
 }
 \description{
 Extracts parameter estimates from a fitted lavaan object and organizes them
 into a matrix based on the indicator matrix structure.
+}
+\details{
+\code{get_lav_par_id()} extracts the parameter IDs from a fitted lavaan object,
+based on the specified operator and indicator matrix.
 }

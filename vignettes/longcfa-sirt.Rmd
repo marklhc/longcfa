@@ -86,3 +86,18 @@ step2_fit <- cfa(
 )
 summary(step2_fit)
 ```
+
+
+### Alignment with an approximate $L_0$ loss function
+
+```{r}
+aligned_l0a <- invariance.alignment(
+    t(ld_mat),
+    t(int_mat),
+    align.pow = c(0, 0),
+    meth = 2
+)
+aligned_l0a$pars
+```
+
+The results are quite similar to those obtained from the ALF loss function.

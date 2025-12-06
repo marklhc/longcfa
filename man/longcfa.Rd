@@ -26,6 +26,7 @@ longcfa_syntax(
   ind_matrix,
   lv_names,
   pattern = NULL,
+  ucov_mat = matrix(nrow = 0, ncol = 2),
   lag_cov = FALSE,
   long_equal = NULL,
   long_partial = NULL,
@@ -82,6 +83,10 @@ item, in the same dimension as \code{ind_matrix}.}
 This is default for ordered categorical data.}
 
 \item{...}{Other arguments passed to \code{lavaan::cfa()}, such as \code{data}.}
+
+\item{ucov_mat}{A two-column matrix specifying pairs of indicators
+within the same time point to have their residuals correlated. Each row
+specifies a pair of indicators by their row indices in \code{ind_matrix}.}
 
 \item{free_latvars}{Logical; whether to free all latent variances,
 regardless of \code{long_equal} specifications.}

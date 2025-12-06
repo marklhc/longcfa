@@ -7,11 +7,11 @@
 penalized_est(
   x,
   w,
-  ind_matrix,
-  pen_fn = function(x) composite_pair_loss(x, fun = alf),
-  pen_op = c("=~", "~1"),
-  opt_control = list(eval.max = 20000, iter.max = 10000, abs.tol = 1e-20),
-  data2 = NULL
+  pen_par_id = NULL,
+  pen_diff_id = NULL,
+  pen_fn = "l0a",
+  pen_gr = NULL,
+  opt_control = list(eval.max = 20000, iter.max = 10000, abs.tol = 1e-20)
 )
 }
 \arguments{
@@ -20,28 +20,27 @@ be extracted.}
 
 \item{w}{Penalty weights applied to the parameters.}
 
-\item{ind_matrix}{Matrix defining the structure of indicators. See
-\code{\link[=longcfa]{longcfa()}} for details on the structure.}
+\item{pen_par_id}{Integer vector of parameter IDs to apply the penalty function
+directly to, in the same order as returned by \code{lavaan::coef()} and by
+\code{\link[lavaan:parTable]{lavaan::partable()}}, with only the free elements.}
 
-\item{pen_fn}{A function that computes the penalty. Default is a composite
-pair loss using the \code{\link[=alf]{alf()}} penalty. The function should
-take parameter values and return a penalty value.}
+\item{pen_diff_id}{List of matrices containing parameter IDs. For each matrix,
+the penalty is applied to the pairwise differences of parameters in the same
+column indicated by the IDs.}
 
-\item{pen_op}{A character vector specifying which lavaan operators to apply
-penalties to. Default is \code{c("=~", "~1")} for factor loadings and intercepts.}
+\item{pen_fn}{A character string ("l0a" or "alf") or a function that computes
+the penalty. Default is \code{"l0a"}.}
+
+\item{pen_gr}{A function that computes the gradient of the penalty function.
+If \code{pen_fn} is "l0a" or "alf", this is automatically set.}
 
 \item{opt_control}{A list of control parameters passed to \code{nlminb()} optimizer.
 Default includes \code{eval.max = 2e4}, \code{iter.max = 1e4}, and \code{abs.tol = 1e-20}.}
-
-\item{data2}{An optional second dataset. If provided, the optimized parameters
-will be used to fit a model on this dataset, and the result will be stored
-in the \code{"fit2"} attribute of the output.}
 }
 \value{
 A lavaan model object updated with the penalized parameter estimates.
-The returned object includes two attributes:
-\item{opt_info}{The optimization information returned by \code{nlminb()}}
-\item{fit2}{(Optional) A fitted model on \code{data2} if provided}
+The returned object includes an attribute \code{opt_info} containing the
+optimization information returned by \code{nlminb()}.
 }
 \description{
 Performs penalized estimation on a lavaan model object by optimizing a
@@ -76,11 +75,16 @@ mod_un <- longcfa_syntax(
 fit_un <- cfa(mod_un, data = PoliticalDemocracy, do.fit = FALSE, std.lv = TRUE,
               start = fit)
 
+# Get parameter IDs for loadings
+load_ids <- get_lav_par_id(fit_un, op = "=~", ind_matrix = ind_mat)
+int_ids <- get_lav_par_id(fit_un, op = "~1", ind_matrix = ind_mat)
+
 # Apply penalized estimation with alignment loss
 pen_fit <- penalized_est(
     x = fit_un,
     w = 0.1,
-    ind_matrix = ind_mat
+    pen_diff_id = list(cbind(t(load_ids), t(int_ids))),
+    pen_fn = "alf"
 )
 
 # Compare parameter estimates
