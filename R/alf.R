@@ -74,7 +74,7 @@ gr_cpl <- function(
     x,
     gr_fun,
     trans = identity,
-    gr_trans = identity,
+    gr_trans = function(x) 1,
     rescale = "df"
 ) {
     x_mat <- as.matrix(trans(x))
@@ -346,17 +346,28 @@ penalized_gr <- function(
         out <- out + w * hot_gr(x, pen_par_id, pen_gr, ...)
     }
     if (!is.null(pen_diff_id)) {
-        trans_diff <- rep(list(function(x) 1), length(pen_diff_id))
+        trans_diff <- rep(list(identity), length(pen_diff_id))
+        gr_trans_diff <- rep(list(function(x) 1), length(pen_diff_id))
         if (any(grepl("^loading", names(pen_diff_id)))) {
-            trans_diff[[grep("^loading", names(pen_diff_id))]] <-
+            trans_diff[[grep("^loading", names(pen_diff_id))]] <- log
+            gr_trans_diff[[grep("^loading", names(pen_diff_id))]] <-
                 function(x) 1 / x
         }
         pen_diff_gr <- Map(
-            function(mat, trans) {
-                hot_gr(x, mat, gr_cpl, gr_fun = pen_gr, gr_trans = trans, ...)
+            function(mat, trans, gr_trans) {
+                hot_gr(
+                    x,
+                    mat,
+                    gr_cpl,
+                    gr_fun = pen_gr,
+                    trans = trans,
+                    gr_trans = gr_trans,
+                    ...
+                )
             },
             mat = pen_diff_id,
-            trans = trans_diff
+            trans = trans_diff,
+            gr_trans = gr_trans_diff
         )
         out <- out + w * Reduce(`+`, pen_diff_gr)
     }
