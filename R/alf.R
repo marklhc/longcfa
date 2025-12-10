@@ -70,8 +70,14 @@ hot_gr <- function(x, hot, fun, ...) {
     out
 }
 
-gr_cpl <- function(x, gr_fun, eps, rescale = "df") {
-    x_mat <- as.matrix(x)
+gr_cpl <- function(
+    x,
+    gr_fun,
+    trans = identity,
+    gr_trans = identity,
+    rescale = "df"
+) {
+    x_mat <- as.matrix(trans(x))
     combn_idx <- combn(nrow(x_mat), 2)
     diffs <- x_mat[combn_idx[1, ], , drop = FALSE] -
         x_mat[combn_idx[2, ], , drop = FALSE]
@@ -91,7 +97,7 @@ gr_cpl <- function(x, gr_fun, eps, rescale = "df") {
     if (!is.numeric(rescale)) {
         stop("rescale must be 'df' or a numeric value.")
     }
-    as.vector(grad) * rescale
+    as.vector(grad) * rescale * gr_trans(as.vector(x))
 }
 
 #' Loss functions
@@ -159,20 +165,23 @@ penalized_obj <- function(
         out <- out + w * sum(pen_fn(x[pen_par_id]))
     }
     if (!is.null(pen_diff_id)) {
-        out <- out +
-            w *
-                Reduce(
-                    function(acc, mat) {
-                        x_mat <- matrix(
-                            x[mat],
-                            nrow = nrow(mat),
-                            ncol = ncol(mat)
-                        )
-                        acc + composite_pair_loss(x_mat, fun = pen_fn)
-                    },
-                    pen_diff_id,
-                    init = 0
+        trans_diff <- rep(list(identity), length(pen_diff_id))
+        if (any(grepl("^loading", names(pen_diff_id)))) {
+            trans_diff[[grep("^loading", names(pen_diff_id))]] <- log
+        }
+        pen_diff <- Map(
+            function(mat, trans) {
+                x_mat <- matrix(
+                    x[mat],
+                    nrow = nrow(mat),
+                    ncol = ncol(mat)
                 )
+                composite_pair_loss(x_mat, fun = pen_fn, trans = trans)
+            },
+            mat = pen_diff_id,
+            trans = trans_diff
+        )
+        out <- out + w * sum(unlist(pen_diff))
     }
     out
 }
@@ -337,15 +346,19 @@ penalized_gr <- function(
         out <- out + w * hot_gr(x, pen_par_id, pen_gr, ...)
     }
     if (!is.null(pen_diff_id)) {
-        out <- out +
-            w *
-                Reduce(
-                    function(acc, mat) {
-                        acc + hot_gr(x, mat, gr_cpl, gr_fun = pen_gr, ...)
-                    },
-                    pen_diff_id,
-                    init = 0
-                )
+        trans_diff <- rep(list(function(x) 1), length(pen_diff_id))
+        if (any(grepl("^loading", names(pen_diff_id)))) {
+            trans_diff[[grep("^loading", names(pen_diff_id))]] <-
+                function(x) 1 / x
+        }
+        pen_diff_gr <- Map(
+            function(mat, trans) {
+                hot_gr(x, mat, gr_cpl, gr_fun = pen_gr, gr_trans = trans, ...)
+            },
+            mat = pen_diff_id,
+            trans = trans_diff
+        )
+        out <- out + w * Reduce(`+`, pen_diff_gr)
     }
     out
 }
