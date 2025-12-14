@@ -119,7 +119,6 @@ lconfig_fit_un <- cfa(
     data = PoliticalDemocracy,
     do.fit = FALSE,
     std.lv = TRUE,
-    start = lconfig_fit,
     missing = "fiml",
     estimator = "mlr"
 )

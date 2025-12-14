@@ -206,6 +206,7 @@ add_nlminb_info <- function(fit, opt) {
     fit
 }
 
+#' @importFrom lavaan lavInspect
 add_vcov_pen <- function(fit, hess) {
     meat <- lavInspect(fit, "information.first.order")
     vc_out <- try(solve(hess) %*% meat %*% solve(hess), silent = TRUE)

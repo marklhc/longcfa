@@ -191,13 +191,13 @@ test_that("gr_cpl() computes the right gradient with multiple groups", {
         ),
         dim = c(2L, 7L)
     )
-    g1 <- gr_cpl(t(ld_mat), gr_alf, .001)
+    g1 <- gr_cpl(t(ld_mat), gr_alf)
     g2 <- numDeriv::grad(
         function(x) composite_pair_loss(matrix(x, nrow = 7), fun = alf),
         as.vector(t(ld_mat))
     )
     expect_equal(g1, g2)
-    g3 <- gr_cpl(t(ld_mat), gr_l0a, .01)
+    g3 <- gr_cpl(t(ld_mat), gr_l0a)
     g4 <- numDeriv::grad(
         function(x) composite_pair_loss(matrix(x, nrow = 7), fun = l0a),
         as.vector(t(ld_mat))
