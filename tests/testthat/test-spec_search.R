@@ -1,6 +1,6 @@
 library(lavaan)
 
-test_that("Specification search works", {
+test_that("Extract score test works", {
     ind_mat <- matrix(
         c("y1", "y2", "y3", "y4", "y5", "y6", "y7", "y8"),
         nrow = 4
@@ -23,13 +23,22 @@ test_that("Specification search works", {
     expect_equal(cons2, 5:8)
     score2 <- get_lav_test_score(fit1, ind = c(ind_mat), op = "~1")
     expect_equal(which.max(score2$mi), 2)
-    next_to_relax(
+    to_free <- next_to_relax(
         fit1,
         get_lav_test_score,
         fn_min = 3.84,
         ind = c(ind_mat),
         op = "~1"
     )
+    to_free2 <- next_to_relax(
+        fit1,
+        get_lav_mod,
+        fn_min = 3.84,
+        ind = c(ind_mat),
+        op = "~1"
+    )
+    expect_equal(to_free$lhs, "y6")
+    expect_true(to_free2$lhs %in% c("y2", "y6"))
 })
 
 test_that("lav_constraints_rm works", {
@@ -45,4 +54,51 @@ test_that("lav_constraints_rm works", {
         FUN.VALUE = integer(1)
     )
     expect_true(all(pts_new == 5))
+})
+
+test_that("Specification search works", {
+    ind_mat <- matrix(
+        c("y1", "y2", "y3", "y4", "y5", "y6", "y7", "y8"),
+        nrow = 4
+    )
+    ps1 <- plinv_search(
+        ind_mat,
+        lv_names = c("dem60", "dem65"),
+        data = PoliticalDemocracy,
+        type = c("loadings", "intercepts"),
+        mi_fun = get_lav_test_score,
+        mi_min = 2.00
+    )
+    expect_equal(ps1$traces$rhs[1], "y7")
+    expect_equal(ps1$traces$lhs[2], "y6")
+    skip()
+    ind_mat <- matrix(
+        grep("^ssa", names(mackinnon_etal_wide), value = TRUE),
+        nrow = 7,
+        byrow = TRUE
+    )
+    mackinnon_etal_wide[-1] <- lapply(mackinnon_etal_wide[-1], as.integer)
+    fit_s <- longcfa(
+        ind_mat,
+        lv_names = paste0("SSA", 2:8),
+        data = mackinnon_etal_wide,
+        lag_cov = TRUE,
+        long_equal = c("loadings", "intercepts")
+    )
+    ps1 <- plinv_search_step(
+        fit_s,
+        mi_fun = get_lav_test_score,
+        mi_min = 10,
+        op = "~1",
+        ind = c(ind_mat)
+    )
+    ps2 <- plinv_search_step(
+        fit_s,
+        mi_fun = get_lav_mod,
+        mi_min = 5.99,
+        op = "~1",
+        ind = c(ind_mat)
+    )
+    expect_equal(ps1$trace$lhs, "ssa7_2")
+    expect_equal(ps2$trace$lhs, "ssa7_2")
 })

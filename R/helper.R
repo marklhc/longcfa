@@ -62,3 +62,7 @@ partial_string_to_list <- function(x, ind_matrix) {
     }
     out
 }
+
+pt_to_partial_string <- function(pt) {
+    paste(pt$lhs, pt$op, pt$rhs)
+}

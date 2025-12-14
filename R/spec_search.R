@@ -45,6 +45,16 @@ get_lav_test_score <- function(x, ind, op = c("=~", "~1", "~~")) {
     cbind(pt_test, mi = scores$X2)
 }
 
+get_lav_mod <- function(x, ind, op = c("=~", "~1", "~~")) {
+    mis <- lavaan::modindices(x, free.remove = FALSE)
+    out <- filter_pt(mis, ind, op)
+    merge(
+        out[c("lhs", "op", "rhs", "mi")],
+        partable(x)[c("id", "lhs", "op", "rhs", "group", "plabel")]
+    )
+}
+
+#' @importFrom lavaan partable
 plinv_search_step <- function(
     x,
     op = c("=~", "~1", "~~"),
@@ -80,6 +90,79 @@ plinv_search_step <- function(
         )
     }
     list(fit = new_x, trace = free_trace)
+}
+
+type2op <- function(x) {
+    switch(
+        x,
+        loadings = "=~",
+        intercepts = "~1",
+        thresholds = "|",
+        residuals = "~~",
+        residual.covariances = "~~"
+    )
+}
+
+plinv_search <- function(
+    ind_matrix,
+    lv_names,
+    data,
+    type,
+    mi_fun,
+    mi_min,
+    ...
+) {
+    traces <- NULL
+    if (
+        !all(
+            type %in%
+                c(
+                    "loadings",
+                    "intercepts",
+                    "thresholds",
+                    "residuals",
+                    "residual.covariances"
+                )
+        )
+    ) {
+        stop(
+            "type must be one of 'loadings', 'intercepts', 'thresholds'",
+            "'residuals', or 'residual.covariances'"
+        )
+    }
+    eq_lst <- NULL
+    part_lst <- NULL
+    for (type_i in type) {
+        op <- type2op(type_i)
+        eq_lst <- c(eq_lst, type_i)
+        if (type_i == "intercepts") {
+            part_lst$intercepts <- part_lst$loadings
+        }
+        x_base <- longcfa(
+            ind_matrix,
+            lv_names = lv_names,
+            data = data,
+            long_equal = eq_lst,
+            long_partial = part_lst,
+            ...
+        )
+        res_i <- plinv_search_step(
+            x_base,
+            op = op,
+            mi_fun = mi_fun,
+            mi_min = mi_min,
+            ind = c(ind_matrix)
+        )
+        traces <- rbind(traces, res_i$trace)
+        part_lst[[type_i]] <- rbind(
+            part_lst[[type_i]],
+            partial_string_to_list(
+                pt_to_partial_string(res_i$trace),
+                ind_matrix
+            )[[type_i]]
+        )
+    }
+    list(fit = res_i[[1]], traces = traces)
 }
 
 lav_constraints_rm <- function(pt, plab) {
