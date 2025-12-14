@@ -2,3 +2,47 @@ url: https://marklhc.github.io/longcfa/
 template:
   bootstrap: 5
   math-rendering: mathjax
+reference:
+  - title: Longitudinal CFA
+    desc: Functions for specifying and fitting longitudinal CFA models.
+    contents:
+      - longcfa
+      - longcfa_syntax
+  - title: Penalized Estimation
+    desc: Functions for penalized estimation of longitudinal CFA models.
+    contents:
+      - alf
+      - l0a
+      - composite_pair_loss
+      - penalized_est
+  - title: Specification Search
+    desc: Functions for specification search for longitudinal invariance.
+    contents:
+      - get_lav_mod
+      - get_lav_test_score
+      - plinv_search
+  - title: Example Data
+    desc: Example datasets included in the package.
+    contents:
+      - mackinnon_etal_long
+  - title: Utility Functions
+    contents:
+      - get_lav_par_mat
+      - par_to_mat
+      - update_ustart
+articles:
+- title: Longitudinal invariance
+  navbar: ~
+  contents:
+  - articles/invariance
+  - cat
+  - specification-search
+
+- title: Penalized Estimation
+  navbar: ~
+  desc: Penalized estimation and alignment optimization
+  contents:
+  - penalized
+  - longcfa-sirt
+  - penalized-fa
+  - standard-errors
