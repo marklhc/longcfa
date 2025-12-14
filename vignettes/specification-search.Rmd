@@ -1,0 +1,110 @@
+---
+title: "Specification Search for Partial Invariance"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Specification Search for Partial Invariance}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+```
+
+```{r setup}
+library(longcfa)
+library(lavaan)
+```
+
+This vignette demonstrates how to use the `plinv_search()` function to perform a specification search for partial invariance in longitudinal CFA models. We will use the `PoliticalDemocracy` dataset from the `lavaan` package.
+
+## Data Preparation
+
+First, we define the indicator matrix and latent variable names for the `PoliticalDemocracy` dataset.
+
+```{r}
+data("PoliticalDemocracy", package = "lavaan")
+
+# Define indicator matrix (rows = indicators, columns = time points)
+ind_mat <- cbind(
+    c("y1", "y2", "y3", "y4"),
+    c("y5", "y6", "y7", "y8")
+)
+
+# Define latent variable names
+lv_names <- c("dem60", "dem65")
+```
+
+## Invariance Model
+
+We start by fitting a model with strict longitudinal invariance constraints (on loadings, intercepts, and unique variances).
+
+```{r}
+fit_strict <- longcfa(
+    ind_mat,
+    lv_names = lv_names,
+    data = PoliticalDemocracy,
+    lag_cov = TRUE,
+    long_equal = c("loadings", "intercepts", "residuals")
+)
+
+summary(fit_strict)
+```
+
+## Specification Search
+
+The `plinv_search()` function iteratively relaxes invariance constraints based on modification indices or score tests. Here, we search for partial invariance in both loadings and intercepts.
+
+We use `get_lav_test_score` as the "modification index" function (`mi_fun`), which uses the score test (`lavaan::lavTestScore()`) to identify constraints to release. We set a minimum threshold (`mi_min`) of 3.84 (corresponding to p < .05 for 1 df).
+
+```{r}
+get_lav_test_score(fit_strict, ind = paste0("y", 1:8), op = "~~")
+```
+
+Note that the `plinv_search()` function proceeds in steps, so when `type = c("loadings", "intercepts", "residuals")` is specified, it will first search for loadings from the metric invariance model, then intercepts, and finally residuals.
+
+```{r}
+# Perform specification search
+search_res <- plinv_search(
+    ind_matrix = ind_mat,
+    lv_names = lv_names,
+    data = PoliticalDemocracy,
+    type = c("loadings", "intercepts", "residuals"),
+    mi_fun = get_lav_test_score,
+    mi_min = 3.84,
+    lag_cov = TRUE # Passed to longcfa()
+)
+```
+
+## Results
+
+The result object contains the final fitted model (`fit`) and a trace of the relaxed constraints (`traces`).
+
+### Relaxed Constraints
+
+We can examine which constraints were relaxed during the search process.
+
+```{r}
+search_res$traces
+```
+
+The output shows the left-hand side (`lhs`), operator (`op`), and right-hand side (`rhs`) of the parameters that were freed, along with the modification index (`mi`) at that step.
+
+### Final Model Summary
+
+We can inspect the summary of the final partial invariance model.
+
+```{r}
+summary(search_res$fit)
+```
+
+### Compare Models
+
+Finally, we can compare the initial strict invariance model with the partial invariance model found by the search.
+
+```{r}
+anova(fit_strict, search_res$fit)
+```

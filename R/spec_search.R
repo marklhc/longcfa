@@ -22,6 +22,18 @@ filter_cons <- function(pt, cons) {
     which(cons$lhs %in% pt1$plabel | cons$rhs %in% pt1$plabel)
 }
 
+#' Compute Score Tests for Equality Constraints
+#'
+#' Computes score tests (Lagrange Multiplier tests) for releasing equality
+#' constraints on specific parameters.
+#'
+#' @param x A fitted lavaan object.
+#' @param ind Character vector of indicator names to consider.
+#' @param op Character string specifying the operator type (`"=~"`, `"~1"`, or `"~~"`).
+#'
+#' @return A data frame containing the score test results, including the
+#'   modification index (`mi`) for each constraint.
+#' @export
 get_lav_test_score <- function(x, ind, op = c("=~", "~1", "~~")) {
     pt <- partable(x)
     pt_op <- filter_pt(pt, ind, op)
@@ -45,6 +57,17 @@ get_lav_test_score <- function(x, ind, op = c("=~", "~1", "~~")) {
     cbind(pt_test, mi = scores$X2)
 }
 
+#' Compute Modification Indices for Specific Parameters
+#'
+#' Computes modification indices for specific parameters restricted by
+#' indicator names and operator type.
+#'
+#' @param x A fitted lavaan object.
+#' @param ind Character vector of indicator names to consider.
+#' @param op Character string specifying the operator type (`"=~"`, `"~1"`, or `"~~"`).
+#'
+#' @return A data frame containing the modification indices.
+#' @export
 get_lav_mod <- function(x, ind, op = c("=~", "~1", "~~")) {
     mis <- lavaan::modindices(x, free.remove = FALSE)
     out <- filter_pt(mis, ind, op)
@@ -103,6 +126,35 @@ type2op <- function(x) {
     )
 }
 
+#' Specification Search for Partial Invariance
+#'
+#' Performs a specification search for partial longitudinal invariance by
+#' iteratively freeing parameters with high modification indices or score
+#' test statistics, or other user-defined criteria.
+#'
+#' @param ind_matrix A character matrix specifying the names of the indicator
+#'   variables across time points. Each column corresponds to a time point.
+#' @param lv_names A character vector of names for the latent variables.
+#' @param data A data frame containing the observed variables.
+#' @param type A character vector specifying the types of parameters to search
+#'   for partial invariance. Supported types are `"loadings"`, `"intercepts"`,
+#'   `"thresholds"`, `"residuals"`, and `"residual.covariances"`. The search
+#'   is performed sequentially in the order specified.
+#' @param mi_fun A function to compute modification indices or score tests.
+#'   Common choices are [get_lav_test_score()] (for score tests on equality
+#'   constraints) or [get_lav_mod()] (for modification indices), but other
+#'   functions can be used as long as they return a similar data frame with
+#'   columns of `lhs`, `op`, `rhs`, `id`, and `plabel` as defined in
+#'   [lavaan::parTable()], and a column of `mi`.
+#' @param mi_min A numeric value specifying the minimum threshold for the
+#'   modification index or score test statistic to free a parameter.
+#' @param ... Additional arguments passed to [longcfa()].
+#'
+#' @return A list containing:
+#'   \item{fit}{The final fitted lavaan object with partial invariance constraints.}
+#'   \item{traces}{A data frame tracking the parameters freed during the search process.}
+#'
+#' @export
 plinv_search <- function(
     ind_matrix,
     lv_names,
