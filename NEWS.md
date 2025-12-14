@@ -1,11 +1,16 @@
-# longcfa 0.0.1.9000
+# longcfa 0.0.1.9990
 
-* Penalized estimation with the `penalized_est()` function
-    * with support of the alignment loss function (`alf()`) and L0 approximation penalty (`l0a()`), via the `composite_pair_loss()` function.
-* New data sets `mackinnon_etal_long` and `mackinnon_etal_wide` from MacKinnon et al. ecological momentary assessment study, who made their data publicly available.
-* New `par_to_mat()` and `get_lav_par_mat()` functions for converting parameter vectors to matrices, for use with alignment optimization.
-* New `update_ustart()` function for updating user starting values in lavaan models.
-* New vignettes on alignment optimization and penalized estimation.
+* Added penalized estimation with `penalized_est()` function
+    * Support for alignment loss function (`alf()`) and L0 approximation penalty (`l0a()`)
+    * Robust sandwich standard errors via `se = "robust.huber.white"` argument (experimental)
+    * Uses `composite_pair_loss()` for computing pairwise penalties
+* Added `plinv_search()` function for searching partial invariance models using
+the score test/modification indices
+* New datasets `mackinnon_etal_long` and `mackinnon_etal_wide` from MacKinnon et al. ecological momentary assessment study (CC-BY 4.0)
+* Exported `par_to_mat()` and `get_lav_par_mat()` functions for converting parameter vectors to matrices
+* New `get_lav_par_id()` function for extracting parameter IDs from lavaan objects
+* Added `update_ustart()` function for updating user starting values in lavaan models
+* Enhanced documentation with cross-references and examples
 
 # longcfa 0.0.1
 
