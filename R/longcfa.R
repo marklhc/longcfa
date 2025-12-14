@@ -48,6 +48,7 @@
 #' @return A fit object as returned by `lavaan::cfa()`.
 #'
 #' @importFrom stats var
+#' @importFrom utils modifyList
 #' @examples
 #' library(lavaan)
 #' # Indicator matrix
@@ -89,15 +90,19 @@ longcfa <- function(
     ...
 ) {
     syn_args <- list(
-        ind_matrix,
+        ind_matrix = ind_matrix,
         lv_names = lv_names,
         pattern = pattern,
         lag_cov = lag_cov,
         long_equal = long_equal,
         long_partial = long_partial
     )
+
     is_ordered <- !is.null(ordered) && !isFALSE(ordered)
     if (is_ordered) {
+        # Build ordered-specific arguments
+        ordered_args <- list()
+
         if (!is.null(data) && is.null(nthres)) {
             nlev <- get_nlev_data(
                 data[, unique(sort(ind_matrix)), drop = FALSE],
@@ -110,6 +115,7 @@ longcfa <- function(
                 1
             nthres <- structure(pmax(nthres, 0), dim = dim(ind_matrix))
         }
+
         if (
             "thresholds" %in%
                 long_equal &&
@@ -121,15 +127,20 @@ longcfa <- function(
             )
         }
         if (is.null(fix_theta)) {
-            syn_args$fix_theta <- TRUE
+            ordered_args$fix_theta <- TRUE
         }
-        syn_args <- c(syn_args, list(nthres = nthres))
+
+        # Merge into syn_args
+        syn_args <- modifyList(syn_args, ordered_args)
     }
+
     syn <- do.call(longcfa_syntax, args = syn_args)
 
-    # Use modifyList to merge user arguments with longcfa defaults
-    # This prevents duplicate arguments passed to lavaan::cfa
-    cfa_args <- list(
+    # Define base arguments with your required defaults
+    base_args <- list(...)
+
+    # Define mandatory overrides
+    required_args <- list(
         model = c(syn, model),
         data = data,
         do.fit = do.fit,
@@ -139,7 +150,8 @@ longcfa <- function(
         int.lv.free = TRUE
     )
 
-    final_args <- utils::modifyList(list(...), cfa_args)
+    # Merge: base_args are overridden by required_args
+    final_args <- modifyList(base_args, required_args)
 
     do.call(lavaan::cfa, final_args)
 }
