@@ -33,7 +33,7 @@ mod0 <- "
 fit0 <- cfa(mod0, data = PoliticalDemocracy, std.lv = TRUE, estimator = "MLR")
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 # lav_model_vcov_se(fit0@Model, fit0@ParTable)  # not what I expected
 lavaan:::lav_model_nvcov_robust_sem
 lavaan:::lav_model_nvcov_robust_sandwich
@@ -87,6 +87,58 @@ pefa_fit <- penalized_est(
 summary(pefa_fit)
 ```
 
+```{r, eval=FALSE}
+# Quick simulation to check SEs
+set.seed(1234)
+R <- 250
+est_res <- matrix(NA, nrow = R, ncol = length(coef(pefa_fit)))
+se_res <- matrix(NA, nrow = R, ncol = length(coef(pefa_fit)))
+
+# Use the simple structure model as population
+pop_model <- parTable(pefa_fit)
+
+for (i in 1:R) {
+    # Simulate data
+    dat_sim <- simulateData(pop_model, sample.nobs = 200)
+
+    # Fit penalized model
+    fit_sim <- cfa(mod, data = dat_sim, std.lv = TRUE, do.fit = FALSE)
+    pefa_sim <- try(
+        penalized_est(
+            fit_sim,
+            w = .03,
+            pen_par_id = 4:10,
+            se = "robust.huber.white"
+        ),
+        silent = TRUE
+    )
+
+    if (!inherits(pefa_sim, "try-error")) {
+        est_res[i, ] <- coef(pefa_sim)
+        se_res[i, ] <- sqrt(diag(vcov(pefa_sim)))
+    }
+}
+
+# Compare empirical SD vs mean SE for a few parameters
+# (e.g., first few loadings)
+res_summary <- data.frame(
+    param = names(coef(pefa_fit)),
+    emp_sd = apply(est_res, 2, sd, na.rm = TRUE),
+    mean_se = apply(se_res, 2, mean, na.rm = TRUE)
+)
+```
+
+```{r include=FALSE}
+if (!file.exists("sim-se-summary.rds")) {
+    saveRDS(res_summary, "sim-se-summary.rds")
+} else {
+    res_summary <- readRDS("sim-se-summary.rds")
+}
+```
+
+```{r}
+print(res_summary, digits = 2)
+```
 
 ```{r}
 # meat <- lavInspect(pefa_fit, "information.first.order")
