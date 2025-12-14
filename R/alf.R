@@ -271,6 +271,7 @@ penalized_est <- function(
     pen_diff_id = NULL,
     pen_fn = "l0a",
     pen_gr = NULL,
+    se = "none",
     opt_control = list(
         eval.max = 2e4,
         iter.max = 1e4,
@@ -320,16 +321,54 @@ penalized_est <- function(
             "or adjusting optimization control parameters."
         )
     }
+    x_opt <- x@Options
+    x_opt$start <- opt$par
+    x_opt$do.fit <- FALSE
+    x_opt$se <- "none"
     out <- lavaan::lavaan(
         lavaan::partable(x),
-        slotOptions = x@Options,
+        slotOptions = x_opt,
         slotSampleStats = x@SampleStats,
-        slotData = x@Data,
-        do.fit = FALSE,
-        start = opt$par
+        slotData = x@Data
+        # do.fit = FALSE,
+        # start = opt$par
     )
-    attr(out, "opt_info") <- opt
+    out <- add_nlminb_info(out, opt)
+    hess <- numDeriv::hessian(f1, opt$par)
+    if (se == "robust.huber.white") {
+        attr(out, "hessian") <- hess
+        out <- add_vcov_pen(out, hess)
+    }
     out
+}
+
+add_nlminb_info <- function(fit, opt) {
+    fit@optim$x <- opt$par
+    fit@optim$fx <- opt$objective
+    fit@optim$iterations <- opt$iterations
+    fit@optim$converged <- as.logical(1 - opt$convergence)
+    fit@optim$control <- opt$control
+    fit@optim$dx <- opt$gradient
+    fit@optim$npar <- length(opt$par)
+    fit
+}
+
+add_vcov_pen <- function(fit, hess) {
+    meat <- lavInspect(fit, "information.first.order")
+    vc_out <- try(solve(hess) %*% meat %*% solve(hess), silent = TRUE)
+    if (inherits(vc_out, "try-error")) {
+        vc_out <- NULL
+    }
+    fit@vcov$se <- "robust.huber.white"
+    fit@vcov$vcov <- vc_out / lavInspect(fit, "nobs")
+    fit@vcov$information <- "observed"
+    fit@Options$se <- "robust.huber.white"
+    fit@Options$information <- rep("observed", 2)
+    fit@ParTable$se <- 0 * fit@ParTable$est
+    fit@ParTable$se[which(fit@ParTable$free > 0)] <- sqrt(diag(
+        fit@vcov$vcov
+    ))
+    fit
 }
 
 penalized_gr <- function(
