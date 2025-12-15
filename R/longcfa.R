@@ -129,11 +129,11 @@ longcfa <- function(
             )
         }
         if (is.null(fix_theta)) {
-            ordered_args$fix_theta <- TRUE
+            syn_args$fix_theta <- TRUE
         }
 
         # Merge into syn_args
-        syn_args <- modifyList(syn_args, ordered_args)
+        syn_args <- c(syn_args, list(nthres = nthres))
     }
 
     syn <- do.call(longcfa_syntax, args = syn_args)
@@ -287,7 +287,23 @@ longcfa_syntax <- function(
     )
     syn <- lapply(seq_len(ncol(ind_matrix)), function(t) {
         valid_pos <- which(!is.na(ind_matrix[, t]))
-        valid_ucov_pos <- apply(ucov_mat, 1, function(x) all(x %in% valid_pos))
+        updated_ucov <- apply(
+            ucov_mat,
+            1,
+            match,
+            table = valid_pos,
+            simplify = FALSE
+        )
+        valid_ucov_pos <- which(vapply(
+            updated_ucov,
+            function(x) all(!is.na(x)),
+            logical(1)
+        ))
+        if (length(valid_ucov_pos) == 0) {
+            updated_ucov <- matrix(nrow = 0, ncol = 2)
+        } else {
+            updated_ucov <- do.call(rbind, updated_ucov[valid_ucov_pos])
+        }
         paste0(
             "# Time ",
             t,
@@ -299,7 +315,7 @@ longcfa_syntax <- function(
                     pattern[[t]],
                     ynames = ind_matrix[, t, drop = FALSE]
                 )[valid_pos, , drop = FALSE],
-                ucov_mat = ucov_mat[valid_ucov_pos, , drop = FALSE],
+                ucov_mat = updated_ucov,
                 load_labs = load_labels[valid_pos, t, drop = FALSE],
                 int_lab = int_labels[valid_pos, t, drop = FALSE],
                 thres_lab = thres_labels[valid_pos, t, drop = FALSE],

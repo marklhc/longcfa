@@ -57,8 +57,7 @@ The `longcfa` approach uses an input matrix to specify the indicators in rows, a
 
 ```{r}
 ind_mat <- matrix(
-    c("y1", "y2", "y3", "y4",
-      "y5", "y6", "y7", "y8"),
+    c("y1", "y2", "y3", "y4", "y5", "y6", "y7", "y8"),
     nrow = 4
 )
 ind_mat
@@ -119,12 +118,14 @@ which specifies one noninvariant loading for the second indicator at the second 
 
 ## Models Supported by `longcfa()`
 
-The `longcfa()` only supports a subset of longitudinal CFA models, all with the following restrictions:
+The `longcfa()` supports the following longitudinal CFA models that can be fitted using `lavaan::cfa()`:
 
-- No unique covariances within time points (which can be relaxed by adding to the model with the `longcfa(..., model)` argument)
-- Single-group models (no multiple groups; may be supported in the future)
-
-It currently does not support:
-
-- Invariance of only a subset of thresholds for a categorical indicator over time; for example, for an indicator with three thresholds, one cannot specify that only the first two thresholds are invariant across time points.
-- Labels and equality constraints on the cross-time covariances of the unique factors of the same indicators (which can be achieved by manually adding to the `model` argument of `longcfa()`).
+- Single-group models with continuous and/or categorical indicators
+    * Mixed continuous and categorical indicators are supported, but not fully tested
+    * Multiple-group models may be supported in the future
+- Models with different numbers of factors across time (not tested yet) 
+- Single and multi-factor (experimental and not fully tested) models within a time point
+- Loading, intercept, unique variance, and concurrent unique covariance (experimental) invariance across time points
+    * Currently, not supporting invariance of only a subset of thresholds for a categorical indicator over time; for example, for an indicator with three thresholds, one cannot specify that only the first two thresholds are invariant across time points
+- Other models can be specified by adding to the `model` argument of `longcfa()`, or modifying the output from the `longcfa_syntax()` function. E.g.,
+    * Labels and equality constraints on the cross-time covariances of the unique factors of the same indicators
