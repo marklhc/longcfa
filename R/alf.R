@@ -60,7 +60,7 @@ composite_pair_loss <- function(x, fun, trans = identity, rescale = "df", ...) {
         stop("rescale must be 'df' or a numeric value.")
     }
     out <- fun(x[combn_idx[1, ], ] - x[combn_idx[2, ], ], ...)
-    sum(out) * rescale
+    sum(out, na.rm = TRUE) * rescale
 }
 
 hot_gr <- function(x, hot, fun, ...) {
@@ -90,9 +90,13 @@ gr_cpl <- function(
     for (i in seq_len(nrow(x_mat))) {
         idx1 <- which(combn_idx[1, ] == i)
         idx2 <- which(combn_idx[2, ] == i)
-        grad[i, ] <- colSums(grad_contribs[idx1, , drop = FALSE]) -
-            colSums(grad_contribs[idx2, , drop = FALSE])
+        grad[i, ] <- colSums(
+            grad_contribs[idx1, , drop = FALSE],
+            na.rm = TRUE
+        ) -
+            colSums(grad_contribs[idx2, , drop = FALSE], na.rm = TRUE)
     }
+    grad[which(is.na(x_mat))] <- NA
     if (rescale == "df") {
         dof <- nrow(x_mat) - 1
         ncombn <- ncol(combn_idx)

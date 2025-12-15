@@ -24,6 +24,31 @@ test_that("composite_pair_loss computes correct sum", {
     expect_true(res3 > res2 & res2 > res1)
 })
 
+test_that("composite_pair_loss handles missing data properly", {
+    x2 <- rbind(
+        c(1, NA, 1.2),
+        c(1, 0.6, NA),
+        c(1, 1.2, 0.9)
+    )
+    result <- composite_pair_loss(x2, fun = alf, eps = 1e-16)
+    expected <- sum(
+        sqrt(abs(x2[1, 1] - x2[2, 1])),
+        sqrt(abs(x2[1, 3] - x2[3, 3])),
+        sqrt(abs(x2[2, 2] - x2[3, 2]))
+    )
+    expect_equal(result, expected * 2 / 3, tolerance = 1e-3)
+    g1 <- gr_cpl(x2, gr_l0a)
+    g2 <- numDeriv::grad(
+        function(x) {
+            mm <- matrix(NA, nrow = nrow(x2), ncol = ncol(x2))
+            mm[!is.na(x2)] <- x
+            composite_pair_loss(mm, fun = l0a)
+        },
+        na.omit(as.vector(x2))
+    )
+    expect_equal(na.omit(g1), g2, ignore_attr = TRUE)
+})
+
 test_that("par_to_mat works correctly", {
     pt <- data.frame(
         lhs = c(
