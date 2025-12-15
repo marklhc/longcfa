@@ -43,6 +43,10 @@
 #'   item, in the same dimension as `ind_matrix`.
 #' @param fix_theta Logical; whether to fix the unique variances to 1.
 #'   This is default for ordered categorical data.
+#' @param free_latvars Logical; whether to free all latent variances,
+#'   regardless of `long_equal` specifications.
+#' @param free_latmeans Logical; whether to free all latent means,
+#'   regardless of `long_equal` specifications.
 #' @param data,do.fit,ordered,allow.empty.cell Same as in
 #'   `lavaan::lavOptions()`.
 #' @param ... Other arguments passed to `lavaan::cfa()`, such as `data`.
@@ -79,6 +83,7 @@ longcfa <- function(
     ind_matrix,
     lv_names,
     pattern = NULL,
+    ucov_mat = NULL,
     data = NULL,
     model = NULL,
     ordered = NULL,
@@ -88,6 +93,8 @@ longcfa <- function(
     long_partial = NULL,
     nthres = NULL,
     fix_theta = NULL,
+    free_latvars = FALSE,
+    free_latmeans = FALSE,
     do.fit = TRUE,
     ...
 ) {
@@ -95,6 +102,11 @@ longcfa <- function(
         ind_matrix = ind_matrix,
         lv_names = lv_names,
         pattern = pattern,
+        ucov_mat = if (is.null(ucov_mat)) {
+            matrix(nrow = 0, ncol = 2)
+        } else {
+            ucov_mat
+        },
         lag_cov = lag_cov,
         long_equal = long_equal,
         long_partial = long_partial
@@ -104,6 +116,11 @@ longcfa <- function(
     if (is_ordered) {
         # Build ordered-specific arguments
         ordered_args <- list()
+        if (is.null(fix_theta)) {
+            ordered_args$fix_theta <- TRUE
+        } else {
+            ordered_args$fix_theta <- fix_theta
+        }
 
         if (!is.null(data) && is.null(nthres)) {
             nlev <- get_nlev_data(
@@ -128,12 +145,10 @@ longcfa <- function(
                 "equal over time."
             )
         }
-        if (is.null(fix_theta)) {
-            syn_args$fix_theta <- TRUE
-        }
+        ordered_args$nthres <- nthres
 
         # Merge into syn_args
-        syn_args <- c(syn_args, list(nthres = nthres))
+        syn_args <- modifyList(syn_args, ordered_args)
     }
 
     syn <- do.call(longcfa_syntax, args = syn_args)
@@ -166,10 +181,6 @@ longcfa <- function(
 #' @param ucov_mat A two-column matrix specifying pairs of indicators
 #'   within the same time point to have their residuals correlated. Each row
 #'   specifies a pair of indicators by their row indices in `ind_matrix`.
-#' @param free_latvars Logical; whether to free all latent variances,
-#'   regardless of `long_equal` specifications.
-#' @param free_latmeans Logical; whether to free all latent means,
-#'   regardless of `long_equal` specifications.
 #' @export
 longcfa_syntax <- function(
     ind_matrix,
@@ -543,7 +554,7 @@ gen_labels <- function(
             out[] <- "NA"
         } else {
             out[] <- mapply(
-                \(x, y) paste(x, y, sep = "_"),
+                function(x, y) paste(x, y, sep = "_"),
                 out,
                 rep(seq_len(nt), each = length(row_nm)),
                 SIMPLIFY = FALSE

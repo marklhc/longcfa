@@ -9,6 +9,7 @@ longcfa(
   ind_matrix,
   lv_names,
   pattern = NULL,
+  ucov_mat = NULL,
   data = NULL,
   model = NULL,
   ordered = NULL,
@@ -18,6 +19,8 @@ longcfa(
   long_partial = NULL,
   nthres = NULL,
   fix_theta = NULL,
+  free_latvars = FALSE,
+  free_latmeans = FALSE,
   do.fit = TRUE,
   ...
 )
@@ -55,6 +58,10 @@ which indicators load on which latent variable. If a list of length
 The default is \code{NULL}, which assumes only one latent variable per
 time point, and all indicators load on it.}
 
+\item{ucov_mat}{A two-column matrix specifying pairs of indicators
+within the same time point to have their residuals correlated. Each row
+specifies a pair of indicators by their row indices in \code{ind_matrix}.}
+
 \item{data, do.fit, ordered, allow.empty.cell}{Same as in
 \code{lavaan::lavOptions()}.}
 
@@ -84,17 +91,13 @@ item, in the same dimension as \code{ind_matrix}.}
 \item{fix_theta}{Logical; whether to fix the unique variances to 1.
 This is default for ordered categorical data.}
 
-\item{...}{Other arguments passed to \code{lavaan::cfa()}, such as \code{data}.}
-
-\item{ucov_mat}{A two-column matrix specifying pairs of indicators
-within the same time point to have their residuals correlated. Each row
-specifies a pair of indicators by their row indices in \code{ind_matrix}.}
-
 \item{free_latvars}{Logical; whether to free all latent variances,
 regardless of \code{long_equal} specifications.}
 
 \item{free_latmeans}{Logical; whether to free all latent means,
 regardless of \code{long_equal} specifications.}
+
+\item{...}{Other arguments passed to \code{lavaan::cfa()}, such as \code{data}.}
 }
 \value{
 A fit object as returned by \code{lavaan::cfa()}.
