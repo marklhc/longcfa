@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 ```{r}
 library(longcfa)
 library(lavaan)
+library(plavaan)
 data(PoliticalDemocracy)
 ```
 

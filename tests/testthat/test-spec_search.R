@@ -122,3 +122,104 @@ test_that("get_op_idx works", {
     expect_equal(load_ids, matrix(c(0, 1:3, 0, 4:6), nrow = 4))
     expect_equal(int_ids, matrix(18:25, nrow = 4))
 })
+
+test_that("par_to_mat works correctly", {
+    pt <- data.frame(
+        lhs = c(
+            "f1",
+            "f1",
+            "f1",
+            "f2",
+            "f2",
+            "f2",
+            "f3",
+            "f3",
+            "f3",
+            "f3",
+            "y1",
+            "y2",
+            "y3",
+            "y4",
+            "y5",
+            "y6",
+            "y7",
+            "y8",
+            "y9",
+            "y10",
+            "f1",
+            "f2",
+            "f3",
+            "f1",
+            "f2",
+            "f3"
+        ),
+        op = c(
+            "=~",
+            "=~",
+            "=~",
+            "=~",
+            "=~",
+            "=~",
+            "=~",
+            "=~",
+            "=~",
+            "=~",
+            "~1",
+            "~1",
+            "~1",
+            "~1",
+            "~1",
+            "~1",
+            "~1",
+            "~1",
+            "~1",
+            "~1",
+            "~1",
+            "~1",
+            "~1",
+            "~~",
+            "~~",
+            "~~"
+        ),
+        rhs = c(
+            "y1",
+            "y2",
+            "y3",
+            "y4",
+            "y5",
+            "y6",
+            "y7",
+            "y8",
+            "y9",
+            "y10",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "f1",
+            "f2",
+            "f3"
+        ),
+        free = c(4:6, 1:3, 7:10, 13:22, rep(0, 4), 11:12),
+        stringsAsFactors = FALSE
+    )
+    ind_mat <- matrix(
+        c(paste0("y", 1:3), NA, paste0("y", 4:6), NA, paste0("y", 7:10)),
+        ncol = 3
+    )
+
+    ld_mat <- par_to_mat(1:24, op = "=~", pt = pt, ind_matrix = ind_mat)
+    int_mat <- par_to_mat(1:24, op = "~1", pt = pt, ind_matrix = ind_mat)
+
+    expect_equal(ld_mat, matrix(c(4:6, NA, 1:3, NA, 7:10), ncol = 3))
+    expect_equal(int_mat, matrix(c(13:15, NA, 16:18, NA, 19:22), ncol = 3))
+})

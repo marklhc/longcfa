@@ -15,6 +15,7 @@ Imports:
 Suggests: 
     knitr,
     numDeriv,
+    plavaan,
     rmarkdown,
     sirt,
     testthat (>= 3.0.0)

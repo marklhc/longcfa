@@ -24,6 +24,7 @@ eval_dbic <- !file.exists("dbic_fit.rds")
 ```{r setup}
 library(longcfa)
 library(lavaan)
+library(plavaan)
 ```
 
 The data used in this vignette is a subset from the daily dairy data described in [Mackinnon et al. (2020)](https://open.lnu.se/index.php/metapsychology/article/view/2595), which contains 7 waves of daily level of state social anxiety (SSA) measured with 7 items at each wave. The data is already converted to wide format, with some missing data.
