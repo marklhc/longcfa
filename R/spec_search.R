@@ -132,8 +132,8 @@ type2op <- function(x) {
 #' iteratively freeing parameters with high modification indices or score
 #' test statistics, or other user-defined criteria.
 #'
-#' @param ind_matrix A character matrix specifying the names of the indicator
-#'   variables across time points. Each column corresponds to a time point.
+#' @param ind_matrix Matrix defining the structure of indicators. See
+#'   [longcfa()] for details on the structure.
 #' @param lv_names A character vector of names for the latent variables.
 #' @param data A data frame containing the observed variables.
 #' @param type A character vector specifying the types of parameters to search
@@ -184,6 +184,7 @@ plinv_search <- function(
     }
     eq_lst <- NULL
     part_lst <- NULL
+    inds <- c(ind_matrix)
     for (type_i in type) {
         op <- type2op(type_i)
         eq_lst <- c(eq_lst, type_i)
@@ -203,7 +204,7 @@ plinv_search <- function(
             op = op,
             mi_fun = mi_fun,
             mi_min = mi_min,
-            ind = c(ind_matrix)
+            ind = inds
         )
         traces <- rbind(traces, res_i$trace)
         part_lst[[type_i]] <- rbind(

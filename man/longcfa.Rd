@@ -37,9 +37,11 @@ longcfa_syntax(
 )
 }
 \arguments{
-\item{ind_matrix}{A \eqn{p \times T} character matrix specifying the
-names of the indicator variables across time points. Each column
-corresponds to a time point.}
+\item{ind_matrix}{A \eqn{p \times T} matrix of character strings,
+where \eqn{p} is the number of indicators and \eqn{T} is the number
+of time points. Rows correspond to repeated measures of the same item,
+and columns correspond to time points. Elements should be the variable
+names in \code{data}.}
 
 \item{lv_names}{A vector of names of \eqn{T} latent variables.}
 

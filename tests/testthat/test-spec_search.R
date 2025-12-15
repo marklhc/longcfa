@@ -102,3 +102,23 @@ test_that("Specification search works", {
     expect_equal(ps1$trace$lhs, "ssa7_2")
     expect_equal(ps2$trace$lhs, "ssa7_2")
 })
+
+test_that("get_op_idx works", {
+    ind_mat <- matrix(
+        c("y1", "y2", "y3", "y4", "y5", "y6", "y7", "y8"),
+        nrow = 4
+    )
+    fit1 <- cfa(
+        "
+      dem60 =~ y1 + y2 + y3 + y4
+      dem65 =~ y5 + y6 + y7 + y8
+      ",
+        data = PoliticalDemocracy,
+        std.lv = FALSE,
+        meanstructure = TRUE
+    )
+    load_ids <- get_lav_par_id(fit1, op = "=~", ind_matrix = ind_mat)
+    int_ids <- get_lav_par_id(fit1, op = "~1", ind_matrix = ind_mat)
+    expect_equal(load_ids, matrix(c(0, 1:3, 0, 4:6), nrow = 4))
+    expect_equal(int_ids, matrix(18:25, nrow = 4))
+})

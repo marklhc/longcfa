@@ -46,9 +46,13 @@
 #' @export
 composite_pair_loss <- function(x, fun, trans = identity, rescale = "df", ...) {
     x <- as.matrix(trans(x))
-    combn_idx <- combn(nrow(x), 2)
+    nrow_x <- nrow(x)
+    if (nrow_x < 2) {
+        return(0)
+    }
+    combn_idx <- combn(nrow_x, 2)
     if (rescale == "df") {
-        dof <- nrow(x) - 1
+        dof <- nrow_x - 1
         ncombn <- ncol(combn_idx)
         rescale <- dof / ncombn
     }

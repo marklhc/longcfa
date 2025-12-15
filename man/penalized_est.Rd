@@ -12,7 +12,7 @@ penalized_est(
   pen_fn = "l0a",
   pen_gr = NULL,
   se = "none",
-  opt_control = list(eval.max = 20000, iter.max = 10000, abs.tol = 1e-20)
+  opt_control = list()
 )
 }
 \arguments{
@@ -66,6 +66,14 @@ interpreting the standard errors, which are generally not valid with
 penalized estimation. The degrees of freedom may also be inaccurate. If the
 optimization does not converge (convergence code != 0), a warning is issued.
 }
+\section{Warning}{
+
+The returned object is not fitted using standard ML. Standard errors reported
+by \code{summary()} or \code{parameterEstimates()} will be missing unless
+\code{se = "robust.huber.white"} was specified. Even then, they are based on an
+experimental sandwich approximation and should be interpreted with caution.
+}
+
 \examples{
 \dontrun{
 library(lavaan)

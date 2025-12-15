@@ -63,6 +63,12 @@ penalized_obj <- function(
 #' @param opt_control A list of control parameters passed to [stats::nlminb()].
 #'   Default includes `eval.max = 2e4`, `iter.max = 1e4`, and `abs.tol = 1e-20`.
 #'
+#' @section Warning:
+#' The returned object is not fitted using standard ML. Standard errors reported
+#' by `summary()` or `parameterEstimates()` will be missing unless
+#' `se = "robust.huber.white"` was specified. Even then, they are based on an
+#' experimental sandwich approximation and should be interpreted with caution.
+#'
 #' @return A lavaan model object updated with the penalized parameter estimates.
 #'   The returned object includes an attribute `opt_info` containing the
 #'   optimization information returned by `nlminb()`.
@@ -125,12 +131,18 @@ penalized_est <- function(
     pen_fn = "l0a",
     pen_gr = NULL,
     se = "none",
-    opt_control = list(
+    opt_control = list()
+) {
+    # Define default control parameters
+    control_defaults <- list(
         eval.max = 2e4,
         iter.max = 1e4,
         abs.tol = 1e-20
     )
-) {
+
+    # Merge with user input
+    control <- modifyList(control_defaults, opt_control)
+
     ff <- lavaan::lav_export_estimation(x)
     if (pen_fn %in% c("l0a", "alf")) {
         pen_gr <- switch(
@@ -166,7 +178,7 @@ penalized_est <- function(
         ff$starting_values,
         objective = f1,
         gradient = gr1,
-        control = opt_control
+        control = control
     )
     if (opt$convergence != 0) {
         warning(

@@ -8,9 +8,11 @@
 #' Currently only supports model with one latent variable at each time
 #' point.
 #'
-#' @param ind_matrix A \eqn{p \times T} character matrix specifying the
-#'   names of the indicator variables across time points. Each column
-#'   corresponds to a time point.
+#' @param ind_matrix A \eqn{p \times T} matrix of character strings,
+#'   where \eqn{p} is the number of indicators and \eqn{T} is the number
+#'   of time points. Rows correspond to repeated measures of the same item,
+#'   and columns correspond to time points. Elements should be the variable
+#'   names in `data`.
 #' @param lv_names A vector of names of \eqn{T} latent variables.
 #' @param pattern A list of \eqn{T} elements specifying the pattern of which
 #'   indicators load on which latent variable. Each element can be a
@@ -201,9 +203,9 @@ longcfa_syntax <- function(
                 (length(pattern) != 1 & length(pattern) != ncol(ind_matrix)))
     ) {
         stop(
-            "`pattern` must be `NULL`, a list with length 1 to indicate same factor pattern ",
-            " across time, or a list with length equal to the number of time points for ",
-            "time-specific patterns."
+            "`pattern` must be `NULL`, a list with length 1 to indicate same ",
+            "factor pattern across time, or a list with length equal to the ",
+            "number of time points for time-specific patterns."
         )
     }
     if (length(pattern) == 1) {

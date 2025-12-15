@@ -7,8 +7,8 @@
 plinv_search(ind_matrix, lv_names, data, type, mi_fun, mi_min, ...)
 }
 \arguments{
-\item{ind_matrix}{A character matrix specifying the names of the indicator
-variables across time points. Each column corresponds to a time point.}
+\item{ind_matrix}{Matrix defining the structure of indicators. See
+\code{\link[=longcfa]{longcfa()}} for details on the structure.}
 
 \item{lv_names}{A character vector of names for the latent variables.}
 
