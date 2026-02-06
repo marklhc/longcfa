@@ -109,7 +109,9 @@ longcfa <- function(
         },
         lag_cov = lag_cov,
         long_equal = long_equal,
-        long_partial = long_partial
+        long_partial = long_partial,
+        free_latvars = free_latvars,
+        free_latmeans = free_latmeans
     )
 
     is_ordered <- !is.null(ordered) && !isFALSE(ordered)
