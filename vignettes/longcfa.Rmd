@@ -75,6 +75,19 @@ lconfig2_fit2 <- longcfa(
 summary(lconfig2_fit2)
 ```
 
+```{r}
+pen_fit <- penalized_longcfa(
+    ind_mat,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    lag_cov = TRUE,
+    w = 0.03,
+    pen_fn = "l0a",
+    se = "robust.huber.white"
+)
+summary(pen_fit)
+```
+
 ## Invariance Constraints
 
 The goal of `longcfa` is to make it less error-prone when specifying longitudinal CFA models, and save time when the number of indicators and/or time points are large. It is perhaps most useful when needing to impose invariance constraints across time points, which is a prerequisite for interpreting changes in the latent constructs over time. For example, we can see the `lavaan` syntax for a longitudinal partial scalar invariance model using the `longcfa_syntax()` function:

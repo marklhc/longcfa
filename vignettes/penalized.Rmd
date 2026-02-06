@@ -125,42 +125,19 @@ composite_pair_loss(t(int_mat_s), fun = alf)
 
 ## Penalized Estimation
 
-With penalized estimation, we first specify an over-parameterized model that estimates all measurement (loadings and intercepts) and structural parameters (latent means and variances) freely across time points, except that the latent variable in Time 1 is standardized. Currently we do not allow that in `longcfa()`, but we can do this with the `free_latvars = TRUE` and `free_latmeans = TRUE` arguments in `longcfa_syntax()`.
-
-```{r}
-lconfig_mod_un <- longcfa_syntax(
-    ind_mat,
-    lv_names = paste0("SSA", 2:8),
-    lag_cov = TRUE,
-    free_latvars = TRUE,
-    free_latmeans = TRUE
-)
-cat(lconfig_mod_un)
-# Specify the under-identified model
-lconfig_fit_un <- cfa(
-    lconfig_mod_un,
-    data = mackinnon_etal_wide,
-    do.fit = FALSE,
-    std.lv = TRUE,
-    start = lscalar_fit,
-    missing = "fiml",
-    estimator = "mlr"
-)
-```
-
-First, we try the ALF penalty with a tuning parameter of 0.1 (which is arbitrary). We need to identify the corresponding ID for the loadings and intercepts parameter, using the `get_lav_par_id()` function.
-
-```{r}
-ld_id <- get_lav_par_id(lconfig_fit_un, "=~", ind_mat)
-int_id <- get_lav_par_id(lconfig_fit_un, "~1", ind_mat)
-```
+With penalized estimation, we first specify an over-parameterized model that estimates all measurement (loadings and intercepts) and structural parameters (latent means and variances) freely across time points, except that the latent variable in Time 1 is standardized. We can use the `penalized_longcfa()` function, which is a wrapper of `plavaan::penalized_est()`, to directly fit the penalized longitudinal CFA model. First, we try the ALF penalty with a tuning parameter of 0.1 (which is arbitrary). 
 
 ```{r, eval=eval_alf}
-alf_fit <- penalized_est(
-    lconfig_fit_un,
+alf_fit <- penalized_longcfa(
+    ind_mat,
+    lv_names = paste0("SSA", 2:8),
+    data = mackinnon_etal_wide,
+    lag_cov = TRUE,
     w = 0.1,
     pen_fn = "alf",
-    pen_diff_id = list(t(ld_id), t(int_id))
+    missing = "fiml",
+    estimator = "mlr",
+    start = lscalar_fit
 )
 ```
 
@@ -180,15 +157,61 @@ composite_pair_loss(t(ld_mat_a), fun = alf)
 composite_pair_loss(t(int_mat_a), fun = alf)
 ```
 
-Next, we try the L0a penalty while setting the tuning parameter to $\log(N) / N / 2$, which approximately corresponds to minimizing the Bayesian information criterion (BIC) (as discussed in Robitzsch, 2023).
+Alternatively, we can first create an unidentified lavaan model with the `free_latvars = TRUE` and `free_latmeans = TRUE` arguments, and then use `plavaan::penalized_est()` to fit the model.
+
+```{r, eval=FALSE}
+# Specify the under-identified model
+lconfig_fit_un <- longcfa(
+    ind_mat,
+    lv_names = paste0("SSA", 2:8),
+    data = mackinnon_etal_wide,
+    lag_cov = TRUE,
+    std.lv = TRUE,
+    free_latvars = TRUE,
+    free_latmeans = TRUE,
+    start = lscalar_fit,
+    missing = "fiml",
+    estimator = "mlr",
+    do.fit = FALSE
+)
+```
+
+We need to identify the corresponding ID for the loadings and intercepts parameter, using the `get_lav_par_id()` function.
+
+```{r, eval=FALSE}
+ld_id <- get_lav_par_id(lconfig_fit_un, "=~", ind_mat)
+int_id <- get_lav_par_id(lconfig_fit_un, "~1", ind_mat)
+```
+
+```{r, eval=FALSE}
+alf_fit <- penalized_est(
+    lconfig_fit_un,
+    w = 0.1,
+    pen_fn = "alf",
+    pen_diff_id = list(loadings = t(ld_id), intercepts = t(int_id))
+)
+```
+
+Next, we try the L0a penalty while setting the tuning parameter to $\log(N) / N / 2$, which approximately corresponds to minimizing the Bayesian information criterion (BIC) (as discussed in [Robitzsch, 2023](https://www.mdpi.com/1999-4893/16/9/446)).
 
 ```{r, eval=eval_dbic}
-dbic_fit <- penalized_est(
-    lconfig_fit_un,
-    w = log(261) / 261 / 2, # based on eq (13) of https://www.mdpi.com/2624-8611/5/4/75#FD9-psych-05-00075
+dbic_fit <- penalized_longcfa(
+    ind_mat,
+    lv_names = paste0("SSA", 2:8),
+    data = mackinnon_etal_wide,
+    lag_cov = TRUE,
+    w = log(261) / 261 / 2,
     pen_fn = "l0a",
-    pen_diff_id = list(t(ld_id), t(int_id))
+    missing = "fiml",
+    estimator = "mlr",
+    start = lscalar_fit
 )
+# dbic_fit <- penalized_est(
+#     lconfig_fit_un,
+#     w = log(261) / 261 / 2, # based on eq (13) of https://www.mdpi.com/2624-8611/5/4/75#FD9-psych-05-00075
+#     pen_fn = "l0a",
+#     pen_diff_id = list(t(ld_id), t(int_id))
+# )
 # AIC penalty
 # l0fit_2 <- penalized_est(
 #     lconfig_fit_un,
