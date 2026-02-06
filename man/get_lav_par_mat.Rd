@@ -5,9 +5,9 @@
 \alias{get_lav_par_id}
 \title{Extract Parameter Matrix from lavaan Object}
 \usage{
-get_lav_par_mat(x, op = c("=~", "~1"), ind_matrix)
+get_lav_par_mat(x, op = c("=~", "~1", "|"), ind_matrix)
 
-get_lav_par_id(x, op = c("=~", "~1"), ind_matrix)
+get_lav_par_id(x, op = c("=~", "~1", "|"), ind_matrix)
 }
 \arguments{
 \item{x}{A fitted lavaan object.}

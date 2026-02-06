@@ -2,26 +2,27 @@
 % Please edit documentation in R/helper-alignment.R
 \name{par_to_mat}
 \alias{par_to_mat}
-\title{Convert Parameter Vector to Matrix}
+\title{Extract Parameter Values to Matrix}
 \usage{
-par_to_mat(x, op, pt, ind_matrix)
+par_to_mat(x, op, ind_matrix, out_col)
 }
 \arguments{
-\item{x}{Numeric vector of parameter values.}
+\item{x}{A fitted lavaan object.}
 
-\item{op}{Character string specifying the operator type. Either \code{"=~"}
-(loadings) or \code{"~1"} (intercepts).}
-
-\item{pt}{Parameter table, typically from \code{lavaan::partable()}.}
+\item{op}{Character string specifying the operator type. One of \code{"=~"},
+\code{"~1"}, or \code{"|"}.}
 
 \item{ind_matrix}{Matrix defining the structure of indicators. See
-\code{\link[=longcfa]{longcfa()}} for details on the structure.}
+\code{\link[=longcfa]{longcfa()}} for details.}
+
+\item{out_col}{Character string specifying the column name in the parameter
+table to extract (e.g., \code{"est"}, \code{"free"}, \code{"se"}).}
 }
 \value{
-A matrix with dimensions matching \code{ind_matrix}, filled with parameter
-values from \code{x} according to the free parameter indices.
+A matrix with dimensions matching \code{ind_matrix} (or stacked matrices
+for thresholds) containing the  extracted values.
 }
 \description{
-Converts a parameter vector to a matrix based on a parameter table and
-indicator matrix structure.
+Internal helper to extract values from a lavaan object's parameter table
+and organize them into a matrix based on the indicator matrix.
 }

@@ -14,7 +14,6 @@ Imports:
     lavaan
 Suggests: 
     knitr,
-    numDeriv,
     plavaan,
     rmarkdown,
     sirt,
