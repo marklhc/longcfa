@@ -1,30 +1,61 @@
-get_op_idx <- function(pt, op = c("=~", "~1"), ind_matrix) {
+get_op_idx <- function(
+    pt,
+    op = c("=~", "~1", "|"),
+    ind_matrix,
+    out_col = "free",
+    return_list = "default"
+) {
     op <- match.arg(op)
-    ind_col <- switch(op, "=~" = "rhs", "~1" = "lhs")
+    ind_col <- switch(op, "=~" = "rhs", "~1" = "lhs", "|" = "lhs")
     pt_sub <- pt[pt[["op"]] == op, , drop = FALSE]
-    idx <- match(ind_matrix, pt_sub[[ind_col]])
-    pt_sub$free[idx]
+    if (op == "|") {
+        pt_sub_list <- split(pt_sub, pt_sub$rhs)
+    } else {
+        pt_sub_list <- list(pt_sub)
+    }
+    out <- lapply(pt_sub_list, function(df) {
+        idx <- match(ind_matrix, df[[ind_col]])
+        df[[out_col]][idx]
+    })
+    if ((return_list == "default" && length(out) == 1) || isTRUE(return_list)) {
+        return(unlist(out))
+    }
+    out
+    # idx <- match(ind_matrix, pt_sub[[ind_col]])
+    # pt_sub$free[idx]
 }
 
-#' Convert Parameter Vector to Matrix
+#' Extract Parameter Values to Matrix
 #'
-#' Converts a parameter vector to a matrix based on a parameter table and
-#' indicator matrix structure.
+#' Internal helper to extract values from a lavaan object's parameter table
+#' and organize them into a matrix based on the indicator matrix.
 #'
-#' @param x Numeric vector of parameter values.
-#' @param op Character string specifying the operator type. Either `"=~"`
-#'   (loadings) or `"~1"` (intercepts).
-#' @param pt Parameter table, typically from `lavaan::partable()`.
+#' @param x A fitted lavaan object.
+#' @param op Character string specifying the operator type. One of `"=~"`,
+#'   `"~1"`, or `"|"`.
 #' @param ind_matrix Matrix defining the structure of indicators. See
-#'   [longcfa()] for details on the structure.
+#'   [longcfa()] for details.
+#' @param out_col Character string specifying the column name in the parameter
+#'   table to extract (e.g., `"est"`, `"free"`, `"se"`).
 #'
-#' @return A matrix with dimensions matching `ind_matrix`, filled with parameter
-#'   values from `x` according to the free parameter indices.
-par_to_mat <- function(x, op, pt, ind_matrix) {
-    free_idx <- get_op_idx(pt, op, ind_matrix)
-    out <- matrix(NA, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix))
-    out[] <- x[free_idx]
-    out
+#' @return A matrix with dimensions matching `ind_matrix` (or stacked matrices
+#'   for thresholds) containing the  extracted values.
+par_to_mat <- function(x, op, ind_matrix, out_col) {
+    pt <- lavaan::partable(x)
+    idx_list <- get_op_idx(
+        pt,
+        op,
+        ind_matrix,
+        out_col = out_col,
+        return_list = FALSE
+    )
+    out <- lapply(
+        idx_list,
+        matrix,
+        nrow = nrow(ind_matrix),
+        ncol = ncol(ind_matrix)
+    )
+    do.call(rbind, out)
 }
 
 #' Extract Parameter Matrix from lavaan Object
@@ -42,13 +73,8 @@ par_to_mat <- function(x, op, pt, ind_matrix) {
 #'   lavaan object, organized according to `ind_matrix`.
 #'
 #' @export
-get_lav_par_mat <- function(
-    x,
-    op = c("=~", "~1"),
-    ind_matrix
-) {
-    pt <- lavaan::partable(x)
-    par_to_mat(pt$est[pt$free != 0], op, pt, ind_matrix)
+get_lav_par_mat <- function(x, op = c("=~", "~1", "|"), ind_matrix) {
+    par_to_mat(x, op = match.arg(op), ind_matrix, out_col = "est")
 }
 
 #' @rdname get_lav_par_mat
@@ -57,10 +83,8 @@ get_lav_par_mat <- function(
 #' based on the specified operator and indicator matrix.
 #'
 #' @export
-get_lav_par_id <- function(x, op = c("=~", "~1"), ind_matrix) {
-    pt <- lavaan::partable(x)
-    out <- get_op_idx(pt, op, ind_matrix)
-    matrix(out, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix))
+get_lav_par_id <- function(x, op = c("=~", "~1", "|"), ind_matrix) {
+    par_to_mat(x, op = match.arg(op), ind_matrix, out_col = "free")
 }
 
 #' Update User Starting Values for Specific Parameters by ID
