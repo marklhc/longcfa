@@ -217,9 +217,9 @@ test_that("par_to_mat works correctly", {
         ncol = 3
     )
 
-    ld_mat <- par_to_mat(1:24, op = "=~", pt = pt, ind_matrix = ind_mat)
-    int_mat <- par_to_mat(1:24, op = "~1", pt = pt, ind_matrix = ind_mat)
+    ld_mat <- get_op_idx(pt, "=~", ind_mat)
+    int_mat <- get_op_idx(pt, "~1", ind_mat)
 
-    expect_equal(ld_mat, matrix(c(4:6, NA, 1:3, NA, 7:10), ncol = 3))
-    expect_equal(int_mat, matrix(c(13:15, NA, 16:18, NA, 19:22), ncol = 3))
+    expect_equal(ld_mat, c(4:6, NA, 1:3, NA, 7:10))
+    expect_equal(int_mat, c(13:15, NA, 16:18, NA, 19:22))
 })
