@@ -11,7 +11,12 @@
 #'   be time point labels, and cell values should be variable names in the data.
 #' @param lv_names Character vector of latent variable names for each time point.
 #'   If NULL, default names will be generated.
-#' @param data A data frame containing the observed variables.
+#' @param data A data frame containing the observed variables. Optional if
+#'   `sample.cov` is provided.
+#' @param sample.cov A numeric covariance matrix. Optional if `data` is provided.
+#' @param sample.mean A numeric vector of means. Optional if `data` is provided.
+#' @param sample.nobs Numeric scalar. The number of observations. Required if
+#'   using summary statistics instead of raw data.
 #' @param w Numeric scalar. Penalty weight applied to the penalty terms.
 #'   Default is 0.1.
 #' @param pen_fn Character string specifying the penalty function. Options are
@@ -41,6 +46,10 @@
 #' The penalty is applied to differences between corresponding parameters at
 #' different time points, encouraging approximate measurement invariance.
 #'
+#' **Note:** If using summary statistics (`sample.cov`, `sample.mean`, `sample.nobs`),
+#' ordered/categorical items cannot be automatically handled because threshold
+#' counts must be derived from raw data.
+#'
 #' @seealso [plavaan::penalized_est()], [longcfa()], [longcfa_syntax()]
 #'
 #' @export
@@ -51,11 +60,22 @@
 #' # Prepare indicator matrix
 #' ind_mat <- cbind(c("y1", "y2", "y3", "y4"), c("y5", "y6", "y7", "y8"))
 #'
-#' # Fit penalized longitudinal CFA
+#' # Fit penalized longitudinal CFA with raw data
 #' pen_fit <- penalized_longcfa(
 #'     ind_matrix = ind_mat,
 #'     lv_names = c("dem60", "dem65"),
 #'     data = PoliticalDemocracy,
+#'     w = 0.1,
+#'     pen_fn = "alf"
+#' )
+#'
+#' # Fit penalized longitudinal CFA with summary statistics
+#' pen_fit_stat <- penalized_longcfa(
+#'     ind_matrix = ind_mat,
+#'     lv_names = c("dem60", "dem65"),
+#'     sample.cov = my_cov,
+#'     sample.mean = my_means,
+#'     sample.nobs = 500,
 #'     w = 0.1,
 #'     pen_fn = "alf"
 #' )
@@ -76,7 +96,10 @@
 penalized_longcfa <- function(
     ind_matrix,
     lv_names = NULL,
-    data,
+    data = NULL,
+    sample.cov = NULL,
+    sample.mean = NULL,
+    sample.nobs = NULL,
     w = 0.1,
     pen_fn = "l0a",
     pen_params = c("loadings", "intercepts"),
@@ -99,11 +122,18 @@ penalized_longcfa <- function(
         )
     }
 
+    if (is.null(data) && is.null(sample.cov)) {
+        stop("Either `data` or `sample.cov` must be provided.")
+    }
+
     # Create unfitted model object for penalized estimation
     fit_unfitted <- longcfa(
         ind_matrix,
         lv_names = lv_names,
         data = data,
+        sample.cov = sample.cov,
+        sample.mean = sample.mean,
+        sample.nobs = sample.nobs,
         free_latvars = TRUE,
         free_latmeans = TRUE,
         do.fit = FALSE,
@@ -113,29 +143,35 @@ penalized_longcfa <- function(
     # Build penalty difference ID list
     pen_diff_id <- list()
 
+    # Cache parameter table — fetched once instead of once per parameter type
+    pt_cached <- lavaan::partable(fit_unfitted)
+
     if ("loadings" %in% pen_params) {
-        load_ids <- get_lav_par_id(
-            fit_unfitted,
+        load_ids <- par_to_mat_from_pt(
+            pt_cached,
             op = "=~",
-            ind_matrix = ind_matrix
+            ind_matrix = ind_matrix,
+            out_col = "free"
         )
         pen_diff_id$loadings <- t(load_ids)
     }
 
     if ("intercepts" %in% pen_params) {
-        int_ids <- get_lav_par_id(
-            fit_unfitted,
+        int_ids <- par_to_mat_from_pt(
+            pt_cached,
             op = "~1",
-            ind_matrix = ind_matrix
+            ind_matrix = ind_matrix,
+            out_col = "free"
         )
         pen_diff_id$intercepts <- t(int_ids)
     }
 
     if ("residuals" %in% pen_params) {
-        resid_ids <- get_lav_par_id(
-            fit_unfitted,
+        resid_ids <- par_to_mat_from_pt(
+            pt_cached,
             op = "~~",
-            ind_matrix = ind_matrix
+            ind_matrix = ind_matrix,
+            out_col = "free"
         )
         pen_diff_id$residuals <- t(resid_ids)
     }

@@ -1,3 +1,4 @@
+#' @importFrom methods slot slotNames
 get_op_idx <- function(
     pt,
     op = c("=~", "~1", "|"),
@@ -42,6 +43,27 @@ get_op_idx <- function(
 #'   for thresholds) containing the  extracted values.
 par_to_mat <- function(x, op, ind_matrix, out_col) {
     pt <- lavaan::partable(x)
+    idx_list <- get_op_idx(
+        pt,
+        op,
+        ind_matrix,
+        out_col = out_col,
+        return_list = FALSE
+    )
+    out <- lapply(
+        idx_list,
+        matrix,
+        nrow = nrow(ind_matrix),
+        ncol = ncol(ind_matrix)
+    )
+    do.call(rbind, out)
+}
+
+#' @rdname par_to_mat
+#'
+#' @param pt Parameter table from `lavaan::partable()`. When a lavaan object is
+#'   passed, this will be called internally.
+par_to_mat_from_pt <- function(pt, op, ind_matrix, out_col) {
     idx_list <- get_op_idx(
         pt,
         op,
@@ -117,9 +139,18 @@ get_lav_par_id <- function(x, op = c("=~", "~1", "|"), ind_matrix) {
 #'
 #' @export
 update_ustart <- function(x, par_id, new_start, ...) {
-    x_opt <- x@Options
-    x_ss <- x@SampleStats
-    x_dat <- x@Data
+    required_slots <- c("Options", "SampleStats", "Data")
+    missing_slots <- setdiff(required_slots, slotNames(x))
+    if (length(missing_slots) > 0L) {
+        stop(
+            "lavaan object is missing expected slots: ",
+            paste(missing_slots, collapse = ", "),
+            call. = FALSE
+        )
+    }
+    x_opt <- slot(x, "Options")
+    x_ss <- slot(x, "SampleStats")
+    x_dat <- slot(x, "Data")
     pt <- lavaan::partable(x)
     pt$ustart[par_id] <- new_start
     pt <- pt[setdiff(names(pt), c("start", "est", "se"))]

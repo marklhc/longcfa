@@ -2,9 +2,12 @@
 % Please edit documentation in R/helper-alignment.R
 \name{par_to_mat}
 \alias{par_to_mat}
+\alias{par_to_mat_from_pt}
 \title{Extract Parameter Values to Matrix}
 \usage{
 par_to_mat(x, op, ind_matrix, out_col)
+
+par_to_mat_from_pt(pt, op, ind_matrix, out_col)
 }
 \arguments{
 \item{x}{A fitted lavaan object.}
@@ -17,6 +20,9 @@ par_to_mat(x, op, ind_matrix, out_col)
 
 \item{out_col}{Character string specifying the column name in the parameter
 table to extract (e.g., \code{"est"}, \code{"free"}, \code{"se"}).}
+
+\item{pt}{Parameter table from \code{lavaan::partable()}. When a lavaan object is
+passed, this will be called internally.}
 }
 \value{
 A matrix with dimensions matching \code{ind_matrix} (or stacked matrices

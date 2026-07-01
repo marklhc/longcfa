@@ -18,7 +18,7 @@ filter_pt <- function(pt, ind, op = c("=~", "~1", "~~")) {
 }
 
 filter_cons <- function(pt, cons) {
-    pt1 <- pt[pt$label != "" & pt$free >= 0, ]
+    pt1 <- pt[pt$label != "" & pt$free > 0, ]
     which(cons$lhs %in% pt1$plabel | cons$rhs %in% pt1$plabel)
 }
 
@@ -78,6 +78,7 @@ get_lav_mod <- function(x, ind, op = c("=~", "~1", "~~")) {
 }
 
 #' @importFrom lavaan partable
+#' @importFrom methods slot slotNames
 plinv_search_step <- function(
     x,
     op = c("=~", "~1", "~~"),
@@ -86,10 +87,19 @@ plinv_search_step <- function(
     ...
 ) {
     new_x <- x
-    x_opt <- x@Options
-    x_ss <- x@SampleStats
-    x_dat <- x@Data
-    free_trace <- NULL
+    required_slots <- c("Options", "SampleStats", "Data")
+    missing_slots <- setdiff(required_slots, slotNames(x))
+    if (length(missing_slots) > 0L) {
+        stop(
+            "lavaan object is missing expected slots: ",
+            paste(missing_slots, collapse = ", "),
+            call. = FALSE
+        )
+    }
+    x_opt <- slot(x, "Options")
+    x_ss <- slot(x, "SampleStats")
+    x_dat <- slot(x, "Data")
+    free_trace <- list()
     while (TRUE) {
         to_free <- next_to_relax(
             new_x,
@@ -101,7 +111,7 @@ plinv_search_step <- function(
         if (nrow(to_free) == 0) {
             break
         }
-        free_trace <- rbind(free_trace, to_free)
+        free_trace[[length(free_trace) + 1L]] <- to_free
         plab <- to_free$plabel
         pt <- partable(new_x)
         pt_new <- lav_constraints_rm(pt, plab)
@@ -112,7 +122,12 @@ plinv_search_step <- function(
             slotSampleStats = x_ss
         )
     }
-    list(fit = new_x, trace = free_trace)
+    trace_out <- if (length(free_trace) > 0) {
+        do.call(rbind, free_trace)
+    } else {
+        NULL
+    }
+    list(fit = new_x, trace = trace_out)
 }
 
 type2op <- function(x) {
@@ -164,7 +179,7 @@ plinv_search <- function(
     mi_min,
     ...
 ) {
-    traces <- NULL
+    traces <- list()
     if (
         !all(
             type %in%
@@ -206,7 +221,7 @@ plinv_search <- function(
             mi_min = mi_min,
             ind = inds
         )
-        traces <- rbind(traces, res_i$trace)
+        traces[[length(traces) + 1L]] <- res_i$trace
         part_lst[[type_i]] <- rbind(
             part_lst[[type_i]],
             partial_string_to_list(
@@ -215,13 +230,15 @@ plinv_search <- function(
             )[[type_i]]
         )
     }
-    list(fit = res_i[[1]], traces = traces)
+    traces_out <- if (length(traces) > 0) do.call(rbind, traces) else NULL
+    list(fit = res_i$fit, traces = traces_out)
 }
 
 lav_constraints_rm <- function(pt, plab) {
-    # Identify rows with the specified label on lhs or rhs
-    idl <- pt$id[which(pt$op == "==" & pt$lhs == plab)]
-    idr <- pt$id[which(pt$op == "==" & pt$rhs == plab)]
+    eq_rows <- which(pt$op == "==")
+    # Identify rows with the specified label on lhs or rhs (pre-filtered)
+    idl <- pt$id[eq_rows[pt$lhs[eq_rows] == plab]]
+    idr <- pt$id[eq_rows[pt$rhs[eq_rows] == plab]]
     if (length(idl) == 0 && length(idr) == 0) {
         return(pt)
     }

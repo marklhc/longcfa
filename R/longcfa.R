@@ -143,7 +143,7 @@ longcfa <- function(
                 any(apply(nthres, MARGIN = 1, FUN = var) > 0)
         ) {
             stop(
-                "Number of thresholds of the same item must be",
+                "Number of thresholds of the same item must be ",
                 "equal over time."
             )
         }
@@ -300,12 +300,9 @@ longcfa_syntax <- function(
     )
     syn <- lapply(seq_len(ncol(ind_matrix)), function(t) {
         valid_pos <- which(!is.na(ind_matrix[, t]))
-        updated_ucov <- apply(
-            ucov_mat,
-            1,
-            match,
-            table = valid_pos,
-            simplify = FALSE
+        updated_ucov <- lapply(
+            seq_len(nrow(ucov_mat)),
+            function(i) match(ucov_mat[i, ], table = valid_pos)
         )
         valid_ucov_pos <- which(vapply(
             updated_ucov,
@@ -417,14 +414,14 @@ process_pattern <- function(pattern, ynames = NULL) {
     } else if (is.list(pattern)) {
         out <- matrix(0, nrow = p, ncol = length(pattern))
         for (l in seq_along(pattern)) {
-            if (is.character(l)) {
+            if (is.character(pattern[[l]])) {
                 yl <- match(pattern[[l]], table = ynames)
                 if (any(is.na(yl))) {
                     stop(
                         "Some names in `pattern` are not found in `ind_names`."
                     )
                 }
-            } else if (is.numeric(l)) {
+            } else if (is.numeric(pattern[[l]])) {
                 yl <- pattern[[l]]
             }
             out[yl, l] <- 1
@@ -507,23 +504,20 @@ factor_syntax <- function(
 threshold_syntax <- function(ind) {}
 
 lag_cov_syntax <- function(ind_matrix) {
-    out <- "# Lag Covariances"
+    out <- list("# Lag Covariances")
     for (i in seq_len(nrow(ind_matrix))) {
         ind_names_i <- ind_matrix[i, ]
         ind_names_i <- ind_names_i[!is.na(ind_names_i)]
         p_i <- length(ind_names_i)
         for (j in seq_len(p_i - 1)) {
-            out <- c(
-                out,
-                paste(
-                    ind_names_i[j],
-                    "~~",
-                    paste(ind_names_i[(j + 1):p_i], collapse = " + ")
-                )
+            out[[length(out) + 1]] <- paste(
+                ind_names_i[j],
+                "~~",
+                paste(ind_names_i[(j + 1):p_i], collapse = " + ")
             )
         }
     }
-    paste(out, collapse = "\n")
+    paste(unlist(out), collapse = "\n")
 }
 
 gen_labels <- function(
@@ -593,7 +587,6 @@ latent_var_syntax <- function(lv_names, fix = c("first", "all")) {
     paste(
         c(
             "# Latent variances",
-            # paste(lv_names, "~~", lv_labs, "*", lv_names)
             c(
                 mapply(
                     function(x, y) paste(x, "~~", y, "*", x),
@@ -615,10 +608,9 @@ latent_mean_syntax <- function(lv_names, fix = c("first", "all")) {
     paste(
         c(
             "# Latent means",
-            # paste(lv_names, "~", lv_labs, "* 1")
             c(
                 mapply(
-                    function(x, y) paste(x, "~", y, "* 1"),
+                    function(x, y) paste(x, "~", y, "*", 1),
                     lv_names,
                     lv_labs
                 )

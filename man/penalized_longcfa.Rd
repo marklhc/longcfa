@@ -7,7 +7,10 @@
 penalized_longcfa(
   ind_matrix,
   lv_names = NULL,
-  data,
+  data = NULL,
+  sample.cov = NULL,
+  sample.mean = NULL,
+  sample.nobs = NULL,
   w = 0.1,
   pen_fn = "l0a",
   pen_params = c("loadings", "intercepts"),
@@ -24,7 +27,15 @@ be time point labels, and cell values should be variable names in the data.}
 \item{lv_names}{Character vector of latent variable names for each time point.
 If NULL, default names will be generated.}
 
-\item{data}{A data frame containing the observed variables.}
+\item{data}{A data frame containing the observed variables. Optional if
+\code{sample.cov} is provided.}
+
+\item{sample.cov}{A numeric covariance matrix. Optional if \code{data} is provided.}
+
+\item{sample.mean}{A numeric vector of means. Optional if \code{data} is provided.}
+
+\item{sample.nobs}{Numeric scalar. The number of observations. Required if
+using summary statistics instead of raw data.}
 
 \item{w}{Numeric scalar. Penalty weight applied to the penalty terms.
 Default is 0.1.}
@@ -67,6 +78,10 @@ and residuals
 
 The penalty is applied to differences between corresponding parameters at
 different time points, encouraging approximate measurement invariance.
+
+\strong{Note:} If using summary statistics (\code{sample.cov}, \code{sample.mean}, \code{sample.nobs}),
+ordered/categorical items cannot be automatically handled because threshold
+counts must be derived from raw data.
 }
 \examples{
 \dontrun{
@@ -75,11 +90,22 @@ library(lavaan)
 # Prepare indicator matrix
 ind_mat <- cbind(c("y1", "y2", "y3", "y4"), c("y5", "y6", "y7", "y8"))
 
-# Fit penalized longitudinal CFA
+# Fit penalized longitudinal CFA with raw data
 pen_fit <- penalized_longcfa(
     ind_matrix = ind_mat,
     lv_names = c("dem60", "dem65"),
     data = PoliticalDemocracy,
+    w = 0.1,
+    pen_fn = "alf"
+)
+
+# Fit penalized longitudinal CFA with summary statistics
+pen_fit_stat <- penalized_longcfa(
+    ind_matrix = ind_mat,
+    lv_names = c("dem60", "dem65"),
+    sample.cov = my_cov,
+    sample.mean = my_means,
+    sample.nobs = 500,
     w = 0.1,
     pen_fn = "alf"
 )
