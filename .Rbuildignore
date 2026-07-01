@@ -12,3 +12,4 @@
 ^\.vscode$
 ^[.]?air[.]toml$
 ^data-raw$
+^vignettes/_.+\.Rmd$

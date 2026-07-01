@@ -1,8 +1,8 @@
 ---
-title: "Standard Errors"
+title: "Standard Errors with Penalized Estimation"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Standard Errors}
+  %\VignetteIndexEntry{Standard Errors with Penalized Estimation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -181,7 +181,7 @@ pen_fit <- penalized_est(
     lconfig_fit_un,
     w = 0.03,
     pen_fn = "l0a",
-    pen_diff_id = list(t(ld_id), t(int_id)),
+    pen_diff_id = list(loadings = t(ld_id), intercepts = t(int_id)),
     se = "robust.huber.white"
 )
 ```

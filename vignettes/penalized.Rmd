@@ -123,7 +123,7 @@ composite_pair_loss(t(ld_mat_s), fun = alf)
 composite_pair_loss(t(int_mat_s), fun = alf)
 ```
 
-## Penalized Estimation
+## Using Penalized Estimation
 
 With penalized estimation, we first specify an over-parameterized model that estimates all measurement (loadings and intercepts) and structural parameters (latent means and variances) freely across time points, except that the latent variable in Time 1 is standardized. We can use the `penalized_longcfa()` function, which is a wrapper of `plavaan::penalized_est()`, to directly fit the penalized longitudinal CFA model. First, we try the ALF penalty with a tuning parameter of 0.1 (which is arbitrary). 
 

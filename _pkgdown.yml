@@ -11,10 +11,7 @@ reference:
   - title: Penalized Estimation
     desc: Functions for penalized estimation of longitudinal CFA models.
     contents:
-      - alf
-      - l0a
-      - composite_pair_loss
-      - penalized_est
+      - penalized_longcfa
   - title: Specification Search
     desc: Functions for specification search for longitudinal invariance.
     contents:
@@ -32,17 +29,17 @@ reference:
       - update_ustart
 articles:
 - title: Longitudinal invariance
-  navbar: ~
+  navbar: Longitudinal Invariance
   contents:
   - articles/invariance
   - cat
   - specification-search
 
-- title: Penalized Estimation
-  navbar: ~
+- title: Penalized Estimation Methods
+  navbar: Penalized Estimation Methods
   desc: Penalized estimation and alignment optimization
   contents:
-  - penalized
   - longcfa-sirt
-  - penalized-fa
+  - penalized
   - standard-errors
+  - articles/tyrell
