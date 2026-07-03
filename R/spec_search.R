@@ -6,7 +6,7 @@ next_to_relax <- function(x, fn, fn_min, ...) {
     fn_x[which.max(fn_x$mi), ]
 }
 
-filter_pt <- function(pt, ind, op = c("=~", "~1", "~~")) {
+filter_pt <- function(pt, ind, op = c("=~", "~1", "~~", "|")) {
     op <- match.arg(op)
     if (op == "=~") {
         return(pt[pt$rhs %in% ind & pt$op == "=~", ])
@@ -14,6 +14,8 @@ filter_pt <- function(pt, ind, op = c("=~", "~1", "~~")) {
         return(pt[pt$lhs %in% ind & pt$op == "~1", ])
     } else if (op == "~~") {
         return(pt[pt$lhs %in% ind & pt$rhs %in% ind & pt$op == "~~", ])
+    } else if (op == "|") {
+        return(pt[pt$lhs %in% ind & pt$op == "|", ])
     }
 }
 
