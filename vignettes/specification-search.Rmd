@@ -218,7 +218,7 @@ search_thresh <- plinv_search(
     ind_matrix = ind_mat_ord,
     lv_names = lv_names_ord,
     data = ordinal_data,
-    type = "thresholds",
+    type = c("loadings", "thresholds"),
     parameterization = "theta",
     mi_fun = get_lav_test_score,
     mi_min = 3.84,
