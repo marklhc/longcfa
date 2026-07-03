@@ -1,6 +1,6 @@
 # Changelog
 
-## longcfa 0.0.1.9990
+## longcfa 0.0.2
 
 - Added penalized estimation via
   [`penalized_longcfa()`](https://marklhc.github.io/longcfa/reference/penalized_longcfa.md)
@@ -18,7 +18,8 @@
 - Added
   [`plinv_search()`](https://marklhc.github.io/longcfa/reference/plinv_search.md)
   function for searching partial invariance models using the score
-  test/modification indices
+  test/modification indices, with experimental support for categorical
+  indicators
 - New datasets `mackinnon_etal_long` and `mackinnon_etal_wide` from
   MacKinnon et al. ecological momentary assessment study (CC-BY 4.0)
 - Exported
@@ -32,6 +33,8 @@
 - Added
   [`update_ustart()`](https://marklhc.github.io/longcfa/reference/update_ustart.md)
   function for updating user starting values in lavaan models
+  - [`longcfa()`](https://marklhc.github.io/longcfa/reference/longcfa.md)
+    now accepts arguments to freely estimate latent means and variances
 - Enhanced documentation with cross-references and examples
 
 ## longcfa 0.0.1

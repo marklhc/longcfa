@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">longcfa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9990</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,17 +53,20 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.1.9990" id="longcfa-0019990">longcfa 0.0.1.9990<a class="anchor" aria-label="anchor" href="#longcfa-0019990"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.0.2" id="longcfa-002">longcfa 0.0.2<a class="anchor" aria-label="anchor" href="#longcfa-002"></a></h2>
 <ul><li>Added penalized estimation via <code><a href="../reference/penalized_longcfa.html">penalized_longcfa()</a></code> (wrapper around <code><a href="https://marklhc.github.io/plavaan/reference/penalized_est.html" class="external-link">plavaan::penalized_est()</a></code>)
 <ul><li>Support for alignment loss function (<code><a href="https://marklhc.github.io/plavaan/reference/loss.html" class="external-link">alf()</a></code>) and L0 approximation penalty (<code><a href="https://marklhc.github.io/plavaan/reference/loss.html" class="external-link">l0a()</a></code>)</li>
 <li>Robust sandwich standard errors via <code>se = "robust.huber.white"</code> argument (experimental)</li>
 <li>Uses <code><a href="https://marklhc.github.io/plavaan/reference/composite_pair_loss.html" class="external-link">composite_pair_loss()</a></code> for computing pairwise penalties</li>
 </ul></li>
-<li>Added <code><a href="../reference/plinv_search.html">plinv_search()</a></code> function for searching partial invariance models using the score test/modification indices</li>
+<li>Added <code><a href="../reference/plinv_search.html">plinv_search()</a></code> function for searching partial invariance models using the score test/modification indices, with experimental support for categorical indicators</li>
 <li>New datasets <code>mackinnon_etal_long</code> and <code>mackinnon_etal_wide</code> from MacKinnon et al. ecological momentary assessment study (CC-BY 4.0)</li>
 <li>Exported <code><a href="../reference/par_to_mat.html">par_to_mat()</a></code> and <code><a href="../reference/get_lav_par_mat.html">get_lav_par_mat()</a></code> functions for converting parameter vectors to matrices</li>
 <li>New <code><a href="../reference/get_lav_par_mat.html">get_lav_par_id()</a></code> function for extracting parameter IDs from lavaan objects</li>
-<li>Added <code><a href="../reference/update_ustart.html">update_ustart()</a></code> function for updating user starting values in lavaan models</li>
+<li>Added <code><a href="../reference/update_ustart.html">update_ustart()</a></code> function for updating user starting values in lavaan models
+<ul><li>
+<code><a href="../reference/longcfa.html">longcfa()</a></code> now accepts arguments to freely estimate latent means and variances</li>
+</ul></li>
 <li>Enhanced documentation with cross-references and examples</li>
 </ul></div>
     <div class="section level2">
