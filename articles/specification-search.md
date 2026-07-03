@@ -540,7 +540,7 @@ search_thresh <- plinv_search(
     ind_matrix = ind_mat_ord,
     lv_names = lv_names_ord,
     data = ordinal_data,
-    type = "thresholds",
+    type = c("loadings", "thresholds"),
     parameterization = "theta",
     mi_fun = get_lav_test_score,
     mi_min = 3.84,
@@ -548,6 +548,9 @@ search_thresh <- plinv_search(
     estimator = "WLSMV",
     lag_cov = TRUE
 )
+#> Warning: lavaan->lavTestScore():  
+#>    se is not `standard'; not implemented yet; falling back to ordinary score 
+#>    test
 #> Warning: lavaan->lavTestScore():  
 #>    se is not `standard'; not implemented yet; falling back to ordinary score 
 #>    test
@@ -565,7 +568,7 @@ misspecification. We examine the trace of relaxed constraints:
 
 search_thresh$traces
 #>    id    lhs op rhs group plabel       mi
-#> 23 23 y7_cat  |  t1     1  .p23. 4.206722
+#> 19 19 y5_cat  |  t1     1  .p19. 5.953566
 ```
 
 The output shows which indicator and which threshold level was freed at
@@ -580,10 +583,6 @@ threshold invariance model found by the search:
 ``` r
 
 anova(fit_conf, search_thresh$fit)
-#> Warning: lavaan->lavTestLRT():  
-#>    Some restricted models fit better than less restricted models; either 
-#>    these models are not nested, or the less restricted model failed to reach 
-#>    a global optimum.Smallest difference = -1.21332120273279.
 #> 
 #> Scaled Chi-Squared Difference Test (method = "satorra.2000")
 #> 
@@ -592,26 +591,28 @@ anova(fit_conf, search_thresh$fit)
 #>    robust test that should be reported per model. A robust difference test is 
 #>    a function of two standard (not robust) statistics.
 #> 
-#>                   Df AIC BIC  Chisq Chisq diff RMSEA Df diff Pr(>Chisq)
-#> fit_conf          18         18.831                                    
-#> search_thresh$fit 19         17.617     -2.006     0       1          1
+#>                   Df AIC BIC  Chisq Chisq diff RMSEA Df diff Pr(>Chisq)  
+#> fit_conf          18         18.831                                      
+#> search_thresh$fit 22         22.485      8.868     0       4    0.06449 .
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 summary(search_thresh$fit)
-#> lavaan 0.6-21 ended normally after 59 iterations
+#> lavaan 0.6-21 ended normally after 47 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB
-#>   Number of model parameters                        26
-#>   Number of equality constraints                     5
+#>   Number of model parameters                        27
+#>   Number of equality constraints                     9
 #> 
 #>   Number of observations                            75
 #> 
 #> Model Test User Model:
 #>                                               Standard      Scaled
-#>   Test Statistic                                17.617      28.727
-#>   Degrees of freedom                                19          19
-#>   P-value (Unknown)                                 NA       0.070
-#>   Scaling correction factor                                  0.715
-#>   Shift parameter                                            4.079
+#>   Test Statistic                                22.485      34.004
+#>   Degrees of freedom                                22          22
+#>   P-value (Unknown)                                 NA       0.049
+#>   Scaling correction factor                                  0.782
+#>   Shift parameter                                            5.244
 #>     simple second-order correction                                
 #> 
 #> Parameter Estimates:
@@ -624,48 +625,48 @@ summary(search_thresh$fit)
 #> Latent Variables:
 #>                    Estimate  Std.Err  z-value  P(>|z|)
 #>   dem60 =~                                            
-#>     y1_cat  (.1_1)    6.092    3.309    1.841    0.066
-#>     y2_cat  (.2_1)    1.466    0.374    3.925    0.000
-#>     y3_cat  (.3_1)    1.062    0.300    3.535    0.000
-#>     y4_cat  (.4_1)    1.031    0.298    3.459    0.001
+#>     y1_cat   (.l1)    2.560    1.187    2.157    0.031
+#>     y2_cat   (.l2)    1.495    0.396    3.771    0.000
+#>     y3_cat   (.l3)    1.476    0.425    3.471    0.001
+#>     y4_cat   (.l4)    0.918    0.230    3.986    0.000
 #>   dem65 =~                                            
-#>     y5_cat  (.1_2)    2.639    1.321    1.998    0.046
-#>     y6_cat  (.2_2)    1.582    0.479    3.304    0.001
-#>     y7_cat  (.3_2)    2.310    1.027    2.250    0.024
-#>     y8_cat  (.4_2)    0.935    0.230    4.062    0.000
+#>     y5_cat   (.l1)    2.560    1.187    2.157    0.031
+#>     y6_cat   (.l2)    1.495    0.396    3.771    0.000
+#>     y7_cat   (.l3)    1.476    0.425    3.471    0.001
+#>     y8_cat   (.l4)    0.918    0.230    3.986    0.000
 #> 
 #> Covariances:
 #>                    Estimate  Std.Err  z-value  P(>|z|)
 #>  .y1_cat ~~                                           
-#>    .y5_cat            1.880    0.706    2.664    0.008
+#>    .y5_cat            1.099    0.370    2.969    0.003
 #>  .y2_cat ~~                                           
-#>    .y6_cat            0.762    0.178    4.289    0.000
+#>    .y6_cat            0.719    0.183    3.934    0.000
 #>  .y3_cat ~~                                           
-#>    .y7_cat            0.493    0.347    1.420    0.155
+#>    .y7_cat            0.307    0.330    0.930    0.352
 #>  .y4_cat ~~                                           
-#>    .y8_cat            0.143    0.276    0.516    0.606
+#>    .y8_cat            0.141    0.269    0.522    0.602
 #>   dem60 ~~                                            
-#>     dem65             0.877    0.042   20.975    0.000
+#>     dem65             0.986    0.181    5.454    0.000
 #> 
 #> Intercepts:
 #>                    Estimate  Std.Err  z-value  P(>|z|)
 #>     dem60             0.000                           
-#>     dem65            -0.339    0.119   -2.861    0.004
+#>     dem65            -0.312    0.118   -2.648    0.008
 #> 
 #> Thresholds:
 #>                    Estimate  Std.Err  z-value  P(>|z|)
-#>     y1_ct|1 (.t11)   -2.801    1.346   -2.081    0.037
-#>     y1_ct|2 (.t12)    0.811    0.699    1.159    0.246
-#>     y2_ct|1 (.t21)   -0.386    0.264   -1.465    0.143
-#>     y2_ct|2 (.t22)    0.808    0.300    2.692    0.007
-#>     y3_ct|1 (.t31)   -0.523    0.228   -2.289    0.022
-#>     y4_ct|1 (.t41)   -0.744    0.198   -3.755    0.000
-#>     y5_ct|1 (.t11)   -2.801    1.346   -2.081    0.037
-#>     y5_ct|2 (.t12)    0.811    0.699    1.159    0.246
-#>     y6_ct|1 (.t21)   -0.386    0.264   -1.465    0.143
-#>     y6_ct|2 (.t22)    0.808    0.300    2.692    0.007
-#>     y7_ct|1 (.t31)   -1.776    0.918   -1.935    0.053
-#>     y8_ct|1 (.t41)   -0.744    0.198   -3.755    0.000
+#>     y1_ct|1 (.t11)   -1.084    0.528   -2.052    0.040
+#>     y1_ct|2 (.t12)    0.755    0.510    1.480    0.139
+#>     y2_ct|1 (.t21)   -0.354    0.244   -1.454    0.146
+#>     y2_ct|2 (.t22)    0.860    0.290    2.966    0.003
+#>     y3_ct|1 (.t31)   -0.905    0.311   -2.913    0.004
+#>     y4_ct|1 (.t41)   -0.716    0.179   -3.988    0.000
+#>     y5_ct|1 (.t11)   -2.916    1.313   -2.222    0.026
+#>     y5_ct|2 (.t12)    0.755    0.510    1.480    0.139
+#>     y6_ct|1 (.t21)   -0.354    0.244   -1.454    0.146
+#>     y6_ct|2 (.t22)    0.860    0.290    2.966    0.003
+#>     y7_ct|1 (.t31)   -0.905    0.311   -2.913    0.004
+#>     y8_ct|1 (.t41)   -0.716    0.179   -3.988    0.000
 #> 
 #> Variances:
 #>                    Estimate  Std.Err  z-value  P(>|z|)
@@ -678,18 +679,18 @@ summary(search_thresh$fit)
 #>    .y7_cat            1.000                           
 #>    .y8_cat            1.000                           
 #>     dem60             1.000                           
-#>     dem65             1.000                           
+#>     dem65             1.220    0.461    2.643    0.008
 #> 
 #> Scales y*:
 #>                    Estimate  Std.Err  z-value  P(>|z|)
-#>     y1_cat            0.162                           
-#>     y2_cat            0.564                           
-#>     y3_cat            0.686                           
-#>     y4_cat            0.696                           
-#>     y5_cat            0.354                           
-#>     y6_cat            0.534                           
-#>     y7_cat            0.397                           
-#>     y8_cat            0.730
+#>     y1_cat            0.364                           
+#>     y2_cat            0.556                           
+#>     y3_cat            0.561                           
+#>     y4_cat            0.737                           
+#>     y5_cat            0.333                           
+#>     y6_cat            0.518                           
+#>     y7_cat            0.523                           
+#>     y8_cat            0.702
 ```
 
 The partial threshold invariance model retains equality constraints on

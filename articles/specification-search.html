@@ -595,7 +595,7 @@ highest modification index until no remaining constraint exceeds
 <span>    ind_matrix <span class="op">=</span> <span class="va">ind_mat_ord</span>,</span>
 <span>    lv_names <span class="op">=</span> <span class="va">lv_names_ord</span>,</span>
 <span>    data <span class="op">=</span> <span class="va">ordinal_data</span>,</span>
-<span>    type <span class="op">=</span> <span class="st">"thresholds"</span>,</span>
+<span>    type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"thresholds"</span><span class="op">)</span>,</span>
 <span>    parameterization <span class="op">=</span> <span class="st">"theta"</span>,</span>
 <span>    mi_fun <span class="op">=</span> <span class="va">get_lav_test_score</span>,</span>
 <span>    mi_min <span class="op">=</span> <span class="fl">3.84</span>,</span>
@@ -603,6 +603,9 @@ highest modification index until no remaining constraint exceeds
 <span>    estimator <span class="op">=</span> <span class="st">"WLSMV"</span>,</span>
 <span>    lag_cov <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: lavaan-&gt;lavTestScore():  </span></span>
+<span><span class="co">#&gt;    se is not `standard'; not implemented yet; falling back to ordinary score </span></span>
+<span><span class="co">#&gt;    test</span></span>
 <span><span class="co">#&gt; Warning: lavaan-&gt;lavTestScore():  </span></span>
 <span><span class="co">#&gt;    se is not `standard'; not implemented yet; falling back to ordinary score </span></span>
 <span><span class="co">#&gt;    test</span></span>
@@ -619,7 +622,7 @@ constraints:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">search_thresh</span><span class="op">$</span><span class="va">traces</span></span>
 <span><span class="co">#&gt;    id    lhs op rhs group plabel       mi</span></span>
-<span><span class="co">#&gt; 23 23 y7_cat  |  t1     1  .p23. 4.206722</span></span></code></pre></div>
+<span><span class="co">#&gt; 19 19 y5_cat  |  t1     1  .p19. 5.953566</span></span></code></pre></div>
 <p>The output shows which indicator and which threshold level was freed
 at each step, along with the modification index that justified the
 relaxation.</p>
@@ -631,10 +634,6 @@ relaxation.</p>
 partial threshold invariance model found by the search:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">fit_conf</span>, <span class="va">search_thresh</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: lavaan-&gt;lavTestLRT():  </span></span>
-<span><span class="co">#&gt;    Some restricted models fit better than less restricted models; either </span></span>
-<span><span class="co">#&gt;    these models are not nested, or the less restricted model failed to reach </span></span>
-<span><span class="co">#&gt;    a global optimum.Smallest difference = -1.21332120273279.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Scaled Chi-Squared Difference Test (method = "satorra.2000")</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -643,26 +642,28 @@ partial threshold invariance model found by the search:</p>
 <span><span class="co">#&gt;    robust test that should be reported per model. A robust difference test is </span></span>
 <span><span class="co">#&gt;    a function of two standard (not robust) statistics.</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                   Df AIC BIC  Chisq Chisq diff RMSEA Df diff Pr(&gt;Chisq)</span></span>
-<span><span class="co">#&gt; fit_conf          18         18.831                                    </span></span>
-<span><span class="co">#&gt; search_thresh$fit 19         17.617     -2.006     0       1          1</span></span>
+<span><span class="co">#&gt;                   Df AIC BIC  Chisq Chisq diff RMSEA Df diff Pr(&gt;Chisq)  </span></span>
+<span><span class="co">#&gt; fit_conf          18         18.831                                      </span></span>
+<span><span class="co">#&gt; search_thresh$fit 22         22.485      8.868     0       4    0.06449 .</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">search_thresh</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 59 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 47 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                       DWLS</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
-<span><span class="co">#&gt;   Number of model parameters                        26</span></span>
-<span><span class="co">#&gt;   Number of equality constraints                     5</span></span>
+<span><span class="co">#&gt;   Number of model parameters                        27</span></span>
+<span><span class="co">#&gt;   Number of equality constraints                     9</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Number of observations                            75</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Test User Model:</span></span>
 <span><span class="co">#&gt;                                               Standard      Scaled</span></span>
-<span><span class="co">#&gt;   Test Statistic                                17.617      28.727</span></span>
-<span><span class="co">#&gt;   Degrees of freedom                                19          19</span></span>
-<span><span class="co">#&gt;   P-value (Unknown)                                 NA       0.070</span></span>
-<span><span class="co">#&gt;   Scaling correction factor                                  0.715</span></span>
-<span><span class="co">#&gt;   Shift parameter                                            4.079</span></span>
+<span><span class="co">#&gt;   Test Statistic                                22.485      34.004</span></span>
+<span><span class="co">#&gt;   Degrees of freedom                                22          22</span></span>
+<span><span class="co">#&gt;   P-value (Unknown)                                 NA       0.049</span></span>
+<span><span class="co">#&gt;   Scaling correction factor                                  0.782</span></span>
+<span><span class="co">#&gt;   Shift parameter                                            5.244</span></span>
 <span><span class="co">#&gt;     simple second-order correction                                </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
@@ -675,48 +676,48 @@ partial threshold invariance model found by the search:</p>
 <span><span class="co">#&gt; Latent Variables:</span></span>
 <span><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
 <span><span class="co">#&gt;   dem60 =~                                            </span></span>
-<span><span class="co">#&gt;     y1_cat  (.1_1)    6.092    3.309    1.841    0.066</span></span>
-<span><span class="co">#&gt;     y2_cat  (.2_1)    1.466    0.374    3.925    0.000</span></span>
-<span><span class="co">#&gt;     y3_cat  (.3_1)    1.062    0.300    3.535    0.000</span></span>
-<span><span class="co">#&gt;     y4_cat  (.4_1)    1.031    0.298    3.459    0.001</span></span>
+<span><span class="co">#&gt;     y1_cat   (.l1)    2.560    1.187    2.157    0.031</span></span>
+<span><span class="co">#&gt;     y2_cat   (.l2)    1.495    0.396    3.771    0.000</span></span>
+<span><span class="co">#&gt;     y3_cat   (.l3)    1.476    0.425    3.471    0.001</span></span>
+<span><span class="co">#&gt;     y4_cat   (.l4)    0.918    0.230    3.986    0.000</span></span>
 <span><span class="co">#&gt;   dem65 =~                                            </span></span>
-<span><span class="co">#&gt;     y5_cat  (.1_2)    2.639    1.321    1.998    0.046</span></span>
-<span><span class="co">#&gt;     y6_cat  (.2_2)    1.582    0.479    3.304    0.001</span></span>
-<span><span class="co">#&gt;     y7_cat  (.3_2)    2.310    1.027    2.250    0.024</span></span>
-<span><span class="co">#&gt;     y8_cat  (.4_2)    0.935    0.230    4.062    0.000</span></span>
+<span><span class="co">#&gt;     y5_cat   (.l1)    2.560    1.187    2.157    0.031</span></span>
+<span><span class="co">#&gt;     y6_cat   (.l2)    1.495    0.396    3.771    0.000</span></span>
+<span><span class="co">#&gt;     y7_cat   (.l3)    1.476    0.425    3.471    0.001</span></span>
+<span><span class="co">#&gt;     y8_cat   (.l4)    0.918    0.230    3.986    0.000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
 <span><span class="co">#&gt;  .y1_cat ~~                                           </span></span>
-<span><span class="co">#&gt;    .y5_cat            1.880    0.706    2.664    0.008</span></span>
+<span><span class="co">#&gt;    .y5_cat            1.099    0.370    2.969    0.003</span></span>
 <span><span class="co">#&gt;  .y2_cat ~~                                           </span></span>
-<span><span class="co">#&gt;    .y6_cat            0.762    0.178    4.289    0.000</span></span>
+<span><span class="co">#&gt;    .y6_cat            0.719    0.183    3.934    0.000</span></span>
 <span><span class="co">#&gt;  .y3_cat ~~                                           </span></span>
-<span><span class="co">#&gt;    .y7_cat            0.493    0.347    1.420    0.155</span></span>
+<span><span class="co">#&gt;    .y7_cat            0.307    0.330    0.930    0.352</span></span>
 <span><span class="co">#&gt;  .y4_cat ~~                                           </span></span>
-<span><span class="co">#&gt;    .y8_cat            0.143    0.276    0.516    0.606</span></span>
+<span><span class="co">#&gt;    .y8_cat            0.141    0.269    0.522    0.602</span></span>
 <span><span class="co">#&gt;   dem60 ~~                                            </span></span>
-<span><span class="co">#&gt;     dem65             0.877    0.042   20.975    0.000</span></span>
+<span><span class="co">#&gt;     dem65             0.986    0.181    5.454    0.000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
 <span><span class="co">#&gt;     dem60             0.000                           </span></span>
-<span><span class="co">#&gt;     dem65            -0.339    0.119   -2.861    0.004</span></span>
+<span><span class="co">#&gt;     dem65            -0.312    0.118   -2.648    0.008</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Thresholds:</span></span>
 <span><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
-<span><span class="co">#&gt;     y1_ct|1 (.t11)   -2.801    1.346   -2.081    0.037</span></span>
-<span><span class="co">#&gt;     y1_ct|2 (.t12)    0.811    0.699    1.159    0.246</span></span>
-<span><span class="co">#&gt;     y2_ct|1 (.t21)   -0.386    0.264   -1.465    0.143</span></span>
-<span><span class="co">#&gt;     y2_ct|2 (.t22)    0.808    0.300    2.692    0.007</span></span>
-<span><span class="co">#&gt;     y3_ct|1 (.t31)   -0.523    0.228   -2.289    0.022</span></span>
-<span><span class="co">#&gt;     y4_ct|1 (.t41)   -0.744    0.198   -3.755    0.000</span></span>
-<span><span class="co">#&gt;     y5_ct|1 (.t11)   -2.801    1.346   -2.081    0.037</span></span>
-<span><span class="co">#&gt;     y5_ct|2 (.t12)    0.811    0.699    1.159    0.246</span></span>
-<span><span class="co">#&gt;     y6_ct|1 (.t21)   -0.386    0.264   -1.465    0.143</span></span>
-<span><span class="co">#&gt;     y6_ct|2 (.t22)    0.808    0.300    2.692    0.007</span></span>
-<span><span class="co">#&gt;     y7_ct|1 (.t31)   -1.776    0.918   -1.935    0.053</span></span>
-<span><span class="co">#&gt;     y8_ct|1 (.t41)   -0.744    0.198   -3.755    0.000</span></span>
+<span><span class="co">#&gt;     y1_ct|1 (.t11)   -1.084    0.528   -2.052    0.040</span></span>
+<span><span class="co">#&gt;     y1_ct|2 (.t12)    0.755    0.510    1.480    0.139</span></span>
+<span><span class="co">#&gt;     y2_ct|1 (.t21)   -0.354    0.244   -1.454    0.146</span></span>
+<span><span class="co">#&gt;     y2_ct|2 (.t22)    0.860    0.290    2.966    0.003</span></span>
+<span><span class="co">#&gt;     y3_ct|1 (.t31)   -0.905    0.311   -2.913    0.004</span></span>
+<span><span class="co">#&gt;     y4_ct|1 (.t41)   -0.716    0.179   -3.988    0.000</span></span>
+<span><span class="co">#&gt;     y5_ct|1 (.t11)   -2.916    1.313   -2.222    0.026</span></span>
+<span><span class="co">#&gt;     y5_ct|2 (.t12)    0.755    0.510    1.480    0.139</span></span>
+<span><span class="co">#&gt;     y6_ct|1 (.t21)   -0.354    0.244   -1.454    0.146</span></span>
+<span><span class="co">#&gt;     y6_ct|2 (.t22)    0.860    0.290    2.966    0.003</span></span>
+<span><span class="co">#&gt;     y7_ct|1 (.t31)   -0.905    0.311   -2.913    0.004</span></span>
+<span><span class="co">#&gt;     y8_ct|1 (.t41)   -0.716    0.179   -3.988    0.000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
@@ -729,18 +730,18 @@ partial threshold invariance model found by the search:</p>
 <span><span class="co">#&gt;    .y7_cat            1.000                           </span></span>
 <span><span class="co">#&gt;    .y8_cat            1.000                           </span></span>
 <span><span class="co">#&gt;     dem60             1.000                           </span></span>
-<span><span class="co">#&gt;     dem65             1.000                           </span></span>
+<span><span class="co">#&gt;     dem65             1.220    0.461    2.643    0.008</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Scales y*:</span></span>
 <span><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
-<span><span class="co">#&gt;     y1_cat            0.162                           </span></span>
-<span><span class="co">#&gt;     y2_cat            0.564                           </span></span>
-<span><span class="co">#&gt;     y3_cat            0.686                           </span></span>
-<span><span class="co">#&gt;     y4_cat            0.696                           </span></span>
-<span><span class="co">#&gt;     y5_cat            0.354                           </span></span>
-<span><span class="co">#&gt;     y6_cat            0.534                           </span></span>
-<span><span class="co">#&gt;     y7_cat            0.397                           </span></span>
-<span><span class="co">#&gt;     y8_cat            0.730</span></span></code></pre></div>
+<span><span class="co">#&gt;     y1_cat            0.364                           </span></span>
+<span><span class="co">#&gt;     y2_cat            0.556                           </span></span>
+<span><span class="co">#&gt;     y3_cat            0.561                           </span></span>
+<span><span class="co">#&gt;     y4_cat            0.737                           </span></span>
+<span><span class="co">#&gt;     y5_cat            0.333                           </span></span>
+<span><span class="co">#&gt;     y6_cat            0.518                           </span></span>
+<span><span class="co">#&gt;     y7_cat            0.523                           </span></span>
+<span><span class="co">#&gt;     y8_cat            0.702</span></span></code></pre></div>
 <p>The partial threshold invariance model retains equality constraints
 on most thresholds while freeing only those that significantly violate
 scalar invariance. This provides a more accurate representation of
