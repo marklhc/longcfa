@@ -52,10 +52,8 @@ test_that("lav_constraints_rm works", {
         rhs = c("b", "c", "b", "e", "f", "h")
     )
     pts_new <- vapply(
-        c("a", "b", "c", "d", "e", "f"),
-        \(i) nrow(lav_constraints_rm(pt1, plab = i)),
+        function(i) nrow(lav_constraints_rm(pt1, plab = i)),
         FUN.VALUE = integer(1)
-    )
     expect_true(all(pts_new == 5))
 })
 
