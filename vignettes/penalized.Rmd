@@ -1,0 +1,269 @@
+---
+title: "Penalized Estimation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Penalized Estimation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+```
+
+```{r, include=FALSE}
+eval_lconfig <- !file.exists("lconfig_fit.rds")
+eval_lscalar <- !file.exists("lscalar_fit.rds")
+eval_alf <- !file.exists("alf_fit.rds")
+eval_dbic <- !file.exists("dbic_fit.rds")
+```
+
+```{r setup}
+library(longcfa)
+library(lavaan)
+library(plavaan)
+```
+
+The data used in this vignette is a subset from the daily dairy data described in [Mackinnon et al. (2020)](https://open.lnu.se/index.php/metapsychology/article/view/2595), which contains 7 waves of daily level of state social anxiety (SSA) measured with 7 items at each wave. The data is already converted to wide format, with some missing data.
+
+```{r}
+data("mackinnon_etal_wide", package = "longcfa")
+mackinnon_etal_wide[-1] <- lapply(mackinnon_etal_wide[-1], as.integer)
+summary(mackinnon_etal_wide)
+```
+
+To use `longcfa()`, we first create an indicator matrix that specifies how the indicators align across time points. Variables in the same row correspond to the same indicator across time points.
+
+```{r}
+ind_mat <- matrix(
+    grep("^ssa", names(mackinnon_etal_wide), value = TRUE),
+    nrow = 7,
+    byrow = TRUE
+)
+ind_mat
+```
+
+### Configural invariance model
+
+```{r, eval=eval_lconfig}
+lconfig_fit <- longcfa(
+    ind_mat,
+    lv_names = paste0("SSA", 2:8),
+    data = mackinnon_etal_wide,
+    lag_cov = TRUE,
+    missing = "fiml",
+    estimator = "mlr"
+)
+summary(lconfig_fit, fit.measures = TRUE)
+```
+
+```{r, eval=eval_lconfig, include=FALSE}
+saveRDS(lconfig_fit, "lconfig_fit.rds")
+```
+
+```{r, eval=!eval_lconfig, include=FALSE}
+lconfig_fit <- readRDS("lconfig_fit.rds")
+```
+
+### Scalar invariance model
+
+```{r, eval=eval_lscalar}
+lscalar_fit <- longcfa(
+    ind_mat,
+    lv_names = paste0("SSA", 2:8),
+    data = mackinnon_etal_wide,
+    lag_cov = TRUE,
+    missing = "fiml",
+    estimator = "mlr",
+    long_equal = c("loadings", "intercepts")
+)
+```
+
+```{r, eval=eval_lscalar, include=FALSE}
+saveRDS(lscalar_fit, "lscalar_fit.rds")
+```
+
+```{r, eval=!eval_lscalar, include=FALSE}
+lscalar_fit <- readRDS("lscalar_fit.rds")
+```
+
+```{r}
+anova(lconfig_fit, lscalar_fit)
+```
+
+With 7 time points and 7 items, there are 49 loadings and 49 intercepts. For loadings, we reduce 49 loadings to 7 by imposing equality constraints across time, while in the mean time allowing the latent variances for the 6 time points after time 1 to be free, so in total we have save $p(T - 1) - (T - 1) = (p - 1)(T - 1) = 36$ parameters. Same for intercepts, which result in 72 fewer parameters in the scalar invariance model.
+
+## Loss/Penalty Function
+
+The idea of penalized estimation for measurement invariance is to impose a penalty on the pairwise differences of loadings and intercepts across time points, so that a model with fewer large differences in the measurement parameters would be favoured. Here we illustrate two penalty functions: the alignment loss function (ALF, discussed in [Asparouhov & Muthen, 2024](https://www.statmodel.com/download/PSEM.pdf)) and the $L_0$ approximation function (L0a, discussed in [Robitzsch, 2023](https://www.mdpi.com/2624-8611/5/4/75)). The following shows the two loss functions:
+
+```{r, fig.alt="ALF and L0a Loss functions"}
+curve(l0a, from = -0.5, to = 0.5, ylab = "Loss", ylim = c(0, 1))
+curve(alf, from = -0.5, to = 0.5, add = TRUE, col = "red")
+```
+
+Note that the ALF is an approximation of the $L_{0.5}$ penalty. We can compute the loss values for the loadings and intercepts, for the configural and the scalar model. In theory, the loss should be zero for the scalar model, although it will be a non-zero value as we use a continuous function to approximate $L_0$ penalty.
+
+```{r}
+# Loss function for configural model
+ld_mat_c <- get_lav_par_mat(lconfig_fit, "=~", ind_mat)
+int_mat_c <- get_lav_par_mat(lconfig_fit, "~1", ind_mat)
+composite_pair_loss(t(ld_mat_c), fun = alf)
+composite_pair_loss(t(int_mat_c), fun = alf)
+```
+
+```{r}
+# Loss function for scalar model
+ld_mat_s <- get_lav_par_mat(lscalar_fit, "=~", ind_mat)
+int_mat_s <- get_lav_par_mat(lscalar_fit, "~1", ind_mat)
+composite_pair_loss(t(ld_mat_s), fun = alf)
+composite_pair_loss(t(int_mat_s), fun = alf)
+```
+
+## Using Penalized Estimation
+
+With penalized estimation, we first specify an over-parameterized model that estimates all measurement (loadings and intercepts) and structural parameters (latent means and variances) freely across time points, except that the latent variable in Time 1 is standardized. We can use the `penalized_longcfa()` function, which is a wrapper of `plavaan::penalized_est()`, to directly fit the penalized longitudinal CFA model. First, we try the ALF penalty with a tuning parameter of 0.1 (which is arbitrary). 
+
+```{r, eval=eval_alf}
+alf_fit <- penalized_longcfa(
+    ind_mat,
+    lv_names = paste0("SSA", 2:8),
+    data = mackinnon_etal_wide,
+    lag_cov = TRUE,
+    w = 0.1,
+    pen_fn = "alf",
+    missing = "fiml",
+    estimator = "mlr",
+    start = lscalar_fit
+)
+```
+
+```{r, eval=eval_alf, include=FALSE}
+saveRDS(alf_fit, "alf_fit.rds")
+```
+
+```{r, eval=!eval_alf, include=FALSE}
+alf_fit <- readRDS("alf_fit.rds")
+```
+
+```{r}
+# Loss function
+ld_mat_a <- get_lav_par_mat(alf_fit, "=~", ind_mat)
+int_mat_a <- get_lav_par_mat(alf_fit, "~1", ind_mat)
+composite_pair_loss(t(ld_mat_a), fun = alf)
+composite_pair_loss(t(int_mat_a), fun = alf)
+```
+
+Alternatively, we can first create an unidentified lavaan model with the `free_latvars = TRUE` and `free_latmeans = TRUE` arguments, and then use `plavaan::penalized_est()` to fit the model.
+
+```{r, eval=FALSE}
+# Specify the under-identified model
+lconfig_fit_un <- longcfa(
+    ind_mat,
+    lv_names = paste0("SSA", 2:8),
+    data = mackinnon_etal_wide,
+    lag_cov = TRUE,
+    std.lv = TRUE,
+    free_latvars = TRUE,
+    free_latmeans = TRUE,
+    start = lscalar_fit,
+    missing = "fiml",
+    estimator = "mlr",
+    do.fit = FALSE
+)
+```
+
+We need to identify the corresponding ID for the loadings and intercepts parameter, using the `get_lav_par_id()` function.
+
+```{r, eval=FALSE}
+ld_id <- get_lav_par_id(lconfig_fit_un, "=~", ind_mat)
+int_id <- get_lav_par_id(lconfig_fit_un, "~1", ind_mat)
+```
+
+```{r, eval=FALSE}
+alf_fit <- penalized_est(
+    lconfig_fit_un,
+    w = 0.1,
+    pen_fn = "alf",
+    pen_diff_id = list(loadings = t(ld_id), intercepts = t(int_id))
+)
+```
+
+Next, we try the L0a penalty while setting the tuning parameter to $\log(N) / N / 2$, which approximately corresponds to minimizing the Bayesian information criterion (BIC) (as discussed in [Robitzsch, 2023](https://www.mdpi.com/1999-4893/16/9/446)).
+
+```{r, eval=eval_dbic}
+dbic_fit <- penalized_longcfa(
+    ind_mat,
+    lv_names = paste0("SSA", 2:8),
+    data = mackinnon_etal_wide,
+    lag_cov = TRUE,
+    w = log(261) / 261 / 2,
+    pen_fn = "l0a",
+    missing = "fiml",
+    estimator = "mlr",
+    start = lscalar_fit
+)
+# dbic_fit <- penalized_est(
+#     lconfig_fit_un,
+#     w = log(261) / 261 / 2, # based on eq (13) of https://www.mdpi.com/2624-8611/5/4/75#FD9-psych-05-00075
+#     pen_fn = "l0a",
+#     pen_diff_id = list(t(ld_id), t(int_id))
+# )
+# AIC penalty
+# l0fit_2 <- penalized_est(
+#     lconfig_fit_un,
+#     w = 1 / 261,
+#     pen_fn = "l0a",
+#     pen_diff_id = list(t(ld_id), t(int_id))
+# )
+```
+
+```{r, eval=eval_dbic, include=FALSE}
+saveRDS(dbic_fit, "dbic_fit.rds")
+```
+
+```{r, eval=!eval_dbic, include=FALSE}
+dbic_fit <- readRDS("dbic_fit.rds")
+```
+
+```{r}
+# Loss function
+ld_mat_p <- get_lav_par_mat(dbic_fit, "=~", ind_mat)
+int_mat_p <- get_lav_par_mat(dbic_fit, "~1", ind_mat)
+composite_pair_loss(t(ld_mat_p), fun = l0a)
+composite_pair_loss(t(int_mat_p), fun = l0a)
+```
+
+### Comparing log-likelihoods
+
+```{r}
+c(
+    "Configural" = logLik(lconfig_fit),
+    "Scalar" = logLik(lscalar_fit),
+    "ALF (w = 0.1)" = logLik(alf_fit),
+    "L0 (DBIC)" = logLik(dbic_fit)
+)
+```
+
+### Comparing the latent means and variances
+
+The first seven numbers are the latent means, and the last seven numbers are the latent variances. The configural model is not included here as the latent means and variances are arbitrarily set to 0 and 1, respectively, for all waves.
+
+```{r}
+ests <- lapply(
+    list(
+        "Scalar" = lscalar_fit,
+        "ALF (w = 0.1)" = alf_fit,
+        "L0 (DBIC)" = dbic_fit
+    ),
+    function(fit) {
+        est <- lavInspect(fit, "est")
+        c(est$alpha, diag(est$psi))
+    }
+)
+do.call(rbind, ests) |>
+    knitr::kable(digits = 3)
+```

@@ -1,6 +1,6 @@
 Package: longcfa
 Title: Helper for Longitudinal Confirmatory Factor Analysis
-Version: 0.0.1
+Version: 0.0.1.9990
 Authors@R: 
     person("Hok Chio (Mark)", "Lai", , "marklhc@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-9196-7406"))
@@ -9,14 +9,20 @@ Description:
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
 Imports: 
-    lavaan
+    lavaan,
+    methods
 Suggests: 
     knitr,
+    plavaan,
     rmarkdown,
+    sirt,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Config/Needs/website: rmarkdown
 URL: https://marklhc.github.io/longcfa/
+Depends: 
+    R (>= 4.1)
+LazyData: true
+Config/roxygen2/version: 8.0.0

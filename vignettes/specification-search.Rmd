@@ -1,0 +1,250 @@
+---
+title: "Specification Search for Partial Invariance"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Specification Search for Partial Invariance}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+```
+
+```{r setup}
+library(longcfa)
+library(lavaan)
+```
+
+This vignette demonstrates how to use the `plinv_search()` function to perform a specification search for partial invariance in longitudinal CFA models. We will use the `PoliticalDemocracy` dataset from the `lavaan` package.
+
+## Data Preparation
+
+First, we define the indicator matrix and latent variable names for the `PoliticalDemocracy` dataset.
+
+```{r}
+data("PoliticalDemocracy", package = "lavaan")
+
+# Define indicator matrix (rows = indicators, columns = time points)
+ind_mat <- cbind(
+    c("y1", "y2", "y3", "y4"),
+    c("y5", "y6", "y7", "y8")
+)
+
+# Define latent variable names
+lv_names <- c("dem60", "dem65")
+```
+
+## Invariance Model
+
+We start by fitting a model with strict longitudinal invariance constraints (on loadings, intercepts, and unique variances).
+
+```{r}
+fit_strict <- longcfa(
+    ind_mat,
+    lv_names = lv_names,
+    data = PoliticalDemocracy,
+    lag_cov = TRUE,
+    long_equal = c("loadings", "intercepts", "residuals")
+)
+
+summary(fit_strict)
+```
+
+## Specification Search
+
+The `plinv_search()` function iteratively relaxes invariance constraints based on modification indices or score tests. Here, we search for partial invariance in both loadings and intercepts.
+
+We use `get_lav_test_score` as the "modification index" function (`mi_fun`), which uses the score test (`lavaan::lavTestScore()`) to identify constraints to release. We set a minimum threshold (`mi_min`) of 3.84 (corresponding to p < .05 for 1 df).
+
+```{r}
+get_lav_test_score(fit_strict, ind = paste0("y", 1:8), op = "~~")
+```
+
+Note that the `plinv_search()` function proceeds in steps, so when `type = c("loadings", "intercepts", "residuals")` is specified, it will first search for loadings from the metric invariance model, then intercepts, and finally residuals.
+
+```{r}
+# Perform specification search
+search_res <- plinv_search(
+    ind_matrix = ind_mat,
+    lv_names = lv_names,
+    data = PoliticalDemocracy,
+    type = c("loadings", "intercepts", "residuals"),
+    mi_fun = get_lav_test_score,
+    mi_min = 3.84,
+    lag_cov = TRUE # Passed to longcfa()
+)
+```
+
+## Results
+
+The result object contains the final fitted model (`fit`) and a trace of the relaxed constraints (`traces`).
+
+### Relaxed Constraints
+
+We can examine which constraints were relaxed during the search process.
+
+```{r}
+search_res$traces
+```
+
+The output shows the left-hand side (`lhs`), operator (`op`), and right-hand side (`rhs`) of the parameters that were freed, along with the modification index (`mi`) at that step.
+
+### Final Model Summary
+
+We can inspect the summary of the final partial invariance model.
+
+```{r}
+summary(search_res$fit)
+```
+
+### Compare Models
+
+Finally, we can compare the initial strict invariance model with the partial invariance model found by the search.
+
+```{r}
+anova(fit_strict, search_res$fit)
+```
+
+## Specification Search with Categorical Data
+
+This section demonstrates how to perform a specification search when some or all indicators are categorical (ordinal). We discretize the continuous `PoliticalDemocracy` variables into ordinal categories and then constrain thresholds during invariance testing.
+
+### Creating Ordered Indicators
+
+We start by converting the first two items (`y1`, `y2`) into 3-category ordinal variables, and the remaining two items (`y3`, `y4`) into binary variables. The same transformation is applied at both time points.
+
+```{r}
+data("PoliticalDemocracy", package = "lavaan")
+
+# Create ordered versions: 3 categories for y1/y2, 2 (binary) for y3/y4
+ordinal_data <- PoliticalDemocracy
+
+ordinal_data$y1_cat <- cut(
+    ordinal_data$y1,
+    breaks = 3,
+    labels = c("low", "mid", "high")
+)
+ordinal_data$y2_cat <- cut(
+    ordinal_data$y2,
+    breaks = 3,
+    labels = c("low", "mid", "high")
+)
+
+ordinal_data$y3_cat <- ifelse(
+    PoliticalDemocracy$y3 >= median(PoliticalDemocracy$y3),
+    "yes",
+    "no"
+)
+ordinal_data$y4_cat <- ifelse(
+    PoliticalDemocracy$y4 >= median(PoliticalDemocracy$y4),
+    "yes",
+    "no"
+)
+
+ordinal_data$y5_cat <- cut(
+    ordinal_data$y5,
+    breaks = 3,
+    labels = c("low", "mid", "high")
+)
+ordinal_data$y6_cat <- cut(
+    ordinal_data$y6,
+    breaks = 3,
+    labels = c("low", "mid", "high")
+)
+
+ordinal_data$y7_cat <- ifelse(
+    PoliticalDemocracy$y7 >= median(PoliticalDemocracy$y7),
+    "yes",
+    "no"
+)
+ordinal_data$y8_cat <- ifelse(
+    PoliticalDemocracy$y8 >= median(PoliticalDemocracy$y8),
+    "yes",
+    "no"
+)
+
+# Define indicator matrix for the ordinal items
+ind_mat_ord <- cbind(
+    c("y1_cat", "y2_cat", "y3_cat", "y4_cat"),
+    c("y5_cat", "y6_cat", "y7_cat", "y8_cat")
+)
+
+# Specify which variables are ordered (all 8 items)
+ordered_vars <- c(
+    "y1_cat",
+    "y2_cat",
+    "y3_cat",
+    "y4_cat",
+    "y5_cat",
+    "y6_cat",
+    "y7_cat",
+    "y8_cat"
+)
+
+# Define latent variable names
+lv_names_ord <- c("dem60", "dem65")
+```
+
+### Fitting Strict Threshold Invariance Model
+
+We fit a configural invariance model first, allowing thresholds to differ across time points. Then we test strict (scalar) threshold invariance by constraining corresponding thresholds equal across time.
+
+```{r}
+# Configural invariance: thresholds free across time
+fit_conf <- longcfa(
+    ind_mat_ord,
+    lv_names = lv_names_ord,
+    data = ordinal_data,
+    ordered = ordered_vars,
+    estimator = "WLSMV",
+    lag_cov = TRUE,
+    long_equal = c("loadings") # only constrain loadings
+)
+
+summary(fit_conf, fit.measures = TRUE)
+```
+
+### Specification Search on Thresholds
+
+Now we use `plinv_search()` to find which threshold constraints should be relaxed. Support for threshold is currently experimental. We search only over thresholds (the `"thresholds"` type maps to the `"|"` operator internally). The function iteratively frees the threshold with the highest modification index until no remaining constraint exceeds `mi_min`.
+
+```{r}
+# Perform specification search on thresholds
+search_thresh <- plinv_search(
+    ind_matrix = ind_mat_ord,
+    lv_names = lv_names_ord,
+    data = ordinal_data,
+    type = "thresholds",
+    parameterization = "theta",
+    mi_fun = get_lav_test_score,
+    mi_min = 3.84,
+    ordered = ordered_vars,
+    estimator = "WLSMV",
+    lag_cov = TRUE
+)
+```
+
+### Relaxed Threshold Constraints
+
+The search may free certain threshold parameters that show significant misspecification. We examine the trace of relaxed constraints:
+
+```{r}
+search_thresh$traces
+```
+
+The output shows which indicator and which threshold level was freed at each step, along with the modification index that justified the relaxation.
+
+### Final Partial Threshold Invariance Model
+
+We compare the configural model (all thresholds free) with the partial threshold invariance model found by the search:
+
+```{r}
+anova(fit_conf, search_thresh$fit)
+summary(search_thresh$fit)
+```
+
+The partial threshold invariance model retains equality constraints on most thresholds while freeing only those that significantly violate scalar invariance. This provides a more accurate representation of measurement equivalence across time points for ordinal indicators.

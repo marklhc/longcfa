@@ -10,8 +10,7 @@ test_that("multiple factors", {
         1:7,
         4,
         prefix = ".l",
-        cell_len = matrix(3, nrow = 7, ncol = 4,
-                    byrow = TRUE),
+        cell_len = matrix(3, nrow = 7, ncol = 4, byrow = TRUE),
         partial = matrix(c(7, 5, 2, 3), ncol = 2)
     )
     expect_equal(larr[7, 2][[1]][2], ".l72_2")
@@ -19,7 +18,7 @@ test_that("multiple factors", {
         paste0("y", 1:7),
         lvs,
         process_pattern(pat, ynames = 1:7),
-        larr[, 2, drop = FALSE],
+        load_labs = larr[, 2, drop = FALSE],
         int_lab = matrix("NA", nrow = 7, ncol = 1)
     )
     expect_match(

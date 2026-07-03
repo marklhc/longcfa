@@ -271,3 +271,47 @@ test_that("lavaan syntax for multiple factors", {
     expect_equal(sum(free1$psi != 0), 30)
     expect_true(all(free1$alpha == 0))
 })
+
+test_that("correct syntax with ucov_mat", {
+    syn2 <- longcfa_syntax(
+        ind_mat = ind_mat1,
+        lv_names = c("G1", "G4", "G7"),
+        long_equal = c("loadings", "intercepts", "residuals"),
+        lag_cov = TRUE,
+        ucov_mat = matrix(
+            c(1, 2, 1, 3),
+            nrow = 2,
+            byrow = TRUE
+        )
+    )
+    pt2 <- lavaan::lavaanify(syn2)
+    pt_ucov <- pt2[
+        grepl("write|verb|cog", pt2$lhs) &
+            pt2$op == "~~" &
+            pt2$lhs != pt2$rhs,
+    ]
+    expect_equal(nrow(pt_ucov), 9)
+    expect_no_match(
+        syn2,
+        "cog4 ~~ .uc13_2 * NA",
+        fixed = TRUE
+    )
+    syn3 <- longcfa_syntax(
+        ind_mat = ind_mat1,
+        lv_names = c("G1", "G4", "G7"),
+        long_equal = c(
+            "loadings",
+            "intercepts",
+            "residuals",
+            "residual.covariances"
+        ),
+        lag_cov = TRUE,
+        ucov_mat = matrix(
+            c(1, 2, 1, 3),
+            nrow = 2,
+            byrow = TRUE
+        )
+    )
+    pt3 <- lavaan::lavaanify(syn3)
+    expect_length(na.omit(match(pt3$label, c(".uc12", ".uc13"))), 4)
+})

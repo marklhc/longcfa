@@ -6,10 +6,10 @@ output: github_document
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
+    collapse = TRUE,
+    comment = "#>",
+    fig.path = "man/figures/README-",
+    out.width = "100%"
 )
 ```
 
@@ -35,29 +35,81 @@ This is a basic example. See `vignette("longcfa")` for a longer example. The pac
 
 - Invariance constraints and partial invariance, as discussed in [this article](articles/invariance.html).
 - Categorical indicators, as discussed in `vignette("cat")`.
+- Penalized estimation to obtain approximate invariance, as discussed in `vignette("penalized")`.
+- Automatic specification search by relaxing invariance constraints one at a time, as discussed in `vignette("specification-search")`.
 
 ```{r example}
 library(longcfa)
 library(lavaan)
 # Indicator matrix
-spec <- matrix(c(
-    "y1", "y2", "y3", "y4",
-    "y5", "y6", "y7", "y8"
-), ncol = 2)
+spec <- matrix(
+    c(
+        "y1",
+        "y2",
+        "y3",
+        "y4",
+        "y5",
+        "y6",
+        "y7",
+        "y8"
+    ),
+    ncol = 2
+)
 # Scalar invariance
-fit <- longcfa(spec,
-               lv_names = c("dem60", "dem65"),
-               data = PoliticalDemocracy,
-               long_equal = c("loadings", "intercepts"))
+fit <- longcfa(
+    spec,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    long_equal = c("loadings", "intercepts")
+)
 summary(fit)
 # Partial invariance
-fit2 <- longcfa(spec,
-                lv_names = c("dem60", "dem65"),
-                data = PoliticalDemocracy,
-                long_equal = c("loadings", "intercepts"),
-                long_partial = list(
-                    loadings = matrix(c(1, 2), ncol = 2),
-                    intercepts = matrix(c(1, 3, 2, 2), ncol = 2)
-                ))
+fit2 <- longcfa(
+    spec,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    long_equal = c("loadings", "intercepts"),
+    long_partial = list(
+        loadings = matrix(c(1, 2), ncol = 2),
+        intercepts = matrix(c(1, 3, 2, 2), ncol = 2)
+    )
+)
 summary(fit2)
+```
+
+
+```{r}
+library(plavaan)
+# Approximate invariance with penalized unique covariances and differences on loadings and intercepts
+# Starts with an unidentified model
+mod3_un <- longcfa_syntax(
+    spec,
+    lv_names = c("dem60", "dem65"),
+    lag_cov = TRUE,
+    # Allow all unique covariances
+    ucov_mat = t(combn(4, 2)),
+    free_latvars = TRUE,
+    free_latmeans = TRUE
+)
+lavaanify(mod3_un) # check parameter IDs for applying penalties
+# Dry run
+fit3 <- cfa(
+    mod3_un,
+    data = PoliticalDemocracy,
+    std.lv = TRUE,
+    do.fit = FALSE,
+    start = fit2
+)
+# Penalized estimation
+pen_fit3 <- penalized_est(
+    fit3,
+    w = .03,
+    # penalize concurrent unique covariances
+    pen_par_id = c(13:18, 31:36),
+    pen_diff_id = list(
+        loadings = rbind(1:4, 19:22),
+        intercepts = rbind(5:8, 23:26)
+    )
+)
+summary(pen_fit3)
 ```

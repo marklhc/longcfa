@@ -8,9 +8,11 @@
 #' Currently only supports model with one latent variable at each time
 #' point.
 #'
-#' @param ind_matrix A \eqn{p \times T} character matrix specifying the
-#'   names of the indicator variables across time points. Each column
-#'   corresponds to a time point.
+#' @param ind_matrix A \eqn{p \times T} matrix of character strings,
+#'   where \eqn{p} is the number of indicators and \eqn{T} is the number
+#'   of time points. Rows correspond to repeated measures of the same item,
+#'   and columns correspond to time points. Elements should be the variable
+#'   names in `data`.
 #' @param lv_names A vector of names of \eqn{T} latent variables.
 #' @param pattern A list of \eqn{T} elements specifying the pattern of which
 #'   indicators load on which latent variable. Each element can be a
@@ -41,6 +43,10 @@
 #'   item, in the same dimension as `ind_matrix`.
 #' @param fix_theta Logical; whether to fix the unique variances to 1.
 #'   This is default for ordered categorical data.
+#' @param free_latvars Logical; whether to free all latent variances,
+#'   regardless of `long_equal` specifications.
+#' @param free_latmeans Logical; whether to free all latent means,
+#'   regardless of `long_equal` specifications.
 #' @param data,do.fit,ordered,allow.empty.cell Same as in
 #'   `lavaan::lavOptions()`.
 #' @param ... Other arguments passed to `lavaan::cfa()`, such as `data`.
@@ -48,6 +54,7 @@
 #' @return A fit object as returned by `lavaan::cfa()`.
 #'
 #' @importFrom stats var
+#' @importFrom utils modifyList
 #' @examples
 #' library(lavaan)
 #' # Indicator matrix
@@ -76,6 +83,7 @@ longcfa <- function(
     ind_matrix,
     lv_names,
     pattern = NULL,
+    ucov_mat = NULL,
     data = NULL,
     model = NULL,
     ordered = NULL,
@@ -85,19 +93,37 @@ longcfa <- function(
     long_partial = NULL,
     nthres = NULL,
     fix_theta = NULL,
+    free_latvars = FALSE,
+    free_latmeans = FALSE,
     do.fit = TRUE,
     ...
 ) {
     syn_args <- list(
-        ind_matrix,
+        ind_matrix = ind_matrix,
         lv_names = lv_names,
         pattern = pattern,
+        ucov_mat = if (is.null(ucov_mat)) {
+            matrix(nrow = 0, ncol = 2)
+        } else {
+            ucov_mat
+        },
         lag_cov = lag_cov,
         long_equal = long_equal,
-        long_partial = long_partial
+        long_partial = long_partial,
+        free_latvars = free_latvars,
+        free_latmeans = free_latmeans
     )
+
     is_ordered <- !is.null(ordered) && !isFALSE(ordered)
     if (is_ordered) {
+        # Build ordered-specific arguments
+        ordered_args <- list()
+        if (is.null(fix_theta)) {
+            ordered_args$fix_theta <- TRUE
+        } else {
+            ordered_args$fix_theta <- fix_theta
+        }
+
         if (!is.null(data) && is.null(nthres)) {
             nlev <- get_nlev_data(
                 data[, unique(sort(ind_matrix)), drop = FALSE],
@@ -110,32 +136,43 @@ longcfa <- function(
                 1
             nthres <- structure(pmax(nthres, 0), dim = dim(ind_matrix))
         }
+
         if (
             "thresholds" %in%
                 long_equal &&
                 any(apply(nthres, MARGIN = 1, FUN = var) > 0)
         ) {
             stop(
-                "Number of thresholds of the same item must be",
+                "Number of thresholds of the same item must be ",
                 "equal over time."
             )
         }
-        if (is.null(fix_theta)) {
-            syn_args$fix_theta <- TRUE
-        }
-        syn_args <- c(syn_args, list(nthres = nthres))
+        ordered_args$nthres <- nthres
+
+        # Merge into syn_args
+        syn_args <- modifyList(syn_args, ordered_args)
     }
+
     syn <- do.call(longcfa_syntax, args = syn_args)
-    lavaan::cfa(
-        c(syn, model),
+
+    # Define base arguments with your required defaults
+    base_args <- list(...)
+
+    # Define mandatory overrides
+    required_args <- list(
+        model = c(syn, model),
         data = data,
         do.fit = do.fit,
         ordered = ordered,
-        ...,
         parameterization = if (is_ordered) "theta" else "delta",
         auto.fix.first = FALSE,
-        int.lv.free = TRUE,
+        int.lv.free = TRUE
     )
+
+    # Merge: base_args are overridden by required_args
+    final_args <- modifyList(base_args, required_args)
+
+    do.call(lavaan::cfa, final_args)
 }
 
 # TODO: Accomodate input pattern matrix for multiple latent variables
@@ -143,16 +180,22 @@ longcfa <- function(
 # - Or a data.frame with named columns? item, group (list column), thresholds?
 
 #' @rdname longcfa
+#' @param ucov_mat A two-column matrix specifying pairs of indicators
+#'   within the same time point to have their residuals correlated. Each row
+#'   specifies a pair of indicators by their row indices in `ind_matrix`.
 #' @export
 longcfa_syntax <- function(
     ind_matrix,
     lv_names,
     pattern = NULL,
+    ucov_mat = matrix(nrow = 0, ncol = 2),
     lag_cov = FALSE,
     long_equal = NULL,
     long_partial = NULL,
     nthres = matrix(0, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix)),
-    fix_theta = FALSE
+    fix_theta = FALSE,
+    free_latvars = FALSE,
+    free_latmeans = FALSE
 ) {
     if (
         !is.null(long_partial) &&
@@ -173,9 +216,9 @@ longcfa_syntax <- function(
                 (length(pattern) != 1 & length(pattern) != ncol(ind_matrix)))
     ) {
         stop(
-            "`pattern` must be `NULL`, a list with length 1 to indicate same factor pattern ",
-            " across time, or a list with length equal to the number of time points for ",
-            "time-specific patterns."
+            "`pattern` must be `NULL`, a list with length 1 to indicate same ",
+            "factor pattern across time, or a list with length equal to the ",
+            "number of time points for time-specific patterns."
         )
     }
     if (length(pattern) == 1) {
@@ -192,7 +235,10 @@ longcfa_syntax <- function(
         seq_len(nrow(ind_matrix)),
         ncol(ind_matrix),
         cell_len = if (any(nf > 1)) {
-            matrix(nf, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix),
+            matrix(
+                nf,
+                nrow = nrow(ind_matrix),
+                ncol = ncol(ind_matrix),
                 byrow = TRUE
             )
         } else {
@@ -204,7 +250,7 @@ longcfa_syntax <- function(
     )
     latvar_syntax <- latent_var_syntax(
         lv_names,
-        fix = if ("loadings" %in% long_equal) "first" else "all"
+        fix = if (free_latvars || "loadings" %in% long_equal) "first" else "all"
     )
     scalar_inv <- "thresholds" %in% long_equal | "intercepts" %in% long_equal
     ind_cat <- rowMeans(nthres) > 0
@@ -233,7 +279,7 @@ longcfa_syntax <- function(
     }
     latmean_syntax <- latent_mean_syntax(
         lv_names,
-        fix = if (scalar_inv) "first" else "all"
+        fix = if (free_latmeans || scalar_inv) "first" else "all"
     )
     uniq_labels <- gen_labels(
         seq_len(nrow(ind_matrix)),
@@ -245,8 +291,29 @@ longcfa_syntax <- function(
     if (fix_theta) {
         uniq_labels[ind_cat, ] <- "1"
     }
+    ucov_labels <- gen_labels(
+        paste0(ucov_mat[, 1], ucov_mat[, 2]),
+        ncol(ind_matrix),
+        prefix = ".uc",
+        equal = "residual.covariances" %in% long_equal,
+        partial = long_partial$residual.covariances
+    )
     syn <- lapply(seq_len(ncol(ind_matrix)), function(t) {
         valid_pos <- which(!is.na(ind_matrix[, t]))
+        updated_ucov <- lapply(
+            seq_len(nrow(ucov_mat)),
+            function(i) match(ucov_mat[i, ], table = valid_pos)
+        )
+        valid_ucov_pos <- which(vapply(
+            updated_ucov,
+            function(x) all(!is.na(x)),
+            logical(1)
+        ))
+        if (length(valid_ucov_pos) == 0) {
+            updated_ucov <- matrix(nrow = 0, ncol = 2)
+        } else {
+            updated_ucov <- do.call(rbind, updated_ucov[valid_ucov_pos])
+        }
         paste0(
             "# Time ",
             t,
@@ -258,11 +325,13 @@ longcfa_syntax <- function(
                     pattern[[t]],
                     ynames = ind_matrix[, t, drop = FALSE]
                 )[valid_pos, , drop = FALSE],
+                ucov_mat = updated_ucov,
                 load_labs = load_labels[valid_pos, t, drop = FALSE],
                 int_lab = int_labels[valid_pos, t, drop = FALSE],
                 thres_lab = thres_labels[valid_pos, t, drop = FALSE],
                 ind_cat = ind_cat[valid_pos],
-                uniq_lab = uniq_labels[valid_pos, t, drop = FALSE]
+                uniq_lab = uniq_labels[valid_pos, t, drop = FALSE],
+                ucov_lab = ucov_labels[valid_ucov_pos, t, drop = FALSE]
             ),
             "\n"
         )
@@ -345,14 +414,14 @@ process_pattern <- function(pattern, ynames = NULL) {
     } else if (is.list(pattern)) {
         out <- matrix(0, nrow = p, ncol = length(pattern))
         for (l in seq_along(pattern)) {
-            if (is.character(l)) {
+            if (is.character(pattern[[l]])) {
                 yl <- match(pattern[[l]], table = ynames)
                 if (any(is.na(yl))) {
                     stop(
                         "Some names in `pattern` are not found in `ind_names`."
                     )
                 }
-            } else if (is.numeric(l)) {
+            } else if (is.numeric(pattern[[l]])) {
                 yl <- pattern[[l]]
             }
             out[yl, l] <- 1
@@ -369,11 +438,13 @@ factor_syntax <- function(
     ind_names,
     lv_names,
     pattern = matrix(1, nrow = length(ind_names)),
+    ucov_mat = NULL,
     load_labs = NULL,
     int_lab = NULL,
     thres_lab = NULL,
     ind_cat = rep(FALSE, length(ind_names)),
-    uniq_lab = NULL
+    uniq_lab = NULL,
+    ucov_lab = NULL
 ) {
     out <- NULL
     load_labs <- listcol_to_mat(load_labs)
@@ -415,29 +486,38 @@ factor_syntax <- function(
     if (!is.null(uniq_lab)) {
         out <- c(out, paste(ind_names, "~~", uniq_lab, "*", ind_names))
     }
+    if (isTRUE(nrow(ucov_mat) > 0)) {
+        out <- c(
+            out,
+            paste(
+                ind_names[ucov_mat[, 1]],
+                "~~",
+                ucov_lab,
+                "*",
+                ind_names[ucov_mat[, 2]]
+            )
+        )
+    }
     paste(out, collapse = "\n")
 }
 
 threshold_syntax <- function(ind) {}
 
 lag_cov_syntax <- function(ind_matrix) {
-    out <- "# Lag Covariances"
+    out <- list("# Lag Covariances")
     for (i in seq_len(nrow(ind_matrix))) {
         ind_names_i <- ind_matrix[i, ]
         ind_names_i <- ind_names_i[!is.na(ind_names_i)]
         p_i <- length(ind_names_i)
         for (j in seq_len(p_i - 1)) {
-            out <- c(
-                out,
-                paste(
-                    ind_names_i[j],
-                    "~~",
-                    paste(ind_names_i[(j + 1):p_i], collapse = " + ")
-                )
+            out[[length(out) + 1]] <- paste(
+                ind_names_i[j],
+                "~~",
+                paste(ind_names_i[(j + 1):p_i], collapse = " + ")
             )
         }
     }
-    paste(out, collapse = "\n")
+    paste(unlist(out), collapse = "\n")
 }
 
 gen_labels <- function(
@@ -470,7 +550,7 @@ gen_labels <- function(
             out[] <- "NA"
         } else {
             out[] <- mapply(
-                \(x, y) paste(x, y, sep = "_"),
+                function(x, y) paste(x, y, sep = "_"),
                 out,
                 rep(seq_len(nt), each = length(row_nm)),
                 SIMPLIFY = FALSE
@@ -507,7 +587,6 @@ latent_var_syntax <- function(lv_names, fix = c("first", "all")) {
     paste(
         c(
             "# Latent variances",
-            # paste(lv_names, "~~", lv_labs, "*", lv_names)
             c(
                 mapply(
                     function(x, y) paste(x, "~~", y, "*", x),
@@ -529,10 +608,9 @@ latent_mean_syntax <- function(lv_names, fix = c("first", "all")) {
     paste(
         c(
             "# Latent means",
-            # paste(lv_names, "~", lv_labs, "* 1")
             c(
                 mapply(
-                    function(x, y) paste(x, "~", y, "* 1"),
+                    function(x, y) paste(x, "~", y, "*", 1),
                     lv_names,
                     lv_labs
                 )

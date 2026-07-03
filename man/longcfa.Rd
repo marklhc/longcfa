@@ -9,6 +9,7 @@ longcfa(
   ind_matrix,
   lv_names,
   pattern = NULL,
+  ucov_mat = NULL,
   data = NULL,
   model = NULL,
   ordered = NULL,
@@ -18,6 +19,8 @@ longcfa(
   long_partial = NULL,
   nthres = NULL,
   fix_theta = NULL,
+  free_latvars = FALSE,
+  free_latmeans = FALSE,
   do.fit = TRUE,
   ...
 )
@@ -26,17 +29,22 @@ longcfa_syntax(
   ind_matrix,
   lv_names,
   pattern = NULL,
+  ucov_mat = matrix(nrow = 0, ncol = 2),
   lag_cov = FALSE,
   long_equal = NULL,
   long_partial = NULL,
   nthres = matrix(0, nrow = nrow(ind_matrix), ncol = ncol(ind_matrix)),
-  fix_theta = FALSE
+  fix_theta = FALSE,
+  free_latvars = FALSE,
+  free_latmeans = FALSE
 )
 }
 \arguments{
-\item{ind_matrix}{A \eqn{p \times T} character matrix specifying the
-names of the indicator variables across time points. Each column
-corresponds to a time point.}
+\item{ind_matrix}{A \eqn{p \times T} matrix of character strings,
+where \eqn{p} is the number of indicators and \eqn{T} is the number
+of time points. Rows correspond to repeated measures of the same item,
+and columns correspond to time points. Elements should be the variable
+names in \code{data}.}
 
 \item{lv_names}{A vector of names of \eqn{T} latent variables.}
 
@@ -49,6 +57,10 @@ which indicators load on which latent variable. If a list of length
 1 is provided, the same pattern is used across all time points.
 The default is \code{NULL}, which assumes only one latent variable per
 time point, and all indicators load on it.}
+
+\item{ucov_mat}{A two-column matrix specifying pairs of indicators
+within the same time point to have their residuals correlated. Each row
+specifies a pair of indicators by their row indices in \code{ind_matrix}.}
 
 \item{data, do.fit, ordered, allow.empty.cell}{Same as in
 \code{lavaan::lavOptions()}.}
@@ -78,6 +90,12 @@ item, in the same dimension as \code{ind_matrix}.}
 
 \item{fix_theta}{Logical; whether to fix the unique variances to 1.
 This is default for ordered categorical data.}
+
+\item{free_latvars}{Logical; whether to free all latent variances,
+regardless of \code{long_equal} specifications.}
+
+\item{free_latmeans}{Logical; whether to free all latent means,
+regardless of \code{long_equal} specifications.}
 
 \item{...}{Other arguments passed to \code{lavaan::cfa()}, such as \code{data}.}
 }

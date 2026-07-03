@@ -28,7 +28,7 @@ get_nlev_ordered <- function(
             return(max(as.numeric(x), na.rm = TRUE))
         }
     } else {
-        return(length(sort(unique(x))))
+        return(length(unique(x[!is.na(x)])))
     }
 }
 
@@ -44,6 +44,9 @@ partial_string_to_list <- function(x, ind_matrix) {
         } else if (grepl("~~", xi)) {
             type_xi <- "residuals"
             vi <- strsplit(xi, "~~")[[1]][1]
+        } else if (grepl("\\|", xi)) {
+            type_xi <- "thresholds"
+            vi <- trimws(strsplit(xi, "\\|")[[1]][1])
         } else {
             stop("Unrecognized operator in ", xi)
         }
@@ -51,14 +54,23 @@ partial_string_to_list <- function(x, ind_matrix) {
         if (!vi %in% ind_matrix) {
             stop(vi, " is not part of `ind_matrix`.")
         }
-        out[[type_xi]] <- rbind(
-            out[[type_xi]],
-            which(
-                ind_matrix == vi,
-                arr.ind = TRUE,
-                useNames = FALSE
-            )
+        row_i <- which(
+            ind_matrix == vi,
+            arr.ind = TRUE,
+            useNames = FALSE
         )
+        if (is.null(out[[type_xi]])) {
+            out[[type_xi]] <- list(row_i)
+        } else {
+            out[[type_xi]][[length(out[[type_xi]]) + 1L]] <- row_i
+        }
     }
-    out
+    lapply(out, do.call, what = "rbind")
+}
+
+pt_to_partial_string <- function(pt) {
+    if (is.null(pt) || nrow(pt) == 0) {
+        return(character(0))
+    }
+    paste(pt$lhs, pt$op, pt$rhs)
 }
