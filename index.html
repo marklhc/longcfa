@@ -13,8 +13,8 @@
     }
   };
 </script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Helper for Longitudinal Confirmatory Factor Analysis">
 <meta name="description" content="Simplifies the specification of longitudinal confirmatory factor analysis (CFA) using the `lavaan` package using a matrix-like approach, with indicators in rows and time points in columns. Supports longitudinal invariance constraints, continuous and categorical indicators, etc.">
@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">longcfa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9990</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,8 +42,17 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/cat.html">Categorical Indicators</a></li>
+<li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Longitudinal Invariance</h6></li>
     <li><a class="dropdown-item" href="articles/invariance.html">Longitudinal Invariance</a></li>
+    <li><a class="dropdown-item" href="articles/cat.html">Categorical Indicators</a></li>
+    <li><a class="dropdown-item" href="articles/specification-search.html">Specification Search for Partial Invariance</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Penalized Estimation Methods</h6></li>
+    <li><a class="dropdown-item" href="articles/longcfa-sirt.html">Approximate Longitudinal Invariance With Alignment Optimization</a></li>
+    <li><a class="dropdown-item" href="articles/penalized.html">Penalized Estimation</a></li>
+    <li><a class="dropdown-item" href="articles/standard-errors.html">Standard Errors with Penalized Estimation</a></li>
+    <li><a class="dropdown-item" href="articles/tyrell.html">A harmonization example with summary statistics</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -80,24 +89,37 @@
 <ul>
 <li>Invariance constraints and partial invariance, as discussed in <a href="articles/invariance.html">this article</a>.</li>
 <li>Categorical indicators, as discussed in <code><a href="articles/cat.html">vignette("cat")</a></code>.</li>
+<li>Penalized estimation to obtain approximate invariance, as discussed in <code><a href="articles/penalized.html">vignette("penalized")</a></code>.</li>
+<li>Automatic specification search by relaxing invariance constraints one at a time, as discussed in <code><a href="articles/specification-search.html">vignette("specification-search")</a></code>.</li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marklhc.github.io/longcfa/">longcfa</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; This is lavaan 0.6-19</span></span>
+<span><span class="co">#&gt; This is lavaan 0.6-21</span></span>
 <span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span>
 <span><span class="co"># Indicator matrix</span></span>
-<span><span class="va">spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"y1"</span>, <span class="st">"y2"</span>, <span class="st">"y3"</span>, <span class="st">"y4"</span>,</span>
-<span>    <span class="st">"y5"</span>, <span class="st">"y6"</span>, <span class="st">"y7"</span>, <span class="st">"y8"</span></span>
-<span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>        <span class="st">"y1"</span>,</span>
+<span>        <span class="st">"y2"</span>,</span>
+<span>        <span class="st">"y3"</span>,</span>
+<span>        <span class="st">"y4"</span>,</span>
+<span>        <span class="st">"y5"</span>,</span>
+<span>        <span class="st">"y6"</span>,</span>
+<span>        <span class="st">"y7"</span>,</span>
+<span>        <span class="st">"y8"</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    ncol <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co"># Scalar invariance</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/longcfa.html">longcfa</a></span><span class="op">(</span><span class="va">spec</span>,</span>
-<span>               lv_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dem60"</span>, <span class="st">"dem65"</span><span class="op">)</span>,</span>
-<span>               data <span class="op">=</span> <span class="va">PoliticalDemocracy</span>,</span>
-<span>               long_equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"intercepts"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/longcfa.html">longcfa</a></span><span class="op">(</span></span>
+<span>    <span class="va">spec</span>,</span>
+<span>    lv_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dem60"</span>, <span class="st">"dem65"</span><span class="op">)</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">PoliticalDemocracy</span>,</span>
+<span>    long_equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"intercepts"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 29 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 29 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -162,16 +184,18 @@
 <span><span class="co">#&gt;     dem60             1.000                           </span></span>
 <span><span class="co">#&gt;     dem65             0.944    0.126    7.501    0.000</span></span>
 <span><span class="co"># Partial invariance</span></span>
-<span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/longcfa.html">longcfa</a></span><span class="op">(</span><span class="va">spec</span>,</span>
-<span>                lv_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dem60"</span>, <span class="st">"dem65"</span><span class="op">)</span>,</span>
-<span>                data <span class="op">=</span> <span class="va">PoliticalDemocracy</span>,</span>
-<span>                long_equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"intercepts"</span><span class="op">)</span>,</span>
-<span>                long_partial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>                    loadings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span>                    intercepts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span>                <span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/longcfa.html">longcfa</a></span><span class="op">(</span></span>
+<span>    <span class="va">spec</span>,</span>
+<span>    lv_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dem60"</span>, <span class="st">"dem65"</span><span class="op">)</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">PoliticalDemocracy</span>,</span>
+<span>    long_equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"intercepts"</span><span class="op">)</span>,</span>
+<span>    long_partial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>        loadings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
+<span>        intercepts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 37 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 37 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -235,6 +259,166 @@
 <span><span class="co">#&gt;    .y8      (.4_2)    2.872    0.592    4.849    0.000</span></span>
 <span><span class="co">#&gt;     dem60             1.000                           </span></span>
 <span><span class="co">#&gt;     dem65             0.979    0.150    6.536    0.000</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marklhc.github.io/plavaan/" class="external-link">plavaan</a></span><span class="op">)</span></span>
+<span><span class="co"># Approximate invariance with penalized unique covariances and differences on loadings and intercepts</span></span>
+<span><span class="co"># Starts with an unidentified model</span></span>
+<span><span class="va">mod3_un</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/longcfa.html">longcfa_syntax</a></span><span class="op">(</span></span>
+<span>    <span class="va">spec</span>,</span>
+<span>    lv_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dem60"</span>, <span class="st">"dem65"</span><span class="op">)</span>,</span>
+<span>    lag_cov <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    <span class="co"># Allow all unique covariances</span></span>
+<span>    ucov_mat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/combn.html" class="external-link">combn</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    free_latvars <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    free_latmeans <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/model.syntax.html" class="external-link">lavaanify</a></span><span class="op">(</span><span class="va">mod3_un</span><span class="op">)</span> <span class="co"># check parameter IDs for applying penalties</span></span>
+<span><span class="co">#&gt;    id   lhs op   rhs user block group free ustart exo   label plabel</span></span>
+<span><span class="co">#&gt; 1   1 dem60 =~    y1    1     1     1    1     NA   0   .l1_1   .p1.</span></span>
+<span><span class="co">#&gt; 2   2 dem60 =~    y2    1     1     1    2     NA   0   .l2_1   .p2.</span></span>
+<span><span class="co">#&gt; 3   3 dem60 =~    y3    1     1     1    3     NA   0   .l3_1   .p3.</span></span>
+<span><span class="co">#&gt; 4   4 dem60 =~    y4    1     1     1    4     NA   0   .l4_1   .p4.</span></span>
+<span><span class="co">#&gt; 5   5    y1 ~1          1     1     1    5     NA   0   .i1_1   .p5.</span></span>
+<span><span class="co">#&gt; 6   6    y2 ~1          1     1     1    6     NA   0   .i2_1   .p6.</span></span>
+<span><span class="co">#&gt; 7   7    y3 ~1          1     1     1    7     NA   0   .i3_1   .p7.</span></span>
+<span><span class="co">#&gt; 8   8    y4 ~1          1     1     1    8     NA   0   .i4_1   .p8.</span></span>
+<span><span class="co">#&gt; 9   9    y1 ~~    y1    1     1     1    9     NA   0   .u1_1   .p9.</span></span>
+<span><span class="co">#&gt; 10 10    y2 ~~    y2    1     1     1   10     NA   0   .u2_1  .p10.</span></span>
+<span><span class="co">#&gt; 11 11    y3 ~~    y3    1     1     1   11     NA   0   .u3_1  .p11.</span></span>
+<span><span class="co">#&gt; 12 12    y4 ~~    y4    1     1     1   12     NA   0   .u4_1  .p12.</span></span>
+<span><span class="co">#&gt; 13 13    y1 ~~    y2    1     1     1   13     NA   0 .uc12_1  .p13.</span></span>
+<span><span class="co">#&gt; 14 14    y1 ~~    y3    1     1     1   14     NA   0 .uc13_1  .p14.</span></span>
+<span><span class="co">#&gt; 15 15    y1 ~~    y4    1     1     1   15     NA   0 .uc14_1  .p15.</span></span>
+<span><span class="co">#&gt; 16 16    y2 ~~    y3    1     1     1   16     NA   0 .uc23_1  .p16.</span></span>
+<span><span class="co">#&gt; 17 17    y2 ~~    y4    1     1     1   17     NA   0 .uc24_1  .p17.</span></span>
+<span><span class="co">#&gt; 18 18    y3 ~~    y4    1     1     1   18     NA   0 .uc34_1  .p18.</span></span>
+<span><span class="co">#&gt; 19 19 dem65 =~    y5    1     1     1   19     NA   0   .l1_2  .p19.</span></span>
+<span><span class="co">#&gt; 20 20 dem65 =~    y6    1     1     1   20     NA   0   .l2_2  .p20.</span></span>
+<span><span class="co">#&gt; 21 21 dem65 =~    y7    1     1     1   21     NA   0   .l3_2  .p21.</span></span>
+<span><span class="co">#&gt; 22 22 dem65 =~    y8    1     1     1   22     NA   0   .l4_2  .p22.</span></span>
+<span><span class="co">#&gt; 23 23    y5 ~1          1     1     1   23     NA   0   .i1_2  .p23.</span></span>
+<span><span class="co">#&gt; 24 24    y6 ~1          1     1     1   24     NA   0   .i2_2  .p24.</span></span>
+<span><span class="co">#&gt; 25 25    y7 ~1          1     1     1   25     NA   0   .i3_2  .p25.</span></span>
+<span><span class="co">#&gt; 26 26    y8 ~1          1     1     1   26     NA   0   .i4_2  .p26.</span></span>
+<span><span class="co">#&gt; 27 27    y5 ~~    y5    1     1     1   27     NA   0   .u1_2  .p27.</span></span>
+<span><span class="co">#&gt; 28 28    y6 ~~    y6    1     1     1   28     NA   0   .u2_2  .p28.</span></span>
+<span><span class="co">#&gt; 29 29    y7 ~~    y7    1     1     1   29     NA   0   .u3_2  .p29.</span></span>
+<span><span class="co">#&gt; 30 30    y8 ~~    y8    1     1     1   30     NA   0   .u4_2  .p30.</span></span>
+<span><span class="co">#&gt; 31 31    y5 ~~    y6    1     1     1   31     NA   0 .uc12_2  .p31.</span></span>
+<span><span class="co">#&gt; 32 32    y5 ~~    y7    1     1     1   32     NA   0 .uc13_2  .p32.</span></span>
+<span><span class="co">#&gt; 33 33    y5 ~~    y8    1     1     1   33     NA   0 .uc14_2  .p33.</span></span>
+<span><span class="co">#&gt; 34 34    y6 ~~    y7    1     1     1   34     NA   0 .uc23_2  .p34.</span></span>
+<span><span class="co">#&gt; 35 35    y6 ~~    y8    1     1     1   35     NA   0 .uc24_2  .p35.</span></span>
+<span><span class="co">#&gt; 36 36    y7 ~~    y8    1     1     1   36     NA   0 .uc34_2  .p36.</span></span>
+<span><span class="co">#&gt; 37 37 dem60 ~~ dem60    1     1     1    0      1   0          .p37.</span></span>
+<span><span class="co">#&gt; 38 38 dem65 ~~ dem65    1     1     1   37     NA   0          .p38.</span></span>
+<span><span class="co">#&gt; 39 39 dem60 ~1          1     1     1    0      0   0          .p39.</span></span>
+<span><span class="co">#&gt; 40 40 dem65 ~1          1     1     1   38     NA   0          .p40.</span></span>
+<span><span class="co">#&gt; 41 41    y1 ~~    y5    1     1     1   39     NA   0          .p41.</span></span>
+<span><span class="co">#&gt; 42 42    y2 ~~    y6    1     1     1   40     NA   0          .p42.</span></span>
+<span><span class="co">#&gt; 43 43    y3 ~~    y7    1     1     1   41     NA   0          .p43.</span></span>
+<span><span class="co">#&gt; 44 44    y4 ~~    y8    1     1     1   42     NA   0          .p44.</span></span>
+<span><span class="co"># Dry run</span></span>
+<span><span class="va">fit3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">cfa</a></span><span class="op">(</span></span>
+<span>    <span class="va">mod3_un</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">PoliticalDemocracy</span>,</span>
+<span>    std.lv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    do.fit <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    start <span class="op">=</span> <span class="va">fit2</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co"># Penalized estimation</span></span>
+<span><span class="va">pen_fit3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://marklhc.github.io/plavaan/reference/penalized_est.html" class="external-link">penalized_est</a></span><span class="op">(</span></span>
+<span>    <span class="va">fit3</span>,</span>
+<span>    w <span class="op">=</span> <span class="fl">.03</span>,</span>
+<span>    <span class="co"># penalize concurrent unique covariances</span></span>
+<span>    pen_par_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">13</span><span class="op">:</span><span class="fl">18</span>, <span class="fl">31</span><span class="op">:</span><span class="fl">36</span><span class="op">)</span>,</span>
+<span>    pen_diff_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>        loadings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, <span class="fl">19</span><span class="op">:</span><span class="fl">22</span><span class="op">)</span>,</span>
+<span>        intercepts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fl">5</span><span class="op">:</span><span class="fl">8</span>, <span class="fl">23</span><span class="op">:</span><span class="fl">26</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pen_fit3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 95 iterations</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Estimator                                         ML</span></span>
+<span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
+<span><span class="co">#&gt;   Number of model parameters                        43</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Number of observations                            75</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Parameter Estimates:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Latent Variables:</span></span>
+<span><span class="co">#&gt;                    Estimate</span></span>
+<span><span class="co">#&gt;   dem60 =~                 </span></span>
+<span><span class="co">#&gt;     y1      (.1_1)    2.096</span></span>
+<span><span class="co">#&gt;     y2      (.2_1)    2.911</span></span>
+<span><span class="co">#&gt;     y3      (.3_1)    2.515</span></span>
+<span><span class="co">#&gt;     y4      (.4_1)    2.894</span></span>
+<span><span class="co">#&gt;   dem65 =~                 </span></span>
+<span><span class="co">#&gt;     y5      (.1_2)    2.072</span></span>
+<span><span class="co">#&gt;     y6      (.2_2)    2.887</span></span>
+<span><span class="co">#&gt;     y7      (.3_2)    2.583</span></span>
+<span><span class="co">#&gt;     y8      (.4_2)    2.884</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Covariances:</span></span>
+<span><span class="co">#&gt;                    Estimate</span></span>
+<span><span class="co">#&gt;  .y1 ~~                    </span></span>
+<span><span class="co">#&gt;    .y2     (.12_1)   -0.005</span></span>
+<span><span class="co">#&gt;    .y3     (.13_1)    0.010</span></span>
+<span><span class="co">#&gt;    .y4     (.14_1)   -0.010</span></span>
+<span><span class="co">#&gt;  .y2 ~~                    </span></span>
+<span><span class="co">#&gt;    .y3     (.23_1)   -0.004</span></span>
+<span><span class="co">#&gt;    .y4     (.24_1)    0.008</span></span>
+<span><span class="co">#&gt;  .y3 ~~                    </span></span>
+<span><span class="co">#&gt;    .y4     (.34_1)   -0.000</span></span>
+<span><span class="co">#&gt;  .y5 ~~                    </span></span>
+<span><span class="co">#&gt;    .y6     (.12_2)   -0.009</span></span>
+<span><span class="co">#&gt;    .y7     (.13_2)    0.006</span></span>
+<span><span class="co">#&gt;    .y8     (.14_2)   -0.007</span></span>
+<span><span class="co">#&gt;  .y6 ~~                    </span></span>
+<span><span class="co">#&gt;    .y7     (.23_2)   -0.005</span></span>
+<span><span class="co">#&gt;    .y8     (.24_2)    0.011</span></span>
+<span><span class="co">#&gt;  .y7 ~~                    </span></span>
+<span><span class="co">#&gt;    .y8     (.34_2)    0.002</span></span>
+<span><span class="co">#&gt;  .y1 ~~                    </span></span>
+<span><span class="co">#&gt;    .y5                0.845</span></span>
+<span><span class="co">#&gt;  .y2 ~~                    </span></span>
+<span><span class="co">#&gt;    .y6                1.676</span></span>
+<span><span class="co">#&gt;  .y3 ~~                    </span></span>
+<span><span class="co">#&gt;    .y7                1.222</span></span>
+<span><span class="co">#&gt;  .y4 ~~                    </span></span>
+<span><span class="co">#&gt;    .y8                0.266</span></span>
+<span><span class="co">#&gt;   dem60 ~~                 </span></span>
+<span><span class="co">#&gt;     dem65             0.919</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Intercepts:</span></span>
+<span><span class="co">#&gt;                    Estimate</span></span>
+<span><span class="co">#&gt;    .y1      (.1_1)    5.499</span></span>
+<span><span class="co">#&gt;    .y2      (.2_1)    3.799</span></span>
+<span><span class="co">#&gt;    .y3      (.3_1)    6.666</span></span>
+<span><span class="co">#&gt;    .y4      (.4_1)    4.543</span></span>
+<span><span class="co">#&gt;    .y5      (.1_2)    5.505</span></span>
+<span><span class="co">#&gt;    .y6      (.2_2)    3.783</span></span>
+<span><span class="co">#&gt;    .y7      (.3_2)    6.670</span></span>
+<span><span class="co">#&gt;    .y8      (.4_2)    4.550</span></span>
+<span><span class="co">#&gt;     dem60             0.000</span></span>
+<span><span class="co">#&gt;     dem65            -0.210</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variances:</span></span>
+<span><span class="co">#&gt;                    Estimate</span></span>
+<span><span class="co">#&gt;    .y1      (.1_1)    2.128</span></span>
+<span><span class="co">#&gt;    .y2      (.2_1)    6.804</span></span>
+<span><span class="co">#&gt;    .y3      (.3_1)    5.416</span></span>
+<span><span class="co">#&gt;    .y4      (.4_1)    2.607</span></span>
+<span><span class="co">#&gt;    .y5      (.1_2)    2.816</span></span>
+<span><span class="co">#&gt;    .y6      (.2_2)    4.021</span></span>
+<span><span class="co">#&gt;    .y7      (.3_2)    3.617</span></span>
+<span><span class="co">#&gt;    .y8      (.4_2)    2.481</span></span>
+<span><span class="co">#&gt;     dem60             1.000</span></span>
+<span><span class="co">#&gt;     dem65             0.948</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
@@ -271,7 +455,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

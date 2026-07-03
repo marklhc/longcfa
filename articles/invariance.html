@@ -13,8 +13,8 @@
     }
   };
 </script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Longitudinal Invariance">
 </head>
@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">longcfa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9990</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,8 +40,17 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/cat.html">Categorical Indicators</a></li>
+<li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Longitudinal Invariance</h6></li>
     <li><a class="dropdown-item" href="../articles/invariance.html">Longitudinal Invariance</a></li>
+    <li><a class="dropdown-item" href="../articles/cat.html">Categorical Indicators</a></li>
+    <li><a class="dropdown-item" href="../articles/specification-search.html">Specification Search for Partial Invariance</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Penalized Estimation Methods</h6></li>
+    <li><a class="dropdown-item" href="../articles/longcfa-sirt.html">Approximate Longitudinal Invariance With Alignment Optimization</a></li>
+    <li><a class="dropdown-item" href="../articles/penalized.html">Penalized Estimation</a></li>
+    <li><a class="dropdown-item" href="../articles/standard-errors.html">Standard Errors with Penalized Estimation</a></li>
+    <li><a class="dropdown-item" href="../articles/tyrell.html">A harmonization example with summary statistics</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -77,7 +86,7 @@ Lai</h4>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marklhc.github.io/longcfa/">longcfa</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; This is lavaan 0.6-19</span></span>
+<span><span class="co">#&gt; This is lavaan 0.6-21</span></span>
 <span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span></code></pre></div>
 <p>The discussion of invariance in this note applies to not just
 longitudinal confirmatory factor analysis (CFA), but also to
@@ -256,7 +265,7 @@ for illustration, let’s fit a partial scalar invariance model</p>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pscalar</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 46 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 46 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -358,7 +367,7 @@ small sample size.</p>
 model for categorical indicators, which assumes an underlying normal
 variate for each indicator. The factor model is then imposed on the
 normal latent variates.</p>
-<p>See <a href="https://doi.org/10.3758/s13428-023-02247-6" class="external-link"><span class="citation">Tse, Lai, and Zhang (2024)</span></a> for more detailed
+<p>See <a href="https://doi.org/10.3758/s13428-023-02247-6" class="external-link"><span class="citation">Tse et al. (2024)</span></a> for more detailed
 discussion.</p>
 <div class="section level3">
 <h3 id="general-considerations-1">General considerations<a class="anchor" aria-label="anchor" href="#general-considerations-1"></a>
@@ -383,7 +392,7 @@ each item also has an underlying latent variate, which requires
 identification of its mean and variance. This makes things tricky when
 trying to apply the invariance steps for continuous indicators to
 categorical indicators, as discussed in <span class="citation">Wu and
-Estabrook (2016)</span> and <span class="citation">Tse, Lai, and Zhang
+Estabrook (2016)</span> and <span class="citation">Tse et al.
 (2024)</span>.</p>
 <p>A rather <strong>general solution</strong> is to follow the norm in
 item response theory (IRT), which generally fix the unique variance of
@@ -443,23 +452,40 @@ different unique variances <span class="math inline">\(\theta\)</span> =
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/curve.html" class="external-link">curve</a></span><span class="op">(</span></span>
 <span>    <span class="fu">prob_y0</span><span class="op">(</span><span class="va">x</span>, theta <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    from <span class="op">=</span> <span class="op">-</span><span class="fl">3</span>, to <span class="op">=</span> <span class="fl">3</span>, col <span class="op">=</span> <span class="st">"red"</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>    xlab <span class="op">=</span> <span class="st">"Latent standing (eta)"</span>, ylab <span class="op">=</span> <span class="st">"P(Y &lt;= 0)"</span></span>
+<span>    from <span class="op">=</span> <span class="op">-</span><span class="fl">3</span>,</span>
+<span>    to <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>    col <span class="op">=</span> <span class="st">"red"</span>,</span>
+<span>    lwd <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>    xlab <span class="op">=</span> <span class="st">"Latent standing (eta)"</span>,</span>
+<span>    ylab <span class="op">=</span> <span class="st">"P(Y &lt;= 0)"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/curve.html" class="external-link">curve</a></span><span class="op">(</span></span>
 <span>    <span class="fu">prob_y0</span><span class="op">(</span><span class="va">x</span>, theta <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    from <span class="op">=</span> <span class="op">-</span><span class="fl">3</span>, to <span class="op">=</span> <span class="fl">3</span>, col <span class="op">=</span> <span class="st">"blue"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, add <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>    from <span class="op">=</span> <span class="op">-</span><span class="fl">3</span>,</span>
+<span>    to <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>    col <span class="op">=</span> <span class="st">"blue"</span>,</span>
+<span>    lwd <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>    add <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/curve.html" class="external-link">curve</a></span><span class="op">(</span></span>
 <span>    <span class="fu">prob_y0</span><span class="op">(</span><span class="va">x</span>, theta <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
-<span>    from <span class="op">=</span> <span class="op">-</span><span class="fl">3</span>, to <span class="op">=</span> <span class="fl">3</span>, col <span class="op">=</span> <span class="st">"green"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, add <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>    from <span class="op">=</span> <span class="op">-</span><span class="fl">3</span>,</span>
+<span>    to <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>    col <span class="op">=</span> <span class="st">"green"</span>,</span>
+<span>    lwd <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>    add <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span></span>
 <span>    <span class="st">"topright"</span>,</span>
-<span>    legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Time 1 (theta = 1)"</span>, <span class="st">"Time 2 (theta = 2)"</span>, <span class="st">"Time 3 (theta = 3)"</span><span class="op">)</span>,</span>
-<span>    col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"green"</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span></span>
+<span>    legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>        <span class="st">"Time 1 (theta = 1)"</span>,</span>
+<span>        <span class="st">"Time 2 (theta = 2)"</span>,</span>
+<span>        <span class="st">"Time 3 (theta = 3)"</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"green"</span><span class="op">)</span>,</span>
+<span>    lwd <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="invariance_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<p><img src="invariance_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="Item characteristic curves with different unique variances" width="700"></p>
 <p>Therefore, I recommend fixing the unique variance to 1 for all
 categorical indicators, which is the default in
 <code><a href="../reference/longcfa.html">longcfa()</a></code>.</p>
@@ -555,10 +581,11 @@ Covariances</td>
 <span><span class="co">#&gt;    lavaan NOTE: The "Chisq" column contains standard test statistics, not the </span></span>
 <span><span class="co">#&gt;    robust test that should be reported per model. A robust difference test is </span></span>
 <span><span class="co">#&gt;    a function of two standard (not robust) statistics.</span></span>
-<span><span class="co">#&gt;            Df AIC BIC   Chisq Chisq diff Df diff Pr(&gt;Chisq)  </span></span>
-<span><span class="co">#&gt; config_bin 15          5.8386                                </span></span>
-<span><span class="co">#&gt; metric_bin 18         15.1420     6.9909       3    0.07219 .</span></span>
-<span><span class="co">#&gt; strict_bin 21         16.1707     2.5137       3    0.47282  </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;            Df AIC BIC   Chisq Chisq diff   RMSEA Df diff Pr(&gt;Chisq)  </span></span>
+<span><span class="co">#&gt; config_bin 15          5.8386                                        </span></span>
+<span><span class="co">#&gt; metric_bin 18         15.1420     6.9909 0.16738       3    0.07219 .</span></span>
+<span><span class="co">#&gt; strict_bin 21         16.1707     2.5137 0.00000       3    0.47282  </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 <p>There isn’t strong evidence for violations of invariance. But just
@@ -573,14 +600,14 @@ for illustration, let’s fit a partial metric invariance model</p>
 <span><span class="co">#&gt;    starting values imply a correlation larger than 1; variables involved are: </span></span>
 <span><span class="co">#&gt;    y4 y8</span></span>
 <span><span class="co">#&gt;      lhs op rhs    mi    epc sepc.lv sepc.all sepc.nox</span></span>
-<span><span class="co">#&gt; 60 dem65 =~  y3 8.128  1.162   1.308    0.808    0.808</span></span>
-<span><span class="co">#&gt; 11    y3 ~~  y3 7.742 -2.099  -1.000   -0.382   -0.382</span></span>
-<span><span class="co">#&gt; 23    y7 ~~  y7 7.742  2.099   1.000    0.328    0.328</span></span>
-<span><span class="co">#&gt; 56 dem60 =~  y7 7.700 -1.369  -1.369   -0.784   -0.784</span></span>
-<span><span class="co">#&gt; 58 dem65 =~  y1 6.778 -1.123  -1.265   -0.738   -0.738</span></span>
-<span><span class="co">#&gt; 54 dem60 =~  y5 6.371  1.369   1.369    0.736    0.736</span></span>
-<span><span class="co">#&gt; 9     y1 ~~  y1 6.340  1.896   1.000    0.340    0.340</span></span>
-<span><span class="co">#&gt; 21    y5 ~~  y5 6.340 -1.896  -1.000   -0.289   -0.289</span></span>
+<span><span class="co">#&gt; 60 dem65 =~  y3 8.128 -1.162  -1.308   -0.808   -0.808</span></span>
+<span><span class="co">#&gt; 11    y3 ~~  y3 7.742  2.099   1.000    0.382    0.382</span></span>
+<span><span class="co">#&gt; 23    y7 ~~  y7 7.742 -2.099  -1.000   -0.328   -0.328</span></span>
+<span><span class="co">#&gt; 56 dem60 =~  y7 7.700  1.369   1.369    0.784    0.784</span></span>
+<span><span class="co">#&gt; 58 dem65 =~  y1 6.778  1.123   1.265    0.738    0.738</span></span>
+<span><span class="co">#&gt; 54 dem60 =~  y5 6.371 -1.369  -1.369   -0.736   -0.736</span></span>
+<span><span class="co">#&gt; 9     y1 ~~  y1 6.340 -1.896  -1.000   -0.340   -0.340</span></span>
+<span><span class="co">#&gt; 21    y5 ~~  y5 6.340  1.896   1.000    0.289    0.289</span></span>
 <span><span class="co"># Free the loading of y3 at time 2</span></span>
 <span><span class="va">pmetric_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/longcfa.html">longcfa</a></span><span class="op">(</span></span>
 <span>    <span class="va">pd_ind</span>,</span>
@@ -601,13 +628,14 @@ for illustration, let’s fit a partial metric invariance model</p>
 <span><span class="co">#&gt;    lavaan NOTE: The "Chisq" column contains standard test statistics, not the </span></span>
 <span><span class="co">#&gt;    robust test that should be reported per model. A robust difference test is </span></span>
 <span><span class="co">#&gt;    a function of two standard (not robust) statistics.</span></span>
-<span><span class="co">#&gt;             Df AIC BIC   Chisq Chisq diff Df diff Pr(&gt;Chisq)  </span></span>
-<span><span class="co">#&gt; pmetric_bin 17          7.3983                                </span></span>
-<span><span class="co">#&gt; metric_bin  18         15.1420     4.8525       1    0.02761 *</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;             Df AIC BIC   Chisq Chisq diff   RMSEA Df diff Pr(&gt;Chisq)  </span></span>
+<span><span class="co">#&gt; pmetric_bin 17          7.3983                                        </span></span>
+<span><span class="co">#&gt; metric_bin  18         15.1420     4.8525 0.29986       1    0.02761 *</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pmetric_bin</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 89 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 89 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                       DWLS</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -620,7 +648,7 @@ for illustration, let’s fit a partial metric invariance model</p>
 <span><span class="co">#&gt;                                               Standard      Scaled</span></span>
 <span><span class="co">#&gt;   Test Statistic                                 7.398      13.347</span></span>
 <span><span class="co">#&gt;   Degrees of freedom                                17          17</span></span>
-<span><span class="co">#&gt;   P-value (Chi-square)                           0.978       0.713</span></span>
+<span><span class="co">#&gt;   P-value (Unknown)                                 NA       0.713</span></span>
 <span><span class="co">#&gt;   Scaling correction factor                                  0.901</span></span>
 <span><span class="co">#&gt;   Shift parameter                                            5.140</span></span>
 <span><span class="co">#&gt;     simple second-order correction                                </span></span>
@@ -729,7 +757,7 @@ option.</p>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-tse2024" class="csl-entry">
 Tse, Winnie Wing-Yee, Mark H. C. Lai, and Yichi Zhang. 2024. <span>“Does
 Strict Invariance Matter? Valid Group Mean Comparisons with
@@ -754,7 +782,7 @@ Categorical Outcomes.”</span> <em>Psychometrika</em> 81 (4): 1014–45. <a hre
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

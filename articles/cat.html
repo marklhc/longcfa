@@ -13,8 +13,8 @@
     }
   };
 </script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Categorical Indicators">
 </head>
@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">longcfa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9990</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,8 +40,17 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/cat.html">Categorical Indicators</a></li>
+<li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Longitudinal Invariance</h6></li>
     <li><a class="dropdown-item" href="../articles/invariance.html">Longitudinal Invariance</a></li>
+    <li><a class="dropdown-item" href="../articles/cat.html">Categorical Indicators</a></li>
+    <li><a class="dropdown-item" href="../articles/specification-search.html">Specification Search for Partial Invariance</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Penalized Estimation Methods</h6></li>
+    <li><a class="dropdown-item" href="../articles/longcfa-sirt.html">Approximate Longitudinal Invariance With Alignment Optimization</a></li>
+    <li><a class="dropdown-item" href="../articles/penalized.html">Penalized Estimation</a></li>
+    <li><a class="dropdown-item" href="../articles/standard-errors.html">Standard Errors with Penalized Estimation</a></li>
+    <li><a class="dropdown-item" href="../articles/tyrell.html">A harmonization example with summary statistics</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -75,7 +84,7 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marklhc.github.io/longcfa/">longcfa</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; This is lavaan 0.6-19</span></span>
+<span><span class="co">#&gt; This is lavaan 0.6-21</span></span>
 <span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="all-indicators-categorical">All Indicators Categorical<a class="anchor" aria-label="anchor" href="#all-indicators-categorical"></a>
@@ -117,7 +126,7 @@ measurement parameters.</p>
 <span><span class="co">#&gt; Warning: lavaan-&gt;lav_object_post_check():  </span></span>
 <span><span class="co">#&gt;    covariance matrix of latent variables is not positive definite ; use </span></span>
 <span><span class="co">#&gt;    lavInspect(fit, "cov.lv") to investigate.</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 66 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 66 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                       DWLS</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -129,7 +138,7 @@ measurement parameters.</p>
 <span><span class="co">#&gt;                                               Standard      Scaled</span></span>
 <span><span class="co">#&gt;   Test Statistic                                15.026      24.418</span></span>
 <span><span class="co">#&gt;   Degrees of freedom                                19          19</span></span>
-<span><span class="co">#&gt;   P-value (Chi-square)                           0.721       0.181</span></span>
+<span><span class="co">#&gt;   P-value (Unknown)                                 NA       0.181</span></span>
 <span><span class="co">#&gt;   Scaling correction factor                                  0.743</span></span>
 <span><span class="co">#&gt;   Shift parameter                                            4.207</span></span>
 <span><span class="co">#&gt;     simple second-order correction                                </span></span>
@@ -214,7 +223,7 @@ measurement parameters.</p>
 <span><span class="co">#&gt; Warning: lavaan-&gt;lav_object_post_check():  </span></span>
 <span><span class="co">#&gt;    covariance matrix of latent variables is not positive definite ; use </span></span>
 <span><span class="co">#&gt;    lavInspect(fit, "cov.lv") to investigate.</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 66 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 66 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                       DWLS</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -226,7 +235,7 @@ measurement parameters.</p>
 <span><span class="co">#&gt;                                               Standard      Scaled</span></span>
 <span><span class="co">#&gt;   Test Statistic                                15.026      24.418</span></span>
 <span><span class="co">#&gt;   Degrees of freedom                                19          19</span></span>
-<span><span class="co">#&gt;   P-value (Chi-square)                           0.721       0.181</span></span>
+<span><span class="co">#&gt;   P-value (Unknown)                                 NA       0.181</span></span>
 <span><span class="co">#&gt;   Scaling correction factor                                  0.743</span></span>
 <span><span class="co">#&gt;   Shift parameter                                            4.207</span></span>
 <span><span class="co">#&gt;     simple second-order correction                                </span></span>
@@ -318,7 +327,7 @@ discretization of the indicators.</p>
 <span><span class="co">#&gt; Warning: lavaan-&gt;lav_object_post_check():  </span></span>
 <span><span class="co">#&gt;    covariance matrix of latent variables is not positive definite ; use </span></span>
 <span><span class="co">#&gt;    lavInspect(fit, "cov.lv") to investigate.</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 43 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 43 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                       DWLS</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -331,7 +340,7 @@ discretization of the indicators.</p>
 <span><span class="co">#&gt;                                               Standard      Scaled</span></span>
 <span><span class="co">#&gt;   Test Statistic                                20.854      31.538</span></span>
 <span><span class="co">#&gt;   Degrees of freedom                                27          27</span></span>
-<span><span class="co">#&gt;   P-value (Chi-square)                           0.793       0.250</span></span>
+<span><span class="co">#&gt;   P-value (Unknown)                                 NA       0.250</span></span>
 <span><span class="co">#&gt;   Scaling correction factor                                  0.839</span></span>
 <span><span class="co">#&gt;   Shift parameter                                            6.683</span></span>
 <span><span class="co">#&gt;     simple second-order correction                                </span></span>
@@ -428,7 +437,7 @@ discretization of the indicators.</p>
 <span><span class="co">#&gt; Warning: lavaan-&gt;lav_object_post_check():  </span></span>
 <span><span class="co">#&gt;    covariance matrix of latent variables is not positive definite ; use </span></span>
 <span><span class="co">#&gt;    lavInspect(fit, "cov.lv") to investigate.</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 57 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 57 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                       DWLS</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -440,7 +449,7 @@ discretization of the indicators.</p>
 <span><span class="co">#&gt;                                               Standard      Scaled</span></span>
 <span><span class="co">#&gt;   Test Statistic                                 4.926      27.877</span></span>
 <span><span class="co">#&gt;   Degrees of freedom                                19          19</span></span>
-<span><span class="co">#&gt;   P-value (Chi-square)                           0.999       0.086</span></span>
+<span><span class="co">#&gt;   P-value (Unknown)                                 NA       0.086</span></span>
 <span><span class="co">#&gt;   Scaling correction factor                                  0.215</span></span>
 <span><span class="co">#&gt;   Shift parameter                                            4.914</span></span>
 <span><span class="co">#&gt;     simple second-order correction                                </span></span>
@@ -517,7 +526,7 @@ discretization of the indicators.</p>
 <span><span class="co">#&gt; Warning: lavaan-&gt;lav_object_post_check():  </span></span>
 <span><span class="co">#&gt;    covariance matrix of latent variables is not positive definite ; use </span></span>
 <span><span class="co">#&gt;    lavInspect(fit, "cov.lv") to investigate.</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 57 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 57 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                       DWLS</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -529,7 +538,7 @@ discretization of the indicators.</p>
 <span><span class="co">#&gt;                                               Standard      Scaled</span></span>
 <span><span class="co">#&gt;   Test Statistic                                 4.926      27.877</span></span>
 <span><span class="co">#&gt;   Degrees of freedom                                19          19</span></span>
-<span><span class="co">#&gt;   P-value (Chi-square)                           0.999       0.086</span></span>
+<span><span class="co">#&gt;   P-value (Unknown)                                 NA       0.086</span></span>
 <span><span class="co">#&gt;   Scaling correction factor                                  0.215</span></span>
 <span><span class="co">#&gt;   Shift parameter                                            4.914</span></span>
 <span><span class="co">#&gt;     simple second-order correction</span></span></code></pre></div>
@@ -546,7 +555,7 @@ discretization of the indicators.</p>
 <span><span class="co">#&gt; Warning: lavaan-&gt;lav_object_post_check():  </span></span>
 <span><span class="co">#&gt;    covariance matrix of latent variables is not positive definite ; use </span></span>
 <span><span class="co">#&gt;    lavInspect(fit, "cov.lv") to investigate.</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 40 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 40 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                       DWLS</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -559,7 +568,7 @@ discretization of the indicators.</p>
 <span><span class="co">#&gt;                                               Standard      Scaled</span></span>
 <span><span class="co">#&gt;   Test Statistic                                 8.499      28.134</span></span>
 <span><span class="co">#&gt;   Degrees of freedom                                29          29</span></span>
-<span><span class="co">#&gt;   P-value (Chi-square)                           1.000       0.511</span></span>
+<span><span class="co">#&gt;   P-value (Unknown)                                 NA       0.511</span></span>
 <span><span class="co">#&gt;   Scaling correction factor                                  0.550</span></span>
 <span><span class="co">#&gt;   Shift parameter                                           12.691</span></span>
 <span><span class="co">#&gt;     simple second-order correction                                </span></span>
@@ -640,7 +649,7 @@ discretization of the indicators.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

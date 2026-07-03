@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Wrapper function for longitudinal CFA (Experimental) — longcfa"><meta name="description" content="This function estimates a longitudinal measurement model by first
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Wrapper function for longitudinal CFA (Experimental) — longcfa"><meta name="description" content="This function estimates a longitudinal measurement model by first
 generating model syntax (using the longcfa_syntax() function), and
 then fit the model using lavaan::cfa(). An input matrix is needed
 where the rows are the indicators and the columns are the time points."><meta property="og:description" content="This function estimates a longitudinal measurement model by first
@@ -19,7 +19,7 @@ where the rows are the indicators and the columns are the time points."></head><
 
     <a class="navbar-brand me-2" href="../index.html">longcfa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9990</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,8 +31,17 @@ where the rows are the indicators and the columns are the time points."></head><
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/cat.html">Categorical Indicators</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Longitudinal Invariance</h6></li>
     <li><a class="dropdown-item" href="../articles/invariance.html">Longitudinal Invariance</a></li>
+    <li><a class="dropdown-item" href="../articles/cat.html">Categorical Indicators</a></li>
+    <li><a class="dropdown-item" href="../articles/specification-search.html">Specification Search for Partial Invariance</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Penalized Estimation Methods</h6></li>
+    <li><a class="dropdown-item" href="../articles/longcfa-sirt.html">Approximate Longitudinal Invariance With Alignment Optimization</a></li>
+    <li><a class="dropdown-item" href="../articles/penalized.html">Penalized Estimation</a></li>
+    <li><a class="dropdown-item" href="../articles/standard-errors.html">Standard Errors with Penalized Estimation</a></li>
+    <li><a class="dropdown-item" href="../articles/tyrell.html">A harmonization example with summary statistics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -63,6 +72,7 @@ where the rows are the indicators and the columns are the time points.</p>
 <span>  <span class="va">ind_matrix</span>,</span>
 <span>  <span class="va">lv_names</span>,</span>
 <span>  pattern <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ucov_mat <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  model <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ordered <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -72,6 +82,8 @@ where the rows are the indicators and the columns are the time points.</p>
 <span>  long_partial <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nthres <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  fix_theta <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  free_latvars <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  free_latmeans <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  do.fit <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -80,11 +92,14 @@ where the rows are the indicators and the columns are the time points.</p>
 <span>  <span class="va">ind_matrix</span>,</span>
 <span>  <span class="va">lv_names</span>,</span>
 <span>  pattern <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ucov_mat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span>nrow <span class="op">=</span> <span class="fl">0</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
 <span>  lag_cov <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  long_equal <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  long_partial <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nthres <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ind_matrix</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">ind_matrix</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  fix_theta <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  fix_theta <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  free_latvars <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  free_latmeans <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -93,9 +108,11 @@ where the rows are the indicators and the columns are the time points.</p>
 
 
 <dl><dt id="arg-ind-matrix">ind_matrix<a class="anchor" aria-label="anchor" href="#arg-ind-matrix"></a></dt>
-<dd><p>A \(p \times T\) character matrix specifying the
-names of the indicator variables across time points. Each column
-corresponds to a time point.</p></dd>
+<dd><p>A \(p \times T\) matrix of character strings,
+where \(p\) is the number of indicators and \(T\) is the number
+of time points. Rows correspond to repeated measures of the same item,
+and columns correspond to time points. Elements should be the variable
+names in <code>data</code>.</p></dd>
 
 
 <dt id="arg-lv-names">lv_names<a class="anchor" aria-label="anchor" href="#arg-lv-names"></a></dt>
@@ -112,6 +129,12 @@ which indicators load on which latent variable. If a list of length
 1 is provided, the same pattern is used across all time points.
 The default is <code>NULL</code>, which assumes only one latent variable per
 time point, and all indicators load on it.</p></dd>
+
+
+<dt id="arg-ucov-mat">ucov_mat<a class="anchor" aria-label="anchor" href="#arg-ucov-mat"></a></dt>
+<dd><p>A two-column matrix specifying pairs of indicators
+within the same time point to have their residuals correlated. Each row
+specifies a pair of indicators by their row indices in <code>ind_matrix</code>.</p></dd>
 
 
 <dt id="arg-data-do-fit-ordered-allow-empty-cell">data, do.fit, ordered, allow.empty.cell<a class="anchor" aria-label="anchor" href="#arg-data-do-fit-ordered-allow-empty-cell"></a></dt>
@@ -157,6 +180,16 @@ item, in the same dimension as <code>ind_matrix</code>.</p></dd>
 This is default for ordered categorical data.</p></dd>
 
 
+<dt id="arg-free-latvars">free_latvars<a class="anchor" aria-label="anchor" href="#arg-free-latvars"></a></dt>
+<dd><p>Logical; whether to free all latent variances,
+regardless of <code>long_equal</code> specifications.</p></dd>
+
+
+<dt id="arg-free-latmeans">free_latmeans<a class="anchor" aria-label="anchor" href="#arg-free-latmeans"></a></dt>
+<dd><p>Logical; whether to free all latent means,
+regardless of <code>long_equal</code> specifications.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Other arguments passed to <code><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">lavaan::cfa()</a></code>, such as <code>data</code>.</p></dd>
 
@@ -174,7 +207,7 @@ point.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> This is lavaan 0.6-19</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> This is lavaan 0.6-21</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> lavaan is FREE software! Please report any bugs.</span>
 <span class="r-in"><span><span class="co"># Indicator matrix</span></span></span>
 <span class="r-in"><span><span class="va">spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
@@ -187,7 +220,7 @@ point.</p>
 <span class="r-in"><span>               data <span class="op">=</span> <span class="va">PoliticalDemocracy</span>,</span></span>
 <span class="r-in"><span>               long_equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"intercepts"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lavaan 0.6-19 ended normally after 29 iterations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lavaan 0.6-21 ended normally after 29 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                         ML</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimization method                           NLMINB</span>
@@ -262,7 +295,7 @@ point.</p>
 <span class="r-in"><span>                    intercepts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span>                <span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lavaan 0.6-19 ended normally after 37 iterations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lavaan 0.6-21 ended normally after 37 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                         ML</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimization method                           NLMINB</span>
@@ -338,7 +371,7 @@ point.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

@@ -13,8 +13,8 @@
     }
   };
 </script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Quick Start">
 </head>
@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">longcfa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9990</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,8 +40,17 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/cat.html">Categorical Indicators</a></li>
+<li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Longitudinal Invariance</h6></li>
     <li><a class="dropdown-item" href="../articles/invariance.html">Longitudinal Invariance</a></li>
+    <li><a class="dropdown-item" href="../articles/cat.html">Categorical Indicators</a></li>
+    <li><a class="dropdown-item" href="../articles/specification-search.html">Specification Search for Partial Invariance</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Penalized Estimation Methods</h6></li>
+    <li><a class="dropdown-item" href="../articles/longcfa-sirt.html">Approximate Longitudinal Invariance With Alignment Optimization</a></li>
+    <li><a class="dropdown-item" href="../articles/penalized.html">Penalized Estimation</a></li>
+    <li><a class="dropdown-item" href="../articles/standard-errors.html">Standard Errors with Penalized Estimation</a></li>
+    <li><a class="dropdown-item" href="../articles/tyrell.html">A harmonization example with summary statistics</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -75,7 +84,7 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marklhc.github.io/longcfa/">longcfa</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; This is lavaan 0.6-19</span></span>
+<span><span class="co">#&gt; This is lavaan 0.6-21</span></span>
 <span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span></code></pre></div>
 <p>The data is the <code>PoliticalDemocracy</code> dataset from the
 <code>lavaan</code> package, which is a longitudinal dataset on
@@ -112,7 +121,7 @@ follows:</p>
 <span><span class="st">"</span></span>
 <span><span class="va">lconfig_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">cfa</a></span><span class="op">(</span><span class="va">lconfig_mod</span>, data <span class="op">=</span> <span class="va">PoliticalDemocracy</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">lconfig_fit</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 19 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 19 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -140,7 +149,7 @@ indicators across time points:</p>
 <span><span class="st">"</span></span>
 <span><span class="va">lconfig2_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">cfa</a></span><span class="op">(</span><span class="va">lconfig2_mod</span>, data <span class="op">=</span> <span class="va">PoliticalDemocracy</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">lconfig2_fit</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 37 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 37 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -159,8 +168,7 @@ four indicators measured at two time points, the input matrix would look
 like this:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ind_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"y1"</span>, <span class="st">"y2"</span>, <span class="st">"y3"</span>, <span class="st">"y4"</span>,</span>
-<span>      <span class="st">"y5"</span>, <span class="st">"y6"</span>, <span class="st">"y7"</span>, <span class="st">"y8"</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"y1"</span>, <span class="st">"y2"</span>, <span class="st">"y3"</span>, <span class="st">"y4"</span>, <span class="st">"y5"</span>, <span class="st">"y6"</span>, <span class="st">"y7"</span>, <span class="st">"y8"</span><span class="op">)</span>,</span>
 <span>    nrow <span class="op">=</span> <span class="fl">4</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">ind_mat</span></span>
@@ -181,7 +189,7 @@ across time points:</p>
 <span>    lag_cov <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">lconfig2_fit2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.6-19 ended normally after 37 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 37 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -252,6 +260,83 @@ across time points:</p>
 <span><span class="co">#&gt;    .y8      (.4_2)    2.459    0.621    3.961    0.000</span></span>
 <span><span class="co">#&gt;     dem60             1.000                           </span></span>
 <span><span class="co">#&gt;     dem65             1.000</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pen_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/penalized_longcfa.html">penalized_longcfa</a></span><span class="op">(</span></span>
+<span>    <span class="va">ind_mat</span>,</span>
+<span>    lv_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dem60"</span>, <span class="st">"dem65"</span><span class="op">)</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">PoliticalDemocracy</span>,</span>
+<span>    lag_cov <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    w <span class="op">=</span> <span class="fl">0.03</span>,</span>
+<span>    pen_fn <span class="op">=</span> <span class="st">"l0a"</span>,</span>
+<span>    se <span class="op">=</span> <span class="st">"robust.huber.white"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pen_fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 103 iterations</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Estimator                                         ML</span></span>
+<span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
+<span><span class="co">#&gt;   Number of model parameters                        31</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Number of observations                            75</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Parameter Estimates:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Standard errors                             Sandwich</span></span>
+<span><span class="co">#&gt;   Information bread                           Observed</span></span>
+<span><span class="co">#&gt;   Observed information based on                Hessian</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Latent Variables:</span></span>
+<span><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
+<span><span class="co">#&gt;   dem60 =~                                            </span></span>
+<span><span class="co">#&gt;     y1      (.1_1)    2.105    0.207   10.182    0.000</span></span>
+<span><span class="co">#&gt;     y2      (.2_1)    2.852    0.290    9.828    0.000</span></span>
+<span><span class="co">#&gt;     y3      (.3_1)    2.531    0.241   10.512    0.000</span></span>
+<span><span class="co">#&gt;     y4      (.4_1)    2.905    0.226   12.872    0.000</span></span>
+<span><span class="co">#&gt;   dem65 =~                                            </span></span>
+<span><span class="co">#&gt;     y5      (.1_2)    2.083    0.210    9.929    0.000</span></span>
+<span><span class="co">#&gt;     y6      (.2_2)    2.819    0.290    9.710    0.000</span></span>
+<span><span class="co">#&gt;     y7      (.3_2)    2.602    0.252   10.322    0.000</span></span>
+<span><span class="co">#&gt;     y8      (.4_2)    2.898    0.225   12.905    0.000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Covariances:</span></span>
+<span><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
+<span><span class="co">#&gt;  .y1 ~~                                               </span></span>
+<span><span class="co">#&gt;    .y5                0.842    0.433    1.943    0.052</span></span>
+<span><span class="co">#&gt;  .y2 ~~                                               </span></span>
+<span><span class="co">#&gt;    .y6                1.820    0.880    2.068    0.039</span></span>
+<span><span class="co">#&gt;  .y3 ~~                                               </span></span>
+<span><span class="co">#&gt;    .y7                1.222    0.644    1.898    0.058</span></span>
+<span><span class="co">#&gt;  .y4 ~~                                               </span></span>
+<span><span class="co">#&gt;    .y8                0.284    0.467    0.608    0.543</span></span>
+<span><span class="co">#&gt;   dem60 ~~                                            </span></span>
+<span><span class="co">#&gt;     dem65             0.918    0.057   16.132    0.000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Intercepts:</span></span>
+<span><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
+<span><span class="co">#&gt;    .y1      (.1_1)    5.456    0.288   18.918    0.000</span></span>
+<span><span class="co">#&gt;    .y2      (.2_1)    4.251    0.453    9.389    0.000</span></span>
+<span><span class="co">#&gt;    .y3      (.3_1)    6.572    0.355   18.513    0.000</span></span>
+<span><span class="co">#&gt;    .y4      (.4_1)    4.460    0.366   12.173    0.000</span></span>
+<span><span class="co">#&gt;    .y5      (.1_2)    5.454    0.288   18.945    0.000</span></span>
+<span><span class="co">#&gt;    .y6      (.2_2)    3.393    0.428    7.937    0.000</span></span>
+<span><span class="co">#&gt;    .y7      (.3_2)    6.572    0.355   18.490    0.000</span></span>
+<span><span class="co">#&gt;    .y8      (.4_2)    4.460    0.366   12.182    0.000</span></span>
+<span><span class="co">#&gt;     dem60             0.000                           </span></span>
+<span><span class="co">#&gt;     dem65            -0.147    0.070   -2.091    0.037</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variances:</span></span>
+<span><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
+<span><span class="co">#&gt;    .y1      (.1_1)    2.129    0.487    4.370    0.000</span></span>
+<span><span class="co">#&gt;    .y2      (.2_1)    6.632    1.319    5.030    0.000</span></span>
+<span><span class="co">#&gt;    .y3      (.3_1)    5.388    1.095    4.921    0.000</span></span>
+<span><span class="co">#&gt;    .y4      (.4_1)    2.594    0.643    4.033    0.000</span></span>
+<span><span class="co">#&gt;    .y5      (.1_2)    2.816    0.591    4.769    0.000</span></span>
+<span><span class="co">#&gt;    .y6      (.2_2)    4.003    0.803    4.986    0.000</span></span>
+<span><span class="co">#&gt;    .y7      (.3_2)    3.590    0.637    5.640    0.000</span></span>
+<span><span class="co">#&gt;    .y8      (.4_2)    2.457    0.721    3.409    0.001</span></span>
+<span><span class="co">#&gt;     dem60             1.000                           </span></span>
+<span><span class="co">#&gt;     dem65             0.951    0.097    9.812    0.000</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="invariance-constraints">Invariance Constraints<a class="anchor" aria-label="anchor" href="#invariance-constraints"></a>
 </h2>
@@ -263,7 +348,7 @@ prerequisite for interpreting changes in the latent constructs over
 time. For example, we can see the <code>lavaan</code> syntax for a
 longitudinal partial scalar invariance model using the
 <code><a href="../reference/longcfa.html">longcfa_syntax()</a></code> function:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/longcfa.html">longcfa_syntax</a></span><span class="op">(</span></span>
 <span>    <span class="va">ind_mat</span>,</span>
 <span>    lv_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dem60"</span>, <span class="st">"dem65"</span><span class="op">)</span>,</span>
@@ -341,7 +426,7 @@ time point (1 for the first time point, 2 for the second time point,
 etc.), and the second column specifies the indicator number (1 for the
 first indicator, 2 for the second indicator, etc.). The example above
 has the input:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    <span class="co"># noninvariant loading for y6 at time 2</span></span>
 <span>    loadings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
@@ -368,25 +453,37 @@ to the labels.</p>
 <div class="section level2">
 <h2 id="models-supported-by-longcfa">Models Supported by <code>longcfa()</code><a class="anchor" aria-label="anchor" href="#models-supported-by-longcfa"></a>
 </h2>
-<p>The <code><a href="../reference/longcfa.html">longcfa()</a></code> only supports a subset of longitudinal CFA
-models, all with the following restrictions:</p>
+<p>The <code><a href="../reference/longcfa.html">longcfa()</a></code> supports the following longitudinal CFA
+models that can be fitted using <code><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">lavaan::cfa()</a></code>:</p>
 <ul>
-<li>No unique covariances within time points (which can be relaxed by
-adding to the model with the <code>longcfa(..., model)</code>
-argument)</li>
-<li>Single-group models (no multiple groups; may be supported in the
-future)</li>
+<li>Single-group models with continuous and/or categorical indicators
+<ul>
+<li>Mixed continuous and categorical indicators are supported, but not
+fully tested</li>
+<li>Multiple-group models may be supported in the future</li>
 </ul>
-<p>It currently does not support:</p>
+</li>
+<li>Models with different numbers of factors across time (not tested
+yet)</li>
+<li>Single and multi-factor (experimental and not fully tested) models
+within a time point</li>
+<li>Loading, intercept, unique variance, and concurrent unique
+covariance (experimental) invariance across time points
 <ul>
-<li>Invariance of only a subset of thresholds for a categorical
-indicator over time; for example, for an indicator with three
-thresholds, one cannot specify that only the first two thresholds are
-invariant across time points.</li>
+<li>Currently, not supporting invariance of only a subset of thresholds
+for a categorical indicator over time; for example, for an indicator
+with three thresholds, one cannot specify that only the first two
+thresholds are invariant across time points</li>
+</ul>
+</li>
+<li>Other models can be specified by adding to the <code>model</code>
+argument of <code><a href="../reference/longcfa.html">longcfa()</a></code>, or modifying the output from the
+<code><a href="../reference/longcfa.html">longcfa_syntax()</a></code> function. E.g.,
+<ul>
 <li>Labels and equality constraints on the cross-time covariances of the
-unique factors of the same indicators (which can be achieved by manually
-adding to the <code>model</code> argument of
-<code><a href="../reference/longcfa.html">longcfa()</a></code>).</li>
+unique factors of the same indicators</li>
+</ul>
+</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -400,7 +497,7 @@ adding to the <code>model</code> argument of
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
