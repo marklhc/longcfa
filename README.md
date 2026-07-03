@@ -37,7 +37,7 @@ The package also supports
 ``` r
 library(longcfa)
 library(lavaan)
-#> This is lavaan 0.6-20
+#> This is lavaan 0.6-21
 #> lavaan is FREE software! Please report any bugs.
 # Indicator matrix
 spec <- matrix(
@@ -61,7 +61,7 @@ fit <- longcfa(
     long_equal = c("loadings", "intercepts")
 )
 summary(fit)
-#> lavaan 0.6-20 ended normally after 29 iterations
+#> lavaan 0.6-21 ended normally after 29 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -137,7 +137,7 @@ fit2 <- longcfa(
     )
 )
 summary(fit2)
-#> lavaan 0.6-20 ended normally after 37 iterations
+#> lavaan 0.6-21 ended normally after 37 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -204,6 +204,7 @@ summary(fit2)
 ```
 
 ``` r
+library(plavaan)
 # Approximate invariance with penalized unique covariances and differences on loadings and intercepts
 # Starts with an unidentified model
 mod3_un <- longcfa_syntax(
@@ -281,7 +282,7 @@ pen_fit3 <- penalized_est(
     )
 )
 summary(pen_fit3)
-#> lavaan 0.6-20 ended normally after 95 iterations
+#> lavaan 0.6-21 ended normally after 95 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB

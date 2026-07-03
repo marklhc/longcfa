@@ -79,6 +79,7 @@ summary(fit2)
 
 
 ```{r}
+library(plavaan)
 # Approximate invariance with penalized unique covariances and differences on loadings and intercepts
 # Starts with an unidentified model
 mod3_un <- longcfa_syntax(

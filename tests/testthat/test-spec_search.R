@@ -1,8 +1,11 @@
 library(longcfa)
 library(lavaan)
 data("PoliticalDemocracy", package = "lavaan")
-filter_pt <- longcfa:::filter_pt; filter_cons <- longcfa:::filter_cons; next_to_relax <- longcfa:::next_to_relax
-lav_constraints_rm <- longcfa:::lav_constraints_rm; get_op_idx <- longcfa:::get_op_idx
+filter_pt <- longcfa:::filter_pt
+filter_cons <- longcfa:::filter_cons
+next_to_relax <- longcfa:::next_to_relax
+lav_constraints_rm <- longcfa:::lav_constraints_rm
+get_op_idx <- longcfa:::get_op_idx
 test_that("Extract score test works", {
     ind_mat <- matrix(
         c("y1", "y2", "y3", "y4", "y5", "y6", "y7", "y8"),
@@ -52,8 +55,10 @@ test_that("lav_constraints_rm works", {
         rhs = c("b", "c", "b", "e", "f", "h")
     )
     pts_new <- vapply(
+        c("a", "b", "c", "d", "e", "f"),
         function(i) nrow(lav_constraints_rm(pt1, plab = i)),
         FUN.VALUE = integer(1)
+    )
     expect_true(all(pts_new == 5))
 })
 

@@ -41,6 +41,7 @@ get_op_idx <- function(
 #'
 #' @return A matrix with dimensions matching `ind_matrix` (or stacked matrices
 #'   for thresholds) containing the  extracted values.
+#' @export
 par_to_mat <- function(x, op, ind_matrix, out_col) {
     pt <- lavaan::partable(x)
     idx_list <- get_op_idx(

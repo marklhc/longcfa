@@ -130,10 +130,17 @@ res_summary <- data.frame(
 ```
 
 ```{r include=FALSE}
-if (!file.exists("sim-se-summary.rds")) {
-    saveRDS(res_summary, "sim-se-summary.rds")
+# if (!file.exists("sim-se-summary.rds")) {
+#     saveRDS(res_summary, "sim-se-summary.rds")
+# }
+res_summary <- if (file.exists("sim-se-summary.rds")) {
+    readRDS("sim-se-summary.rds")
 } else {
-    res_summary <- readRDS("sim-se-summary.rds")
+    data.frame(
+        param = names(coef(pefa_fit)),
+        emp_sd = NA_real_,
+        mean_se = sqrt(diag(vcov(pefa_fit)))
+    )
 }
 ```
 
