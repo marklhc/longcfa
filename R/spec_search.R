@@ -6,7 +6,7 @@ next_to_relax <- function(x, fn, fn_min, ...) {
     fn_x[which.max(fn_x$mi), ]
 }
 
-filter_pt <- function(pt, ind, op = c("=~", "~1", "~~")) {
+filter_pt <- function(pt, ind, op = c("=~", "~1", "~~", "|")) {
     op <- match.arg(op)
     if (op == "=~") {
         return(pt[pt$rhs %in% ind & pt$op == "=~", ])
@@ -14,6 +14,8 @@ filter_pt <- function(pt, ind, op = c("=~", "~1", "~~")) {
         return(pt[pt$lhs %in% ind & pt$op == "~1", ])
     } else if (op == "~~") {
         return(pt[pt$lhs %in% ind & pt$rhs %in% ind & pt$op == "~~", ])
+    } else if (op == "|") {
+        return(pt[pt$lhs %in% ind & pt$op == "|", ])
     }
 }
 
@@ -29,12 +31,12 @@ filter_cons <- function(pt, cons) {
 #'
 #' @param x A fitted lavaan object.
 #' @param ind Character vector of indicator names to consider.
-#' @param op Character string specifying the operator type (`"=~"`, `"~1"`, or `"~~"`).
+#' @param op Character string specifying the operator type (`"=~"`, `"~1"`, `"~~"`, or `"|"`).
 #'
 #' @return A data frame containing the score test results, including the
 #'   modification index (`mi`) for each constraint.
 #' @export
-get_lav_test_score <- function(x, ind, op = c("=~", "~1", "~~")) {
+get_lav_test_score <- function(x, ind, op = c("=~", "~1", "~~", "|")) {
     pt <- partable(x)
     pt_op <- filter_pt(pt, ind, op)
     to_test <- filter_cons(pt_op, pt[pt$op == "==", ])
@@ -64,11 +66,11 @@ get_lav_test_score <- function(x, ind, op = c("=~", "~1", "~~")) {
 #'
 #' @param x A fitted lavaan object.
 #' @param ind Character vector of indicator names to consider.
-#' @param op Character string specifying the operator type (`"=~"`, `"~1"`, or `"~~"`).
+#' @param op Character string specifying the operator type (`"=~"`, `"~1"`, `"~~"`, or `"|"`).
 #'
 #' @return A data frame containing the modification indices.
 #' @export
-get_lav_mod <- function(x, ind, op = c("=~", "~1", "~~")) {
+get_lav_mod <- function(x, ind, op = c("=~", "~1", "~~", "|")) {
     mis <- lavaan::modindices(x, free.remove = FALSE)
     out <- filter_pt(mis, ind, op)
     merge(
@@ -81,7 +83,7 @@ get_lav_mod <- function(x, ind, op = c("=~", "~1", "~~")) {
 #' @importFrom methods slot slotNames
 plinv_search_step <- function(
     x,
-    op = c("=~", "~1", "~~"),
+    op = c("=~", "~1", "~~", "|"),
     mi_fun,
     mi_min,
     ...

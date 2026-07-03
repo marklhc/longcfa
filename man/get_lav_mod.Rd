@@ -4,14 +4,14 @@
 \alias{get_lav_mod}
 \title{Compute Modification Indices for Specific Parameters}
 \usage{
-get_lav_mod(x, ind, op = c("=~", "~1", "~~"))
+get_lav_mod(x, ind, op = c("=~", "~1", "~~", "|"))
 }
 \arguments{
 \item{x}{A fitted lavaan object.}
 
 \item{ind}{Character vector of indicator names to consider.}
 
-\item{op}{Character string specifying the operator type (\code{"=~"}, \code{"~1"}, or \code{"~~"}).}
+\item{op}{Character string specifying the operator type (\code{"=~"}, \code{"~1"}, \code{"~~"}, or \code{"|"}).}
 }
 \value{
 A data frame containing the modification indices.

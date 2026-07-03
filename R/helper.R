@@ -44,6 +44,9 @@ partial_string_to_list <- function(x, ind_matrix) {
         } else if (grepl("~~", xi)) {
             type_xi <- "residuals"
             vi <- strsplit(xi, "~~")[[1]][1]
+        } else if (grepl("\\|", xi)) {
+            type_xi <- "thresholds"
+            vi <- trimws(strsplit(xi, "\\|")[[1]][1])
         } else {
             stop("Unrecognized operator in ", xi)
         }
@@ -66,6 +69,8 @@ partial_string_to_list <- function(x, ind_matrix) {
 }
 
 pt_to_partial_string <- function(pt) {
-    if (is.null(pt) || nrow(pt) == 0) return(character(0))
+    if (is.null(pt) || nrow(pt) == 0) {
+        return(character(0))
+    }
     paste(pt$lhs, pt$op, pt$rhs)
 }

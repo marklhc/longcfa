@@ -229,3 +229,26 @@ test_that("par_to_mat works correctly", {
     expect_equal(ld_mat, c(4:6, NA, 1:3, NA, 7:10))
     expect_equal(int_mat, c(13:15, NA, 16:18, NA, 19:22))
 })
+
+test_that("par_to_mat_from_pt works correctly for thresholds", {
+    par_to_mat_from_pt <- longcfa:::par_to_mat_from_pt
+
+    pt <- data.frame(
+        lhs = c("y1", "y2", "y3", "y4", "y1", "y2", "y3", "y4"),
+        op = rep("|", 8),
+        rhs = c("th1", "th1", "th1", "th1", "th2", "th2", "th2", "th2"),
+        free = 1:8,
+        stringsAsFactors = FALSE
+    )
+
+    ind_mat <- matrix(c("y1", "y2", "y3", "y4"), ncol = 2)
+
+    out <- par_to_mat_from_pt(
+        pt,
+        op = "|",
+        ind_matrix = ind_mat,
+        out_col = "free"
+    )
+
+    expect_equal(out, matrix(c(1, 2, 5, 6, 3, 4, 7, 8), ncol = 2))
+})

@@ -4,14 +4,14 @@
 \alias{get_lav_test_score}
 \title{Compute Score Tests for Equality Constraints}
 \usage{
-get_lav_test_score(x, ind, op = c("=~", "~1", "~~"))
+get_lav_test_score(x, ind, op = c("=~", "~1", "~~", "|"))
 }
 \arguments{
 \item{x}{A fitted lavaan object.}
 
 \item{ind}{Character vector of indicator names to consider.}
 
-\item{op}{Character string specifying the operator type (\code{"=~"}, \code{"~1"}, or \code{"~~"}).}
+\item{op}{Character string specifying the operator type (\code{"=~"}, \code{"~1"}, \code{"~~"}, or \code{"|"}).}
 }
 \value{
 A data frame containing the score test results, including the
