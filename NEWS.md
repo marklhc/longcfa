@@ -1,6 +1,6 @@
 # longcfa 0.0.1.9990
 
-* Added penalized estimation with `penalized_est()` function
+* Added penalized estimation via `penalized_longcfa()` (wrapper around `plavaan::penalized_est()`)
     * Support for alignment loss function (`alf()`) and L0 approximation penalty (`l0a()`)
     * Robust sandwich standard errors via `se = "robust.huber.white"` argument (experimental)
     * Uses `composite_pair_loss()` for computing pairwise penalties
