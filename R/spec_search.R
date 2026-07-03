@@ -70,7 +70,7 @@ get_lav_test_score <- function(x, ind, op = c("=~", "~1", "~~", "|")) {
 #'
 #' @return A data frame containing the modification indices.
 #' @export
-get_lav_mod <- function(x, ind, op = c("=~", "~1", "~~")) {
+get_lav_mod <- function(x, ind, op = c("=~", "~1", "~~", "|")) {
     mis <- lavaan::modindices(x, free.remove = FALSE)
     out <- filter_pt(mis, ind, op)
     merge(
