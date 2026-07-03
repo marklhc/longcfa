@@ -83,7 +83,7 @@ get_lav_mod <- function(x, ind, op = c("=~", "~1", "~~")) {
 #' @importFrom methods slot slotNames
 plinv_search_step <- function(
     x,
-    op = c("=~", "~1", "~~"),
+    op = c("=~", "~1", "~~", "|"),
     mi_fun,
     mi_min,
     ...
