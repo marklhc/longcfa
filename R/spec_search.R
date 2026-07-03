@@ -36,7 +36,7 @@ filter_cons <- function(pt, cons) {
 #' @return A data frame containing the score test results, including the
 #'   modification index (`mi`) for each constraint.
 #' @export
-get_lav_test_score <- function(x, ind, op = c("=~", "~1", "~~")) {
+get_lav_test_score <- function(x, ind, op = c("=~", "~1", "~~", "|")) {
     pt <- partable(x)
     pt_op <- filter_pt(pt, ind, op)
     to_test <- filter_cons(pt_op, pt[pt$op == "==", ])
