@@ -66,5 +66,6 @@ partial_string_to_list <- function(x, ind_matrix) {
 }
 
 pt_to_partial_string <- function(pt) {
+    if (is.null(pt) || nrow(pt) == 0) return(character(0))
     paste(pt$lhs, pt$op, pt$rhs)
 }
