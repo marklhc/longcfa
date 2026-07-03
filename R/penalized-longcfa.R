@@ -112,8 +112,7 @@ penalized_longcfa <- function(
         "loadings",
         "intercepts",
         "thresholds",
-        "residuals",
-        "residual.covariances"
+        "residuals"
     )
     if (!all(pen_params %in% valid_params)) {
         stop(
@@ -166,10 +165,28 @@ penalized_longcfa <- function(
         pen_diff_id$intercepts <- t(int_ids)
     }
 
+    if ("thresholds" %in% pen_params) {
+        thresh_ids <- par_to_mat_from_pt(
+            pt_cached,
+            op = "|",
+            ind_matrix = ind_matrix,
+            out_col = "free"
+        )
+        pen_diff_id$thresholds <- t(thresh_ids)
+    }
+
     if ("residuals" %in% pen_params) {
-        pt_resid <- pt_cached[pt_cached$op == "~~" & pt_cached$lhs == pt_cached$rhs, , drop = FALSE]
+        pt_resid <- pt_cached[
+            pt_cached$op == "~~" & pt_cached$lhs == pt_cached$rhs,
+            ,
+            drop = FALSE
+        ]
         idx <- match(ind_matrix, pt_resid$lhs)
-        resid_ids <- matrix(pt_resid$free[idx], nrow = nrow(ind_matrix), ncol = ncol(ind_matrix))
+        resid_ids <- matrix(
+            pt_resid$free[idx],
+            nrow = nrow(ind_matrix),
+            ncol = ncol(ind_matrix)
+        )
         pen_diff_id$residuals <- t(resid_ids)
     }
 

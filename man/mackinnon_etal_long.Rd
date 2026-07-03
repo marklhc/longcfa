@@ -16,7 +16,7 @@ A data frame with 4,252 rows and 12 columns (long format):
 \item{ssa4}{State social anxiety item 4}
 \item{ssa5}{State social anxiety item 5}
 \item{ssa6}{State social anxiety item 6}
-\item{ssa7}{State social anxiety item 7}'
+\item{ssa7}{State social anxiety item 7}
 \item{psp1}{Perfectionistic self-presentation item 1}
 \item{psp2}{Perfectionistic self-presentation item 2}
 \item{psp3}{Perfectionistic self-presentation item 3}
