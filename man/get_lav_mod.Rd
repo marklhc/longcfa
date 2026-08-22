@@ -14,7 +14,8 @@ get_lav_mod(x, ind, op = c("=~", "~1", "~~", "|"))
 \item{op}{Character string specifying the operator type (\code{"=~"}, \code{"~1"}, \code{"~~"}, or \code{"|"}).}
 }
 \value{
-A data frame containing the modification indices.
+A data frame containing the modification index (\code{mi}) and the
+p-value (\code{p}) for each candidate parameter.
 }
 \description{
 Computes modification indices for specific parameters restricted by

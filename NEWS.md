@@ -20,6 +20,11 @@ the score test/modification indices, with experimental support for categorical i
 * Added `update_ustart()` function for updating user starting values in lavaan models
     * `longcfa()` now accepts arguments to freely estimate latent means and variances
 * Enhanced documentation with cross-references and examples
+* New `get_lav_lrt()` function for computing 1-df likelihood ratio tests for releasing equality constraints
+* `plinv_search()` now supports false discovery rate control via `control_fdr` and `sig_level`, using the adjusted thresholds of Benjamini and Gavrilov (2009)
+* `plinv_search()` now supports the `min2` argument, which stops a stage when 2 or fewer items are still tied (applies to loadings, intercepts, and thresholds)
+* `get_lav_mod()` and `get_lav_test_score()` now return a `p` column alongside `mi`
+* longcfa now depends on `pinsearch` (>= 0.1.6) and reuses its `fdr_alpha()` and `type2op()` functions
 
 # longcfa 0.0.1
 

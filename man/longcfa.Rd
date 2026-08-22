@@ -136,3 +136,7 @@ fit2 <- longcfa(spec,
                 ))
 summary(fit2)
 }
+\seealso{
+\code{\link[pinsearch:pinSearch]{pinsearch::pinSearch()}} for cross-sectional (multi-group)
+specification search.
+}
