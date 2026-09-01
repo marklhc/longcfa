@@ -15,8 +15,8 @@ penalized_longcfa(
   pen_fn = "l0a",
   pen_params = c("loadings", "intercepts"),
   se = "none",
-  test = "none",
   opt_control = list(),
+  test = "none",
   ...
 )
 }
@@ -51,15 +51,17 @@ Default is \code{c("loadings", "intercepts")}.}
 \item{se}{Character string specifying the type of standard errors. Default
 is \code{"none"}. See \code{\link[plavaan:penalized_est]{plavaan::penalized_est()}} for options.}
 
+\item{opt_control}{A list of control parameters passed to \code{\link[stats:nlminb]{stats::nlminb()}}.
+See \code{\link[plavaan:penalized_est]{plavaan::penalized_est()}} for defaults.}
+
 \item{test}{Character string specifying the model test to compute. Options
 are \code{"none"} (default), \code{"Chisq"}, and \code{"SatorraBentler"}. Fit measures
 (\code{\link[lavaan:fitmeasures]{lavaan::fitmeasures()}}) and the chi-square test in \code{\link[=summary]{summary()}} are only
 available when \code{test} is not \code{"none"}; they are evaluated at the effective
-degrees of freedom (see \code{\link[plavaan:effective_df]{plavaan::effective_df()}}). Fit evaluation is
-experimental. See \code{\link[plavaan:penalized_est]{plavaan::penalized_est()}} for details.}
-
-\item{opt_control}{A list of control parameters passed to \code{\link[stats:nlminb]{stats::nlminb()}}.
-See \code{\link[plavaan:penalized_est]{plavaan::penalized_est()}} for defaults.}
+degrees of freedom (see \code{plavaan::effective_df()}). Fit evaluation is
+experimental and requires a \code{plavaan} build with fit-evaluation support;
+on older builds a non-\code{"none"} \code{test} will error. See
+\code{\link[plavaan:penalized_est]{plavaan::penalized_est()}} for details.}
 
 \item{...}{Additional arguments passed to \code{\link[=longcfa]{longcfa()}}.}
 }

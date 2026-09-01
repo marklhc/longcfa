@@ -26,14 +26,16 @@
 #'   Default is `c("loadings", "intercepts")`.
 #' @param se Character string specifying the type of standard errors. Default
 #'   is `"none"`. See [plavaan::penalized_est()] for options.
+#' @param opt_control A list of control parameters passed to [stats::nlminb()].
+#'   See [plavaan::penalized_est()] for defaults.
 #' @param test Character string specifying the model test to compute. Options
 #'   are `"none"` (default), `"Chisq"`, and `"SatorraBentler"`. Fit measures
 #'   ([lavaan::fitmeasures()]) and the chi-square test in [summary()] are only
 #'   available when `test` is not `"none"`; they are evaluated at the effective
-#'   degrees of freedom (see [plavaan::effective_df()]). Fit evaluation is
-#'   experimental. See [plavaan::penalized_est()] for details.
-#' @param opt_control A list of control parameters passed to [stats::nlminb()].
-#'   See [plavaan::penalized_est()] for defaults.
+#'   degrees of freedom (see `plavaan::effective_df()`). Fit evaluation is
+#'   experimental and requires a `plavaan` build with fit-evaluation support;
+#'   on older builds a non-`"none"` `test` will error. See
+#'   [plavaan::penalized_est()] for details.
 #' @param ... Additional arguments passed to [longcfa()].
 #'
 #' @return A lavaan model object with penalized parameter estimates. See
@@ -125,8 +127,8 @@ penalized_longcfa <- function(
     pen_fn = "l0a",
     pen_params = c("loadings", "intercepts"),
     se = "none",
-    test = "none",
     opt_control = list(),
+    test = "none",
     ...
 ) {
     # Validate pen_params
@@ -217,14 +219,30 @@ penalized_longcfa <- function(
         stop("pen_params must contain at least one valid parameter type")
     }
 
-    # Apply penalized estimation
-    plavaan::penalized_est(
+    # Validate the requested test
+    if (!test %in% c("none", "Chisq", "SatorraBentler")) {
+        stop("`test` must be 'none', 'Chisq', or 'SatorraBentler'.")
+    }
+
+    # Forward `test` only when the installed plavaan supports it. The argument
+    # was added for fit evaluation, so passing it unconditionally would error on
+    # older plavaan builds even when test = "none".
+    est_args <- list(
         x = fit_unfitted,
         w = w,
         pen_diff_id = pen_diff_id,
         pen_fn = pen_fn,
         se = se,
-        test = test,
         opt_control = opt_control
     )
+    if ("test" %in% names(formals(plavaan::penalized_est))) {
+        est_args$test <- test
+    } else if (!identical(test, "none")) {
+        stop(
+            "`test = \"", test, "\" requires a plavaan build whose ",
+            "penalized_est() accepts a `test` argument (fit-evaluation support). ",
+            "Please update plavaan."
+        )
+    }
+    do.call(plavaan::penalized_est, est_args)
 }
