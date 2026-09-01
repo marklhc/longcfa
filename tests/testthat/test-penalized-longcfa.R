@@ -56,3 +56,17 @@ test_that("penalized_longcfa() threads `test` through to penalized_est()", {
         tolerance = 1e-2
     )
 })
+
+test_that("penalized_longcfa() validates the `test` argument", {
+    skip_if_not_installed("plavaan")
+    data("PoliticalDemocracy", package = "lavaan")
+    ind_mat <- cbind(c("y1", "y2", "y3", "y4"), c("y5", "y6", "y7", "y8"))
+    lv <- c("dem60", "dem65")
+
+    for (bad in list(NULL, NA, c("none", "Chisq"), 123)) {
+        expect_error(
+            penalized_longcfa(ind_mat, lv, PoliticalDemocracy, w = 0.1, test = bad),
+            "single string"
+        )
+    }
+})

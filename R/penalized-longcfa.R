@@ -219,9 +219,14 @@ penalized_longcfa <- function(
         stop("pen_params must contain at least one valid parameter type")
     }
 
-    # Validate the requested test
-    if (!test %in% c("none", "Chisq", "SatorraBentler")) {
-        stop("`test` must be 'none', 'Chisq', or 'SatorraBentler'.")
+    # Validate the requested test (type, length, NA, then membership) so that
+    # NULL / NA / length > 1 inputs give a clean message instead of a raw
+    # `if()` error.
+    if (
+        !is.character(test) || length(test) != 1L || is.na(test) ||
+            !test %in% c("none", "Chisq", "SatorraBentler")
+    ) {
+        stop("`test` must be a single string: 'none', 'Chisq', or 'SatorraBentler'.")
     }
 
     # Forward `test` only when the installed plavaan supports it. The argument
