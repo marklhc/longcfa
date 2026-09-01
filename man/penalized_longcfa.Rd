@@ -15,6 +15,7 @@ penalized_longcfa(
   pen_fn = "l0a",
   pen_params = c("loadings", "intercepts"),
   se = "none",
+  test = "none",
   opt_control = list(),
   ...
 )
@@ -50,6 +51,13 @@ Default is \code{c("loadings", "intercepts")}.}
 \item{se}{Character string specifying the type of standard errors. Default
 is \code{"none"}. See \code{\link[plavaan:penalized_est]{plavaan::penalized_est()}} for options.}
 
+\item{test}{Character string specifying the model test to compute. Options
+are \code{"none"} (default), \code{"Chisq"}, and \code{"SatorraBentler"}. Fit measures
+(\code{\link[lavaan:fitmeasures]{lavaan::fitmeasures()}}) and the chi-square test in \code{\link[=summary]{summary()}} are only
+available when \code{test} is not \code{"none"}; they are evaluated at the effective
+degrees of freedom (see \code{\link[plavaan:effective_df]{plavaan::effective_df()}}). Fit evaluation is
+experimental. See \code{\link[plavaan:penalized_est]{plavaan::penalized_est()}} for details.}
+
 \item{opt_control}{A list of control parameters passed to \code{\link[stats:nlminb]{stats::nlminb()}}.
 See \code{\link[plavaan:penalized_est]{plavaan::penalized_est()}} for defaults.}
 
@@ -79,6 +87,11 @@ and residuals
 The penalty is applied to differences between corresponding parameters at
 different time points, encouraging approximate measurement invariance.
 
+\strong{Fit measures:} Setting \code{test} to \code{"Chisq"} or \code{"SatorraBentler"} enables
+\code{\link[lavaan:fitmeasures]{lavaan::fitmeasures()}} and the chi-square test in \code{\link[=summary]{summary()}}, which are
+computed at the effective degrees of freedom. This relies on the
+experimental fit-evaluation support in \code{plavaan}.
+
 \strong{Note:} If using summary statistics (\code{sample.cov}, \code{sample.mean}, \code{sample.nobs}),
 ordered/categorical items cannot be automatically handled because threshold
 counts must be derived from raw data.
@@ -98,6 +111,16 @@ pen_fit <- penalized_longcfa(
     w = 0.1,
     pen_fn = "alf"
 )
+
+# Fit measures are available when a model test is enabled (experimental)
+pen_fit_test <- penalized_longcfa(
+    ind_matrix = ind_mat,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    w = 0.1,
+    test = "Chisq"
+)
+lavaan::fitmeasures(pen_fit_test, c("chisq", "df", "cfi", "rmsea", "srmr"))
 
 # Fit penalized longitudinal CFA with summary statistics
 pen_fit_stat <- penalized_longcfa(

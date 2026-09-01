@@ -5,6 +5,9 @@
     * Support for alignment loss function (`alf()`) and L0 approximation penalty (`l0a()`)
     * Robust sandwich standard errors via `se = "robust.huber.white"` argument (experimental)
     * Uses `composite_pair_loss()` for computing pairwise penalties
+    * New `test` argument (`"Chisq"` / `"SatorraBentler"`) enables experimental fit measures
+      at the effective degrees of freedom via `lavaan::fitmeasures()` and `summary()`
+      (requires a recent `plavaan` with fit-evaluation support)
 * Added `plinv_search()` function for searching partial invariance models using
 the score test/modification indices, with experimental support for categorical indicators
 * New datasets `mackinnon_etal_long` and `mackinnon_etal_wide` from MacKinnon et al. ecological momentary assessment study (CC-BY 4.0)

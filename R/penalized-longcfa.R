@@ -26,6 +26,12 @@
 #'   Default is `c("loadings", "intercepts")`.
 #' @param se Character string specifying the type of standard errors. Default
 #'   is `"none"`. See [plavaan::penalized_est()] for options.
+#' @param test Character string specifying the model test to compute. Options
+#'   are `"none"` (default), `"Chisq"`, and `"SatorraBentler"`. Fit measures
+#'   ([lavaan::fitmeasures()]) and the chi-square test in [summary()] are only
+#'   available when `test` is not `"none"`; they are evaluated at the effective
+#'   degrees of freedom (see [plavaan::effective_df()]). Fit evaluation is
+#'   experimental. See [plavaan::penalized_est()] for details.
 #' @param opt_control A list of control parameters passed to [stats::nlminb()].
 #'   See [plavaan::penalized_est()] for defaults.
 #' @param ... Additional arguments passed to [longcfa()].
@@ -45,6 +51,11 @@
 #'
 #' The penalty is applied to differences between corresponding parameters at
 #' different time points, encouraging approximate measurement invariance.
+#'
+#' **Fit measures:** Setting `test` to `"Chisq"` or `"SatorraBentler"` enables
+#' [lavaan::fitmeasures()] and the chi-square test in [summary()], which are
+#' computed at the effective degrees of freedom. This relies on the
+#' experimental fit-evaluation support in `plavaan`.
 #'
 #' **Note:** If using summary statistics (`sample.cov`, `sample.mean`, `sample.nobs`),
 #' ordered/categorical items cannot be automatically handled because threshold
@@ -68,6 +79,16 @@
 #'     w = 0.1,
 #'     pen_fn = "alf"
 #' )
+#'
+#' # Fit measures are available when a model test is enabled (experimental)
+#' pen_fit_test <- penalized_longcfa(
+#'     ind_matrix = ind_mat,
+#'     lv_names = c("dem60", "dem65"),
+#'     data = PoliticalDemocracy,
+#'     w = 0.1,
+#'     test = "Chisq"
+#' )
+#' lavaan::fitmeasures(pen_fit_test, c("chisq", "df", "cfi", "rmsea", "srmr"))
 #'
 #' # Fit penalized longitudinal CFA with summary statistics
 #' pen_fit_stat <- penalized_longcfa(
@@ -104,6 +125,7 @@ penalized_longcfa <- function(
     pen_fn = "l0a",
     pen_params = c("loadings", "intercepts"),
     se = "none",
+    test = "none",
     opt_control = list(),
     ...
 ) {
@@ -202,6 +224,7 @@ penalized_longcfa <- function(
         pen_diff_id = pen_diff_id,
         pen_fn = pen_fn,
         se = se,
+        test = test,
         opt_control = opt_control
     )
 }
