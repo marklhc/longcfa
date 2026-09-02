@@ -190,6 +190,16 @@ penalized_longcfa <- function(
         stop("Either `data` or `sample.cov` must be provided.")
     }
 
+    # `plavaan_args` must be a (possibly empty) named list so that `$` access and
+    # forwarding are well-defined.
+    if (
+        !is.list(plavaan_args) ||
+            (length(plavaan_args) > 0 &&
+                (is.null(names(plavaan_args)) || anyNA(names(plavaan_args))))
+    ) {
+        stop("`plavaan_args` must be a named list.")
+    }
+
     # Multistart is requested via `plavaan_args` (custom `starts`, or `n_starts > 1`).
     use_multistart <-
         !is.null(plavaan_args$starts) ||
@@ -297,17 +307,17 @@ penalized_longcfa <- function(
         if (use_multistart) plavaan::penalized_est_multistart
         else plavaan::penalized_est
 
+    # `test` is always included so it is forwarded whenever the target estimator
+    # accepts it (including a future penalized_est_multistart() that gains `test`).
     base_args <- list(
         x = fit_unfitted,
         w = w,
         pen_diff_id = pen_diff_id,
         pen_fn = pen_fn,
         se = se,
-        opt_control = opt_control
+        opt_control = opt_control,
+        test = test
     )
-    if (!use_multistart) {
-        base_args$test <- test
-    }
 
     # `plavaan_args` adds (or overrides) estimator options, e.g.
     #   list(eps = "telescoping")   continuation penalty (single start)
@@ -318,14 +328,14 @@ penalized_longcfa <- function(
     supported <- names(formals(target_fn))
     required <- c(
         names(plavaan_args),
-        if (!use_multistart && !identical(test, "none")) "test"
+        if (!identical(test, "none")) "test"
     )
     missing <- setdiff(required, supported)
     if (length(missing)) {
         stop(
             "This plavaan build (", as.character(utils::packageVersion("plavaan")),
             ") does not support: ", paste(missing, collapse = ", "),
-            ". Update plavaan or remove them from `plavaan_args`."
+            ". Please update plavaan, or omit the unsupported option(s)."
         )
     }
 

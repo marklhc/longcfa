@@ -156,3 +156,17 @@ test_that("penalized_longcfa() rejects `test` together with multistart", {
         "multistart"
     )
 })
+
+test_that("penalized_longcfa() validates the plavaan_args type", {
+    skip_if_not_installed("plavaan")
+    data("PoliticalDemocracy", package = "lavaan")
+    ind_mat <- cbind(c("y1", "y2", "y3", "y4"), c("y5", "y6", "y7", "y8"))
+    lv <- c("dem60", "dem65")
+
+    for (bad in list("notalist", 1, list(1, 2), list(n_starts = 2, 3))) {
+        expect_error(
+            penalized_longcfa(ind_mat, lv, PoliticalDemocracy, w = 0.1, plavaan_args = bad),
+            "named list"
+        )
+    }
+})
