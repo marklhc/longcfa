@@ -36,6 +36,22 @@
 #'   experimental and requires a `plavaan` build with fit-evaluation support;
 #'   on older builds a non-`"none"` `test` will error. See
 #'   [plavaan::penalized_est()] for details.
+#' @param plavaan_args A named list of additional arguments forwarded to the
+#'   underlying `plavaan` estimator ([plavaan::penalized_est()], or
+#'   [plavaan::penalized_est_multistart()] when multistart is requested). This is
+#'   an escape hatch for options not exposed as dedicated arguments, for example:
+#'   \itemize{
+#'     \item `eps` / `telescoping_control` — smoothing and continuation control
+#'           for the built-in penalties (e.g. `eps = "telescoping"`).
+#'     \item `n_starts`, `starts`, `keep_all`, `verbose` — multistart control.
+#'           Supplying `starts` (or `n_starts > 1`) switches to
+#'           [plavaan::penalized_est_multistart()].
+#'     \item `start` — custom starting values for a single-start fit.
+#'   }
+#'   Only arguments accepted by the installed `plavaan` build are forwarded; an
+#'   option the build does not support produces an error suggesting an update.
+#'   See [plavaan::penalized_est()] and [plavaan::penalized_est_multistart()]
+#'   for the full set of options.
 #' @param ... Additional arguments passed to [longcfa()].
 #'
 #' @return A lavaan model object with penalized parameter estimates. See
@@ -58,6 +74,13 @@
 #' [lavaan::fitmeasures()] and the chi-square test in [summary()], which are
 #' computed at the effective degrees of freedom. This relies on the
 #' experimental fit-evaluation support in `plavaan`.
+#'
+#' **Multistart and penalty continuation:** Non-convex penalties (`l0a`, `alf`)
+#' can have local optima. Set `plavaan_args = list(n_starts = k)` (or supply
+#' `starts`) to run [plavaan::penalized_est_multistart()] and keep the best
+#' solution, or `plavaan_args = list(eps = "telescoping")` to fit a continuation
+#' sequence of decreasing penalty smoothing. Fit measures (`test`) are not
+#' available together with multistart.
 #'
 #' **Note:** If using summary statistics (`sample.cov`, `sample.mean`, `sample.nobs`),
 #' ordered/categorical items cannot be automatically handled because threshold
@@ -92,6 +115,23 @@
 #' )
 #' lavaan::fitmeasures(pen_fit_test, c("chisq", "df", "cfi", "rmsea", "srmr"))
 #'
+#' # Penalty continuation ("telescoping") and multistart via plavaan_args
+#' pen_fit_tele <- penalized_longcfa(
+#'     ind_matrix = ind_mat,
+#'     lv_names = c("dem60", "dem65"),
+#'     data = PoliticalDemocracy,
+#'     w = 0.1,
+#'     plavaan_args = list(eps = "telescoping")
+#' )
+#' set.seed(1)
+#' pen_fit_ms <- penalized_longcfa(
+#'     ind_matrix = ind_mat,
+#'     lv_names = c("dem60", "dem65"),
+#'     data = PoliticalDemocracy,
+#'     w = 0.1,
+#'     plavaan_args = list(n_starts = 10)
+#' )
+#' attr(pen_fit_ms, "multistart")
 #' # Fit penalized longitudinal CFA with summary statistics
 #' pen_fit_stat <- penalized_longcfa(
 #'     ind_matrix = ind_mat,
@@ -129,6 +169,7 @@ penalized_longcfa <- function(
     se = "none",
     opt_control = list(),
     test = "none",
+    plavaan_args = list(),
     ...
 ) {
     # Validate pen_params
@@ -147,6 +188,34 @@ penalized_longcfa <- function(
 
     if (is.null(data) && is.null(sample.cov)) {
         stop("Either `data` or `sample.cov` must be provided.")
+    }
+
+    # Multistart is requested via `plavaan_args` (custom `starts`, or `n_starts > 1`).
+    use_multistart <-
+        !is.null(plavaan_args$starts) ||
+        (is.numeric(plavaan_args$n_starts) && length(plavaan_args$n_starts) == 1 &&
+            plavaan_args$n_starts > 1)
+
+    # Validate the requested test (type, length, NA, then membership) so that
+    # NULL / NA / length > 1 inputs give a clean message instead of a raw
+    # `if()` error.
+    if (
+        !is.character(test) || length(test) != 1L || is.na(test) ||
+            !test %in% c("none", "Chisq", "SatorraBentler")
+    ) {
+        stop("`test` must be a single string: 'none', 'Chisq', or 'SatorraBentler'.")
+    }
+
+    # Fit measures (test) are not available on penalized_est_multistart() in any
+    # released plavaan, so reject the combination up front.
+    if (
+        use_multistart && !identical(test, "none") &&
+            !("test" %in% names(formals(plavaan::penalized_est_multistart)))
+    ) {
+        stop(
+            "`test` (fit measures) is not available with multistart in this ",
+            "plavaan build. Use a single start to obtain fit measures."
+        )
     }
 
     # Create unfitted model object for penalized estimation
@@ -219,20 +288,16 @@ penalized_longcfa <- function(
         stop("pen_params must contain at least one valid parameter type")
     }
 
-    # Validate the requested test (type, length, NA, then membership) so that
-    # NULL / NA / length > 1 inputs give a clean message instead of a raw
-    # `if()` error.
-    if (
-        !is.character(test) || length(test) != 1L || is.na(test) ||
-            !test %in% c("none", "Chisq", "SatorraBentler")
-    ) {
-        stop("`test` must be a single string: 'none', 'Chisq', or 'SatorraBentler'.")
-    }
+    # ---- Robust dispatch to the installed plavaan estimator ----
+    # Only forward arguments the installed plavaan actually accepts. Defaults
+    # (e.g. test = "none" on an older build) are dropped silently; arguments the
+    # user explicitly supplied require support, so a missing feature yields a
+    # clear "update plavaan" message rather than an `unused argument` error.
+    target_fn <-
+        if (use_multistart) plavaan::penalized_est_multistart
+        else plavaan::penalized_est
 
-    # Forward `test` only when the installed plavaan supports it. The argument
-    # was added for fit evaluation, so passing it unconditionally would error on
-    # older plavaan builds even when test = "none".
-    est_args <- list(
+    base_args <- list(
         x = fit_unfitted,
         w = w,
         pen_diff_id = pen_diff_id,
@@ -240,14 +305,29 @@ penalized_longcfa <- function(
         se = se,
         opt_control = opt_control
     )
-    if ("test" %in% names(formals(plavaan::penalized_est))) {
-        est_args$test <- test
-    } else if (!identical(test, "none")) {
+    if (!use_multistart) {
+        base_args$test <- test
+    }
+
+    # `plavaan_args` adds (or overrides) estimator options, e.g.
+    #   list(eps = "telescoping")   continuation penalty (single start)
+    #   list(n_starts = 20)         multistart
+    #   list(start = my_start)      custom start (single start)
+    all_args <- c(base_args, plavaan_args)
+
+    supported <- names(formals(target_fn))
+    required <- c(
+        names(plavaan_args),
+        if (!use_multistart && !identical(test, "none")) "test"
+    )
+    missing <- setdiff(required, supported)
+    if (length(missing)) {
         stop(
-            "`test = \"", test, "\" requires a plavaan build whose ",
-            "penalized_est() accepts a `test` argument (fit-evaluation support). ",
-            "Please update plavaan."
+            "This plavaan build (", as.character(utils::packageVersion("plavaan")),
+            ") does not support: ", paste(missing, collapse = ", "),
+            ". Update plavaan or remove them from `plavaan_args`."
         )
     }
-    do.call(plavaan::penalized_est, est_args)
+
+    do.call(target_fn, all_args[names(all_args) %in% supported])
 }

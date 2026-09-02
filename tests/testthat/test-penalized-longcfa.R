@@ -70,3 +70,89 @@ test_that("penalized_longcfa() validates the `test` argument", {
         )
     }
 })
+
+test_that("penalized_longcfa() routes plavaan_args to the plavaan estimator", {
+    skip_if_not_installed("plavaan")
+    data("PoliticalDemocracy", package = "lavaan")
+    ind_mat <- cbind(c("y1", "y2", "y3", "y4"), c("y5", "y6", "y7", "y8"))
+    lv <- c("dem60", "dem65")
+
+    # default: single start, no multistart attribute
+    single <- suppressWarnings(
+        penalized_longcfa(ind_mat, lv, PoliticalDemocracy, w = 0.1)
+    )
+    expect_null(attr(single, "multistart"))
+
+    # n_starts > 1 switches to penalized_est_multistart(); table is attached
+    set.seed(1)
+    ms <- suppressWarnings(
+        penalized_longcfa(
+            ind_mat, lv, PoliticalDemocracy, w = 0.1,
+            plavaan_args = list(n_starts = 2)
+        )
+    )
+    ms_tab <- attr(ms, "multistart")
+    expect_true(is.data.frame(ms_tab))
+    expect_equal(nrow(ms_tab), 2L)
+    expect_true(all(c("start_id", "objective", "converged") %in% names(ms_tab)))
+
+    # custom single start via `start`
+    fit_un <- longcfa(
+        ind_mat, lv_names = lv, data = PoliticalDemocracy,
+        free_latvars = TRUE, free_latmeans = TRUE, do.fit = FALSE
+    )
+    sv <- lavaan::lav_export_estimation(fit_un)$starting_values
+    st <- suppressWarnings(
+        penalized_longcfa(
+            ind_mat, lv, PoliticalDemocracy, w = 0.1,
+            plavaan_args = list(start = sv)
+        )
+    )
+    expect_true(inherits(st, "lavaan"))
+
+    # an option the installed plavaan lacks -> clean "does not support" error
+    expect_error(
+        penalized_longcfa(
+            ind_mat, lv, PoliticalDemocracy, w = 0.1,
+            plavaan_args = list(bogus_option = 1)
+        ),
+        "does not support"
+    )
+})
+
+test_that("penalized_longcfa() forwards eps/telescoping via plavaan_args (when supported)", {
+    skip_if_not_installed("plavaan")
+    if (!"eps" %in% names(formals(plavaan::penalized_est))) {
+        skip("plavaan build lacks `eps` support")
+    }
+    data("PoliticalDemocracy", package = "lavaan")
+    ind_mat <- cbind(c("y1", "y2", "y3", "y4"), c("y5", "y6", "y7", "y8"))
+    lv <- c("dem60", "dem65")
+
+    tl <- suppressWarnings(
+        penalized_longcfa(
+            ind_mat, lv, PoliticalDemocracy, w = 0.1,
+            plavaan_args = list(
+                eps = "telescoping",
+                telescoping_control = list(eps_steps = 4)
+            )
+        )
+    )
+    expect_true(is.data.frame(attr(tl, "telescoping")))
+})
+
+test_that("penalized_longcfa() rejects `test` together with multistart", {
+    skip_if_not_installed("plavaan")
+    data("PoliticalDemocracy", package = "lavaan")
+    ind_mat <- cbind(c("y1", "y2", "y3", "y4"), c("y5", "y6", "y7", "y8"))
+    lv <- c("dem60", "dem65")
+
+    expect_error(
+        penalized_longcfa(
+            ind_mat, lv, PoliticalDemocracy, w = 0.1,
+            test = "Chisq",
+            plavaan_args = list(n_starts = 2)
+        ),
+        "multistart"
+    )
+})

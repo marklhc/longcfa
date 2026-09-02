@@ -8,6 +8,10 @@
     * New `test` argument (`"Chisq"` / `"SatorraBentler"`) enables experimental fit measures
       at the effective degrees of freedom via `lavaan::fitmeasures()` and `summary()`
       (requires a recent `plavaan` with fit-evaluation support)
+    * New `plavaan_args` list to forward extra options to `plavaan`, including penalty
+      continuation (`eps = "telescoping"`) and multistart (`n_starts` / `starts`, via
+      `plavaan::penalized_est_multistart()`); only options the installed `plavaan`
+      supports are forwarded, with a clear error otherwise
 * Added `plinv_search()` function for searching partial invariance models using
 the score test/modification indices, with experimental support for categorical indicators
 * New datasets `mackinnon_etal_long` and `mackinnon_etal_wide` from MacKinnon et al. ecological momentary assessment study (CC-BY 4.0)

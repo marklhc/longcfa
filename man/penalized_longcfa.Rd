@@ -17,6 +17,7 @@ penalized_longcfa(
   se = "none",
   opt_control = list(),
   test = "none",
+  plavaan_args = list(),
   ...
 )
 }
@@ -63,6 +64,23 @@ experimental and requires a \code{plavaan} build with fit-evaluation support;
 on older builds a non-\code{"none"} \code{test} will error. See
 \code{\link[plavaan:penalized_est]{plavaan::penalized_est()}} for details.}
 
+\item{plavaan_args}{A named list of additional arguments forwarded to the
+underlying \code{plavaan} estimator (\code{\link[plavaan:penalized_est]{plavaan::penalized_est()}}, or
+\code{\link[plavaan:penalized_est_multistart]{plavaan::penalized_est_multistart()}} when multistart is requested). This is
+an escape hatch for options not exposed as dedicated arguments, for example:
+\itemize{
+\item \code{eps} / \code{telescoping_control} — smoothing and continuation control
+for the built-in penalties (e.g. \code{eps = "telescoping"}).
+\item \code{n_starts}, \code{starts}, \code{keep_all}, \code{verbose} — multistart control.
+Supplying \code{starts} (or \code{n_starts > 1}) switches to
+\code{\link[plavaan:penalized_est_multistart]{plavaan::penalized_est_multistart()}}.
+\item \code{start} — custom starting values for a single-start fit.
+}
+Only arguments accepted by the installed \code{plavaan} build are forwarded; an
+option the build does not support produces an error suggesting an update.
+See \code{\link[plavaan:penalized_est]{plavaan::penalized_est()}} and \code{\link[plavaan:penalized_est_multistart]{plavaan::penalized_est_multistart()}}
+for the full set of options.}
+
 \item{...}{Additional arguments passed to \code{\link[=longcfa]{longcfa()}}.}
 }
 \value{
@@ -94,6 +112,13 @@ different time points, encouraging approximate measurement invariance.
 computed at the effective degrees of freedom. This relies on the
 experimental fit-evaluation support in \code{plavaan}.
 
+\strong{Multistart and penalty continuation:} Non-convex penalties (\code{l0a}, \code{alf})
+can have local optima. Set \code{plavaan_args = list(n_starts = k)} (or supply
+\code{starts}) to run \code{\link[plavaan:penalized_est_multistart]{plavaan::penalized_est_multistart()}} and keep the best
+solution, or \code{plavaan_args = list(eps = "telescoping")} to fit a continuation
+sequence of decreasing penalty smoothing. Fit measures (\code{test}) are not
+available together with multistart.
+
 \strong{Note:} If using summary statistics (\code{sample.cov}, \code{sample.mean}, \code{sample.nobs}),
 ordered/categorical items cannot be automatically handled because threshold
 counts must be derived from raw data.
@@ -124,6 +149,23 @@ pen_fit_test <- penalized_longcfa(
 )
 lavaan::fitmeasures(pen_fit_test, c("chisq", "df", "cfi", "rmsea", "srmr"))
 
+# Penalty continuation ("telescoping") and multistart via plavaan_args
+pen_fit_tele <- penalized_longcfa(
+    ind_matrix = ind_mat,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    w = 0.1,
+    plavaan_args = list(eps = "telescoping")
+)
+set.seed(1)
+pen_fit_ms <- penalized_longcfa(
+    ind_matrix = ind_mat,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    w = 0.1,
+    plavaan_args = list(n_starts = 10)
+)
+attr(pen_fit_ms, "multistart")
 # Fit penalized longitudinal CFA with summary statistics
 pen_fit_stat <- penalized_longcfa(
     ind_matrix = ind_mat,
