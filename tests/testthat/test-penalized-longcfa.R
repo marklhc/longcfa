@@ -118,6 +118,29 @@ test_that("penalized_longcfa() routes plavaan_args to the plavaan estimator", {
         ),
         "does not support"
     )
+
+    # a core arg repeated in plavaan_args is overwritten, not duplicated
+    # (c() would make do.call() error with "matched by multiple actual arguments")
+    ov <- suppressWarnings(
+        penalized_longcfa(
+            ind_mat, lv, PoliticalDemocracy, w = 0.1,
+            plavaan_args = list(w = 0.5)
+        )
+    )
+    expect_true(inherits(ov, "lavaan"))
+
+    # a missing/NA n_starts must not leak an NA into the multistart guard
+    err <- tryCatch(
+        {
+            penalized_longcfa(
+                ind_mat, lv, PoliticalDemocracy, w = 0.1,
+                plavaan_args = list(n_starts = NA)
+            )
+            ""
+        },
+        error = function(e) conditionMessage(e)
+    )
+    expect_false(grepl("missing value where TRUE/FALSE needed", err, fixed = TRUE))
 })
 
 test_that("penalized_longcfa() forwards eps/telescoping via plavaan_args (when supported)", {

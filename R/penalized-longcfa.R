@@ -200,11 +200,12 @@ penalized_longcfa <- function(
         stop("`plavaan_args` must be a named list.")
     }
 
-    # Multistart is requested via `plavaan_args` (custom `starts`, or `n_starts > 1`).
+    # Multistart is requested whenever `plavaan_args` contains a multistart option
+    # (`n_starts` or `starts`). Presence-based rather than value-based, so the
+    # result is always a plain TRUE/FALSE and a missing/NA `n_starts` cannot leak
+    # an NA into the `if (use_multistart && ...)` guard below.
     use_multistart <-
-        !is.null(plavaan_args$starts) ||
-        (is.numeric(plavaan_args$n_starts) && length(plavaan_args$n_starts) == 1 &&
-            plavaan_args$n_starts > 1)
+        !is.null(plavaan_args$n_starts) || !is.null(plavaan_args$starts)
 
     # Validate the requested test (type, length, NA, then membership) so that
     # NULL / NA / length > 1 inputs give a clean message instead of a raw
@@ -323,7 +324,9 @@ penalized_longcfa <- function(
     #   list(eps = "telescoping")   continuation penalty (single start)
     #   list(n_starts = 20)         multistart
     #   list(start = my_start)      custom start (single start)
-    all_args <- c(base_args, plavaan_args)
+    # Merge (not c()) so a name already in base_args is overwritten rather than
+    # duplicated, which would make do.call() raise "matched by multiple".
+    all_args <- utils::modifyList(base_args, plavaan_args)
 
     supported <- names(formals(target_fn))
     required <- c(
