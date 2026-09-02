@@ -119,28 +119,29 @@ test_that("penalized_longcfa() routes plavaan_args to the plavaan estimator", {
         "does not support"
     )
 
-    # a core arg repeated in plavaan_args is overwritten, not duplicated
-    # (c() would make do.call() error with "matched by multiple actual arguments")
-    ov <- suppressWarnings(
-        penalized_longcfa(
-            ind_mat, lv, PoliticalDemocracy, w = 0.1,
-            plavaan_args = list(w = 0.5)
+    # core options must be set via their dedicated args, not plavaan_args
+    for (core in list(
+        list(w = 0.5),
+        list(se = "robust.huber.white"),
+        list(test = "Chisq")
+    )) {
+        expect_error(
+            penalized_longcfa(ind_mat, lv, PoliticalDemocracy, w = 0.1, plavaan_args = core),
+            "dedicated arguments"
         )
-    )
-    expect_true(inherits(ov, "lavaan"))
+    }
 
-    # a missing/NA n_starts must not leak an NA into the multistart guard
-    err <- tryCatch(
-        {
+    # n_starts <= 1 (or NA) is a single start: n_starts/starts are dropped and
+    # no multistart table is attached
+    for (nsv in list(1, NA)) {
+        one <- suppressWarnings(
             penalized_longcfa(
                 ind_mat, lv, PoliticalDemocracy, w = 0.1,
-                plavaan_args = list(n_starts = NA)
+                plavaan_args = list(n_starts = nsv)
             )
-            ""
-        },
-        error = function(e) conditionMessage(e)
-    )
-    expect_false(grepl("missing value where TRUE/FALSE needed", err, fixed = TRUE))
+        )
+        expect_null(attr(one, "multistart"))
+    }
 })
 
 test_that("penalized_longcfa() forwards eps/telescoping via plavaan_args (when supported)", {

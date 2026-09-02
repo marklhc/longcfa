@@ -50,6 +50,8 @@
 #'   }
 #'   Only arguments accepted by the installed `plavaan` build are forwarded; an
 #'   option the build does not support produces an error suggesting an update.
+#'   Options that have a dedicated argument (`w`, `pen_fn`, `se`, `opt_control`,
+#'   `test`) must be set via that argument, not through `plavaan_args`.
 #'   See [plavaan::penalized_est()] and [plavaan::penalized_est_multistart()]
 #'   for the full set of options.
 #' @param ... Additional arguments passed to [longcfa()].
@@ -203,12 +205,22 @@ penalized_longcfa <- function(
         stop("`plavaan_args` must be a named list.")
     }
 
-    # Multistart is requested whenever `plavaan_args` contains a multistart option
-    # (`n_starts` or `starts`). Presence-based rather than value-based, so the
-    # result is always a plain TRUE/FALSE and a missing/NA `n_starts` cannot leak
-    # an NA into the `if (use_multistart && ...)` guard below.
+    # Multistart is requested when `starts` is supplied or `n_starts > 1` (matching
+    # the docs). A missing/NA `n_starts`, or one that is `<= 1`, means a single
+    # start; in that case `n_starts`/`starts` are dropped so they are not forwarded
+    # to penalized_est(), which does not accept them. The value-based check also
+    # keeps `use_multistart` a plain TRUE/FALSE (an NA `n_starts` cannot leak an NA
+    # into the `if (use_multistart && ...)` guard below).
+    n_starts <- plavaan_args$n_starts
     use_multistart <-
-        !is.null(plavaan_args$n_starts) || !is.null(plavaan_args$starts)
+        !is.null(plavaan_args$starts) ||
+        (is.numeric(n_starts) && length(n_starts) == 1 && !is.na(n_starts) &&
+            n_starts > 1)
+    est_plavaan_args <- if (use_multistart) {
+        plavaan_args
+    } else {
+        plavaan_args[setdiff(pa_names, c("n_starts", "starts"))]
+    }
 
     # Validate the requested test (type, length, NA, then membership) so that
     # NULL / NA / length > 1 inputs give a clean message instead of a raw
@@ -323,17 +335,27 @@ penalized_longcfa <- function(
         test = test
     )
 
-    # `plavaan_args` adds (or overrides) estimator options, e.g.
-    #   list(eps = "telescoping")   continuation penalty (single start)
-    #   list(n_starts = 20)         multistart
-    #   list(start = my_start)      custom start (single start)
-    # Merge (not c()) so a name already in base_args is overwritten rather than
-    # duplicated, which would make do.call() raise "matched by multiple".
-    all_args <- utils::modifyList(base_args, plavaan_args)
+    # Core options are controlled by dedicated arguments, not plavaan_args; reject
+    # them there so (e.g.) `test` cannot be silently overridden or bypass the
+    # validation and multistart checks above.
+    pa_conflict <- intersect(names(plavaan_args), names(base_args))
+    if (length(pa_conflict)) {
+        stop(
+            "The following are dedicated arguments of penalized_longcfa(), not ",
+            "plavaan_args options: ", paste(pa_conflict, collapse = ", "),
+            ". Set them directly, not via plavaan_args."
+        )
+    }
+
+    # est_plavaan_args holds the estimator options not controlled by dedicated
+    # args (e.g. eps/telescoping_control, start, n_starts/starts for multistart).
+    # mergeList (not c()) so any residual overlap overwrites instead of
+    # duplicating a name, which would break do.call().
+    all_args <- utils::modifyList(base_args, est_plavaan_args)
 
     supported <- names(formals(target_fn))
     required <- c(
-        names(plavaan_args),
+        names(est_plavaan_args),
         if (!identical(test, "none")) "test"
     )
     missing <- setdiff(required, supported)

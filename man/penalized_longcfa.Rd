@@ -78,6 +78,8 @@ Supplying \code{starts} (or \code{n_starts > 1}) switches to
 }
 Only arguments accepted by the installed \code{plavaan} build are forwarded; an
 option the build does not support produces an error suggesting an update.
+Options that have a dedicated argument (\code{w}, \code{pen_fn}, \code{se}, \code{opt_control},
+\code{test}) must be set via that argument, not through \code{plavaan_args}.
 See \code{\link[plavaan:penalized_est]{plavaan::penalized_est()}} and \code{\link[plavaan:penalized_est_multistart]{plavaan::penalized_est_multistart()}}
 for the full set of options.}
 
