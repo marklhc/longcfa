@@ -190,12 +190,15 @@ penalized_longcfa <- function(
         stop("Either `data` or `sample.cov` must be provided.")
     }
 
-    # `plavaan_args` must be a (possibly empty) named list so that `$` access and
-    # forwarding are well-defined.
+    # `plavaan_args` must be a (possibly empty) named list with non-empty names
+    # (no NA or ""), so that `$` access and forwarding are well-defined.
+    if (!is.list(plavaan_args)) {
+        stop("`plavaan_args` must be a named list.")
+    }
+    pa_names <- names(plavaan_args)
     if (
-        !is.list(plavaan_args) ||
-            (length(plavaan_args) > 0 &&
-                (is.null(names(plavaan_args)) || anyNA(names(plavaan_args))))
+        length(plavaan_args) > 0 &&
+            (is.null(pa_names) || any(is.na(pa_names)) || any(!nzchar(pa_names)))
     ) {
         stop("`plavaan_args` must be a named list.")
     }
