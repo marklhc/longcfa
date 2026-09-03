@@ -303,6 +303,7 @@ count_tied_inds <- function(pt, op = c("=~", "~1", "~~", "|"), ind_matrix) {
 #'   [lavaan::parTable()], and a column of `mi`.
 #' @param mi_min A numeric value specifying the minimum threshold for the
 #'   modification index or score test statistic to free a parameter.
+#'   Default is `3.84` (the 1-df chi-squared value for p = .05).
 #'   Ignored when `control_fdr = TRUE`.
 #' @param control_fdr Logical; whether to control the false discovery rate
 #'   for multiple testing. If `TRUE`, instead of a fixed `mi_min`, the
@@ -336,7 +337,7 @@ plinv_search <- function(
     data,
     type,
     mi_fun,
-    mi_min,
+    mi_min = 3.84,
     control_fdr = FALSE,
     sig_level = .05,
     min2 = FALSE,
@@ -377,8 +378,10 @@ plinv_search <- function(
             long_partial = part_lst,
             ...
         )
-        # number of tied candidates at the start of the stage
-        n_cand <- nrow(mi_fun(x_base, op = op, ind = inds))
+        # number of tied candidates at the start of the stage; 0 if the
+        # candidate function returns no frame (mirrors next_to_relax())
+        cand <- mi_fun(x_base, op = op, ind = inds)
+        n_cand <- if (is.data.frame(cand)) nrow(cand) else 0L
         # per-iteration mi cutoffs; `mi_min` is ignored entirely when
         # `control_fdr` is TRUE
         cutoffs <- if (control_fdr) {

@@ -10,7 +10,7 @@ plinv_search(
   data,
   type,
   mi_fun,
-  mi_min,
+  mi_min = 3.84,
   control_fdr = FALSE,
   sig_level = 0.05,
   min2 = FALSE,
@@ -39,6 +39,7 @@ columns of \code{lhs}, \code{op}, \code{rhs}, \code{id}, and \code{plabel} as de
 
 \item{mi_min}{A numeric value specifying the minimum threshold for the
 modification index or score test statistic to free a parameter.
+Default is \code{3.84} (the 1-df chi-squared value for p = .05).
 Ignored when \code{control_fdr = TRUE}.}
 
 \item{control_fdr}{Logical; whether to control the false discovery rate
