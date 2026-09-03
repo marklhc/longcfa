@@ -4,7 +4,7 @@
 
 library(longcfa)
 library(lavaan)
-#> This is lavaan 0.6-21
+#> This is lavaan 0.7-2
 #> lavaan is FREE software! Please report any bugs.
 ```
 
@@ -49,7 +49,7 @@ fit_strict <- longcfa(
 )
 
 summary(fit_strict)
-#> lavaan 0.6-21 ended normally after 44 iterations
+#> lavaan 0.7-2 ended normally after 44 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -196,7 +196,7 @@ We can inspect the summary of the final partial invariance model.
 ``` r
 
 summary(search_res$fit)
-#> lavaan 0.6-21 ended normally after 41 iterations
+#> lavaan 0.7-2 ended normally after 41 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -394,7 +394,7 @@ fit_conf <- longcfa(
 )
 
 summary(fit_conf, fit.measures = TRUE)
-#> lavaan 0.6-21 ended normally after 63 iterations
+#> lavaan 0.7-2 ended normally after 63 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB
@@ -444,6 +444,16 @@ summary(fit_conf, fit.measures = TRUE)
 #> Standardized Root Mean Square Residual:
 #> 
 #>   SRMR                                           0.096       0.096
+#> 
+#> Goodness of Fit Index:
+#> 
+#>   Goodness of Fit Index (GFI)                    0.997            
+#>   90 Percent confidence interval - lower         0.950            
+#>   90 Percent confidence interval - upper         1.000            
+#>                                                                   
+#>   Robust GFI                                                    NA
+#>   90 Percent confidence interval - lower                        NA
+#>   90 Percent confidence interval - upper                        NA
 #> 
 #> Parameter Estimates:
 #> 
@@ -548,15 +558,6 @@ search_thresh <- plinv_search(
     estimator = "WLSMV",
     lag_cov = TRUE
 )
-#> Warning: lavaan->lavTestScore():  
-#>    se is not `standard'; not implemented yet; falling back to ordinary score 
-#>    test
-#> Warning: lavaan->lavTestScore():  
-#>    se is not `standard'; not implemented yet; falling back to ordinary score 
-#>    test
-#> Warning: lavaan->lavTestScore():  
-#>    se is not `standard'; not implemented yet; falling back to ordinary score 
-#>    test
 ```
 
 ### Relaxed Threshold Constraints
@@ -584,7 +585,7 @@ threshold invariance model found by the search:
 
 anova(fit_conf, search_thresh$fit)
 #> 
-#> Scaled Chi-Squared Difference Test (method = "satorra.2000")
+#> Scaled and Shifted Chi-Squared Difference Test (method = "satorra.2000")
 #> 
 #> lavaan->lavTestLRT():  
 #>    lavaan NOTE: The "Chisq" column contains standard test statistics, not the 
@@ -597,7 +598,7 @@ anova(fit_conf, search_thresh$fit)
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 summary(search_thresh$fit)
-#> lavaan 0.6-21 ended normally after 47 iterations
+#> lavaan 0.7-2 ended normally after 47 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB

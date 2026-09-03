@@ -4,7 +4,7 @@
 
 library(longcfa)
 library(lavaan)
-#> This is lavaan 0.6-21
+#> This is lavaan 0.7-2
 #> lavaan is FREE software! Please report any bugs.
 library(sirt)
 #> - sirt 4.2-133 (2025-09-27 12:57:51)
@@ -55,7 +55,7 @@ lconfig_fit <- cfa(
     meanstructure = TRUE
 )
 lconfig_fit
-#> lavaan 0.6-21 ended normally after 19 iterations
+#> lavaan 0.7-2 ended normally after 19 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -102,8 +102,8 @@ aligned_fit <- update_ustart(
     c(aligned$pars$psi0[2]^2, aligned$pars$alpha0[2]),
     se = "none" # SE not trustworthy after alignment with arbitrary constraints
 )
-#> Warning: lavaan->lav_lavaan_step02_options():  
-#>    the following argument(s) override(s) the options in slotOptions: se
+#> Warning: lavaan->lav_step02_options():  
+#>    the following argument(s) override(s) the options in slot_options: se
 ```
 
 ### Two-stage estimation
@@ -115,8 +115,8 @@ colnames(fs_aligned) <- paste0("fs_", colnames(fs_aligned))
 attr(fs_aligned, "acov")
 #> [[1]]
 #>              dem60        dem65
-#> dem60 1.294956e-01 7.771561e-16
-#> dem65 3.330669e-16 1.084581e-01
+#> dem60 1.294956e-01 1.221245e-15
+#> dem65 1.443290e-15 1.084581e-01
 step2_fit <- cfa(
     "dem60 =~ 1 * fs_dem60
    dem65 =~ 1 * fs_dem65
@@ -127,7 +127,7 @@ step2_fit <- cfa(
     meanstructure = TRUE
 )
 summary(step2_fit)
-#> lavaan 0.6-21 ended normally after 12 iterations
+#> lavaan 0.7-2 ended normally after 12 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB

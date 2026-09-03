@@ -15,6 +15,17 @@
   - Uses
     [`composite_pair_loss()`](https://marklhc.github.io/plavaan/reference/composite_pair_loss.html)
     for computing pairwise penalties
+  - New `test` argument (`"Chisq"` / `"SatorraBentler"`) enables
+    experimental fit measures at the effective degrees of freedom via
+    [`lavaan::fitmeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
+    and [`summary()`](https://rdrr.io/r/base/summary.html) (requires a
+    recent `plavaan` with fit-evaluation support)
+  - New `plavaan_args` list to forward extra options to `plavaan`,
+    including penalty continuation (`eps = "telescoping"`) and
+    multistart (`n_starts` / `starts`, via
+    [`plavaan::penalized_est_multistart()`](https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html));
+    only options the installed `plavaan` supports are forwarded, with a
+    clear error otherwise
 - Added
   [`plinv_search()`](https://marklhc.github.io/longcfa/reference/plinv_search.md)
   function for searching partial invariance models using the score

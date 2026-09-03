@@ -4,7 +4,7 @@
 
 library(longcfa)
 library(lavaan)
-#> This is lavaan 0.6-21
+#> This is lavaan 0.7-2
 #> lavaan is FREE software! Please report any bugs.
 ```
 
@@ -48,7 +48,7 @@ lconfig_mod <- "
 "
 lconfig_fit <- cfa(lconfig_mod, data = PoliticalDemocracy, std.lv = TRUE)
 lconfig_fit
-#> lavaan 0.6-21 ended normally after 19 iterations
+#> lavaan 0.7-2 ended normally after 19 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -80,7 +80,7 @@ lconfig2_mod <- "
 "
 lconfig2_fit <- cfa(lconfig2_mod, data = PoliticalDemocracy, std.lv = TRUE)
 lconfig2_fit
-#> lavaan 0.6-21 ended normally after 37 iterations
+#> lavaan 0.7-2 ended normally after 37 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -126,7 +126,7 @@ lconfig2_fit2 <- longcfa(
     lag_cov = TRUE
 )
 summary(lconfig2_fit2)
-#> lavaan 0.6-21 ended normally after 37 iterations
+#> lavaan 0.7-2 ended normally after 37 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -211,7 +211,7 @@ pen_fit <- penalized_longcfa(
     se = "robust.huber.white"
 )
 summary(pen_fit)
-#> lavaan 0.6-21 ended normally after 103 iterations
+#> lavaan 0.7-2 ended normally after 129 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -229,54 +229,54 @@ summary(pen_fit)
 #> Latent Variables:
 #>                    Estimate  Std.Err  z-value  P(>|z|)
 #>   dem60 =~                                            
-#>     y1      (.1_1)    2.105    0.207   10.182    0.000
-#>     y2      (.2_1)    2.852    0.290    9.828    0.000
-#>     y3      (.3_1)    2.531    0.241   10.512    0.000
-#>     y4      (.4_1)    2.905    0.226   12.872    0.000
+#>     y1      (.1_1)    2.098    0.208   10.088    0.000
+#>     y2      (.2_1)    2.830    0.293    9.673    0.000
+#>     y3      (.3_1)    2.561    0.245   10.446    0.000
+#>     y4      (.4_1)    2.901    0.225   12.867    0.000
 #>   dem65 =~                                            
-#>     y5      (.1_2)    2.083    0.210    9.929    0.000
-#>     y6      (.2_2)    2.819    0.290    9.710    0.000
-#>     y7      (.3_2)    2.602    0.252   10.322    0.000
-#>     y8      (.4_2)    2.898    0.225   12.905    0.000
+#>     y5      (.1_2)    2.092    0.210    9.975    0.000
+#>     y6      (.2_2)    2.825    0.293    9.627    0.000
+#>     y7      (.3_2)    2.572    0.245   10.501    0.000
+#>     y8      (.4_2)    2.900    0.225   12.864    0.000
 #> 
 #> Covariances:
 #>                    Estimate  Std.Err  z-value  P(>|z|)
 #>  .y1 ~~                                               
-#>    .y5                0.842    0.433    1.943    0.052
+#>    .y5                0.838    0.434    1.932    0.053
 #>  .y2 ~~                                               
-#>    .y6                1.820    0.880    2.068    0.039
+#>    .y6                1.825    0.882    2.069    0.039
 #>  .y3 ~~                                               
-#>    .y7                1.222    0.644    1.898    0.058
+#>    .y7                1.205    0.645    1.868    0.062
 #>  .y4 ~~                                               
-#>    .y8                0.284    0.467    0.608    0.543
+#>    .y8                0.286    0.469    0.610    0.542
 #>   dem60 ~~                                            
-#>     dem65             0.918    0.057   16.132    0.000
+#>     dem65             0.917    0.057   16.080    0.000
 #> 
 #> Intercepts:
 #>                    Estimate  Std.Err  z-value  P(>|z|)
-#>    .y1      (.1_1)    5.456    0.288   18.918    0.000
-#>    .y2      (.2_1)    4.251    0.453    9.389    0.000
-#>    .y3      (.3_1)    6.572    0.355   18.513    0.000
-#>    .y4      (.4_1)    4.460    0.366   12.173    0.000
-#>    .y5      (.1_2)    5.454    0.288   18.945    0.000
-#>    .y6      (.2_2)    3.393    0.428    7.937    0.000
-#>    .y7      (.3_2)    6.572    0.355   18.490    0.000
-#>    .y8      (.4_2)    4.460    0.366   12.182    0.000
+#>    .y1      (.1_1)    5.457    0.289   18.898    0.000
+#>    .y2      (.2_1)    4.252    0.454    9.356    0.000
+#>    .y3      (.3_1)    6.570    0.355   18.502    0.000
+#>    .y4      (.4_1)    4.461    0.367   12.143    0.000
+#>    .y5      (.1_2)    5.456    0.288   18.930    0.000
+#>    .y6      (.2_2)    3.396    0.429    7.913    0.000
+#>    .y7      (.3_2)    6.570    0.356   18.471    0.000
+#>    .y8      (.4_2)    4.462    0.367   12.152    0.000
 #>     dem60             0.000                           
 #>     dem65            -0.147    0.070   -2.091    0.037
 #> 
 #> Variances:
 #>                    Estimate  Std.Err  z-value  P(>|z|)
-#>    .y1      (.1_1)    2.129    0.487    4.370    0.000
-#>    .y2      (.2_1)    6.632    1.319    5.030    0.000
-#>    .y3      (.3_1)    5.388    1.095    4.921    0.000
-#>    .y4      (.4_1)    2.594    0.643    4.033    0.000
-#>    .y5      (.1_2)    2.816    0.591    4.769    0.000
-#>    .y6      (.2_2)    4.003    0.803    4.986    0.000
-#>    .y7      (.3_2)    3.590    0.637    5.640    0.000
-#>    .y8      (.4_2)    2.457    0.721    3.409    0.001
+#>    .y1      (.1_1)    2.128    0.486    4.376    0.000
+#>    .y2      (.2_1)    6.658    1.314    5.068    0.000
+#>    .y3      (.3_1)    5.385    1.099    4.901    0.000
+#>    .y4      (.4_1)    2.600    0.642    4.050    0.000
+#>    .y5      (.1_2)    2.813    0.592    4.748    0.000
+#>    .y6      (.2_2)    4.000    0.804    4.974    0.000
+#>    .y7      (.3_2)    3.615    0.640    5.648    0.000
+#>    .y8      (.4_2)    2.456    0.718    3.419    0.001
 #>     dem60             1.000                           
-#>     dem65             0.951    0.097    9.812    0.000
+#>     dem65             0.950    0.097    9.760    0.000
 ```
 
 ## Invariance Constraints

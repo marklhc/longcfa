@@ -4,7 +4,7 @@
 
 library(longcfa)
 library(lavaan)
-#> This is lavaan 0.6-21
+#> This is lavaan 0.7-2
 #> lavaan is FREE software! Please report any bugs.
 ```
 
@@ -51,7 +51,7 @@ dem65 =~ y5 + y6 + y7 + y8
 #> Warning: lavaan->lav_object_post_check():  
 #>    covariance matrix of latent variables is not positive definite ; use 
 #>    lavInspect(fit, "cov.lv") to investigate.
-#> lavaan 0.6-21 ended normally after 66 iterations
+#> lavaan 0.7-2 ended normally after 66 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB
@@ -148,7 +148,7 @@ longcfa(
 #> Warning: lavaan->lav_object_post_check():  
 #>    covariance matrix of latent variables is not positive definite ; use 
 #>    lavInspect(fit, "cov.lv") to investigate.
-#> lavaan 0.6-21 ended normally after 66 iterations
+#> lavaan 0.7-2 ended normally after 66 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB
@@ -254,7 +254,7 @@ longcfa(
 #> Warning: lavaan->lav_object_post_check():  
 #>    covariance matrix of latent variables is not positive definite ; use 
 #>    lavInspect(fit, "cov.lv") to investigate.
-#> lavaan 0.6-21 ended normally after 43 iterations
+#> lavaan 0.7-2 ended normally after 43 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB
@@ -365,7 +365,7 @@ dem65 =~ y5 + y6 + y7 + y8
 #> Warning: lavaan->lav_object_post_check():  
 #>    covariance matrix of latent variables is not positive definite ; use 
 #>    lavInspect(fit, "cov.lv") to investigate.
-#> lavaan 0.6-21 ended normally after 57 iterations
+#> lavaan 0.7-2 ended normally after 57 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB
@@ -454,7 +454,7 @@ longcfa(
 #> Warning: lavaan->lav_object_post_check():  
 #>    covariance matrix of latent variables is not positive definite ; use 
 #>    lavInspect(fit, "cov.lv") to investigate.
-#> lavaan 0.6-21 ended normally after 57 iterations
+#> lavaan 0.7-2 ended normally after 57 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB
@@ -486,7 +486,7 @@ longcfa(
 #> Warning: lavaan->lav_object_post_check():  
 #>    covariance matrix of latent variables is not positive definite ; use 
 #>    lavInspect(fit, "cov.lv") to investigate.
-#> lavaan 0.6-21 ended normally after 40 iterations
+#> lavaan 0.7-2 ended normally after 40 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB

@@ -58,6 +58,8 @@
 <ul><li>Support for alignment loss function (<code><a href="https://marklhc.github.io/plavaan/reference/loss.html" class="external-link">alf()</a></code>) and L0 approximation penalty (<code><a href="https://marklhc.github.io/plavaan/reference/loss.html" class="external-link">l0a()</a></code>)</li>
 <li>Robust sandwich standard errors via <code>se = "robust.huber.white"</code> argument (experimental)</li>
 <li>Uses <code><a href="https://marklhc.github.io/plavaan/reference/composite_pair_loss.html" class="external-link">composite_pair_loss()</a></code> for computing pairwise penalties</li>
+<li>New <code>test</code> argument (<code>"Chisq"</code> / <code>"SatorraBentler"</code>) enables experimental fit measures at the effective degrees of freedom via <code><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">lavaan::fitmeasures()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> (requires a recent <code>plavaan</code> with fit-evaluation support)</li>
+<li>New <code>plavaan_args</code> list to forward extra options to <code>plavaan</code>, including penalty continuation (<code>eps = "telescoping"</code>) and multistart (<code>n_starts</code> / <code>starts</code>, via <code><a href="https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html" class="external-link">plavaan::penalized_est_multistart()</a></code>); only options the installed <code>plavaan</code> supports are forwarded, with a clear error otherwise</li>
 </ul></li>
 <li>Added <code><a href="../reference/plinv_search.html">plinv_search()</a></code> function for searching partial invariance models using the score test/modification indices, with experimental support for categorical indicators</li>
 <li>New datasets <code>mackinnon_etal_long</code> and <code>mackinnon_etal_wide</code> from MacKinnon et al. ecological momentary assessment study (CC-BY 4.0)</li>
@@ -82,7 +84,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

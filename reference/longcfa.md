@@ -149,7 +149,7 @@ point.
 
 ``` r
 library(lavaan)
-#> This is lavaan 0.6-21
+#> This is lavaan 0.7-2
 #> lavaan is FREE software! Please report any bugs.
 # Indicator matrix
 spec <- matrix(c(
@@ -162,7 +162,7 @@ fit <- longcfa(spec,
                data = PoliticalDemocracy,
                long_equal = c("loadings", "intercepts"))
 summary(fit)
-#> lavaan 0.6-21 ended normally after 29 iterations
+#> lavaan 0.7-2 ended normally after 29 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -237,7 +237,7 @@ fit2 <- longcfa(spec,
                     intercepts = matrix(c(1, 3, 2, 2), ncol = 2)
                 ))
 summary(fit2)
-#> lavaan 0.6-21 ended normally after 37 iterations
+#> lavaan 0.7-2 ended normally after 37 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB

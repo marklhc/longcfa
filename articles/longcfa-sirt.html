@@ -84,7 +84,7 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marklhc.github.io/longcfa/">longcfa</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; This is lavaan 0.6-21</span></span>
+<span><span class="co">#&gt; This is lavaan 0.7-2</span></span>
 <span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/alexanderrobitzsch/sirt" class="external-link">sirt</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; - sirt 4.2-133 (2025-09-27 12:57:51)</span></span></code></pre></div>
@@ -128,7 +128,7 @@ follows:</p>
 <span>    meanstructure <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">lconfig_fit</span></span>
-<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 19 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 19 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -168,8 +168,8 @@ shown below.</p>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">aligned</span><span class="op">$</span><span class="va">pars</span><span class="op">$</span><span class="va">psi0</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span>, <span class="va">aligned</span><span class="op">$</span><span class="va">pars</span><span class="op">$</span><span class="va">alpha0</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>    se <span class="op">=</span> <span class="st">"none"</span> <span class="co"># SE not trustworthy after alignment with arbitrary constraints</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: lavaan-&gt;lav_lavaan_step02_options():  </span></span>
-<span><span class="co">#&gt;    the following argument(s) override(s) the options in slotOptions: se</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: lavaan-&gt;lav_step02_options():  </span></span>
+<span><span class="co">#&gt;    the following argument(s) override(s) the options in slot_options: se</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="two-stage-estimation">Two-stage estimation<a class="anchor" aria-label="anchor" href="#two-stage-estimation"></a>
 </h3>
@@ -179,8 +179,8 @@ shown below.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">fs_aligned</span>, <span class="st">"acov"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [[1]]</span></span>
 <span><span class="co">#&gt;              dem60        dem65</span></span>
-<span><span class="co">#&gt; dem60 1.294956e-01 7.771561e-16</span></span>
-<span><span class="co">#&gt; dem65 3.330669e-16 1.084581e-01</span></span>
+<span><span class="co">#&gt; dem60 1.294956e-01 1.221245e-15</span></span>
+<span><span class="co">#&gt; dem65 1.443290e-15 1.084581e-01</span></span>
 <span><span class="va">step2_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">cfa</a></span><span class="op">(</span></span>
 <span>    <span class="st">"dem60 =~ 1 * fs_dem60</span></span>
 <span><span class="st">   dem65 =~ 1 * fs_dem65</span></span>
@@ -191,7 +191,7 @@ shown below.</p>
 <span>    meanstructure <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">step2_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 12 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 12 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -263,7 +263,7 @@ function.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

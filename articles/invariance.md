@@ -4,7 +4,7 @@
 
 library(longcfa)
 library(lavaan)
-#> This is lavaan 0.6-21
+#> This is lavaan 0.7-2
 #> lavaan is FREE software! Please report any bugs.
 ```
 
@@ -149,7 +149,7 @@ anova(scalar, pscalar)
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 summary(pscalar)
-#> lavaan 0.6-21 ended normally after 46 iterations
+#> lavaan 0.7-2 ended normally after 46 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -427,7 +427,7 @@ strict_bin <- longcfa(
 )
 anova(config_bin, metric_bin, strict_bin)
 #> 
-#> Scaled Chi-Squared Difference Test (method = "satorra.2000")
+#> Scaled and Shifted Chi-Squared Difference Test (method = "satorra.2000")
 #> 
 #> lavaan->lavTestLRT():  
 #>    lavaan NOTE: The "Chisq" column contains standard test statistics, not the 
@@ -455,15 +455,19 @@ modindices(metric_bin, sort = TRUE, free.remove = FALSE, min = 3.84)
 #> Warning: lavaan->lav_start_check_cov():  
 #>    starting values imply a correlation larger than 1; variables involved are: 
 #>    y4 y8
-#>      lhs op rhs    mi    epc sepc.lv sepc.all sepc.nox
-#> 60 dem65 =~  y3 8.128 -1.162  -1.308   -0.808   -0.808
-#> 11    y3 ~~  y3 7.742  2.099   1.000    0.382    0.382
-#> 23    y7 ~~  y7 7.742 -2.099  -1.000   -0.328   -0.328
-#> 56 dem60 =~  y7 7.700  1.369   1.369    0.784    0.784
-#> 58 dem65 =~  y1 6.778  1.123   1.265    0.738    0.738
-#> 54 dem60 =~  y5 6.371 -1.369  -1.369   -0.736   -0.736
-#> 9     y1 ~~  y1 6.340 -1.896  -1.000   -0.340   -0.340
-#> 21    y5 ~~  y5 6.340  1.896   1.000    0.289    0.289
+#>      lhs  op rhs    mi    epc sepc.lv sepc.all sepc.nox
+#> 60 dem65  =~  y3 8.128 -1.162  -1.308   -0.808   -0.808
+#> 36    y3 ~*~  y3 7.742 -0.248  -0.248   -1.000   -1.000
+#> 11    y3  ~~  y3 7.742  2.099   1.000    0.382    0.382
+#> 40    y7 ~*~  y7 7.742  0.197   0.197    1.000    1.000
+#> 23    y7  ~~  y7 7.742 -2.099  -1.000   -0.328   -0.328
+#> 56 dem60  =~  y7 7.700  1.369   1.369    0.784    0.784
+#> 58 dem65  =~  y1 6.778  1.123   1.265    0.738    0.738
+#> 54 dem60  =~  y5 6.371 -1.369  -1.369   -0.736   -0.736
+#> 9     y1  ~~  y1 6.340 -1.896  -1.000   -0.340   -0.340
+#> 34    y1 ~*~  y1 6.340  0.188   0.188    1.000    1.000
+#> 38    y5 ~*~  y5 6.340 -0.147  -0.147   -1.000   -1.000
+#> 21    y5  ~~  y5 6.340  1.896   1.000    0.289    0.289
 # Free the loading of y3 at time 2
 pmetric_bin <- longcfa(
     pd_ind,
@@ -478,7 +482,7 @@ pmetric_bin <- longcfa(
 )
 anova(metric_bin, pmetric_bin)
 #> 
-#> Scaled Chi-Squared Difference Test (method = "satorra.2000")
+#> Scaled and Shifted Chi-Squared Difference Test (method = "satorra.2000")
 #> 
 #> lavaan->lavTestLRT():  
 #>    lavaan NOTE: The "Chisq" column contains standard test statistics, not the 
@@ -491,7 +495,7 @@ anova(metric_bin, pmetric_bin)
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 summary(pmetric_bin)
-#> lavaan 0.6-21 ended normally after 89 iterations
+#> lavaan 0.7-2 ended normally after 89 iterations
 #> 
 #>   Estimator                                       DWLS
 #>   Optimization method                           NLMINB

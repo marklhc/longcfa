@@ -83,6 +83,8 @@ applies penalized estimation.</p>
 <span>  pen_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"intercepts"</span><span class="op">)</span>,</span>
 <span>  se <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  opt_control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  test <span class="op">=</span> <span class="st">"none"</span>,</span>
+<span>  plavaan_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -146,6 +148,35 @@ is <code>"none"</code>. See <code><a href="https://marklhc.github.io/plavaan/ref
 See <code><a href="https://marklhc.github.io/plavaan/reference/penalized_est.html" class="external-link">plavaan::penalized_est()</a></code> for defaults.</p></dd>
 
 
+<dt id="arg-test">test<a class="anchor" aria-label="anchor" href="#arg-test"></a></dt>
+<dd><p>Character string specifying the model test to compute. Options
+are <code>"none"</code> (default), <code>"Chisq"</code>, and <code>"SatorraBentler"</code>. Fit measures
+(<code><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">lavaan::fitmeasures()</a></code>) and the chi-square test in <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> are only
+available when <code>test</code> is not <code>"none"</code>; they are evaluated at the effective
+degrees of freedom (see <code>plavaan::effective_df()</code>). Fit evaluation is
+experimental and requires a <code>plavaan</code> build with fit-evaluation support;
+on older builds a non-<code>"none"</code> <code>test</code> will error. See
+<code><a href="https://marklhc.github.io/plavaan/reference/penalized_est.html" class="external-link">plavaan::penalized_est()</a></code> for details.</p></dd>
+
+
+<dt id="arg-plavaan-args">plavaan_args<a class="anchor" aria-label="anchor" href="#arg-plavaan-args"></a></dt>
+<dd><p>A named list of additional arguments forwarded to the
+underlying <code>plavaan</code> estimator (<code><a href="https://marklhc.github.io/plavaan/reference/penalized_est.html" class="external-link">plavaan::penalized_est()</a></code>, or
+<code><a href="https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html" class="external-link">plavaan::penalized_est_multistart()</a></code> when multistart is requested). This is
+an escape hatch for options not exposed as dedicated arguments, for example:</p><ul><li><p><code>eps</code> / <code>telescoping_control</code> — smoothing and continuation control
+for the built-in penalties (e.g. <code>eps = "telescoping"</code>).</p></li>
+<li><p><code>n_starts</code>, <code>starts</code>, <code>keep_all</code>, <code>verbose</code> — multistart control.
+Supplying <code>starts</code> (or <code>n_starts &gt; 1</code>) switches to
+<code><a href="https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html" class="external-link">plavaan::penalized_est_multistart()</a></code>.</p></li>
+<li><p><code>start</code> — custom starting values for a single-start fit.</p></li>
+</ul><p>Only arguments accepted by the installed <code>plavaan</code> build are forwarded; an
+option the build does not support produces an error suggesting an update.
+Options that have a dedicated argument (<code>w</code>, <code>pen_fn</code>, <code>se</code>, <code>opt_control</code>,
+<code>test</code>) must be set via that argument, not through <code>plavaan_args</code>.
+See <code><a href="https://marklhc.github.io/plavaan/reference/penalized_est.html" class="external-link">plavaan::penalized_est()</a></code> and <code><a href="https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html" class="external-link">plavaan::penalized_est_multistart()</a></code>
+for the full set of options.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments passed to <code><a href="longcfa.html">longcfa()</a></code>.</p></dd>
 
@@ -164,6 +195,16 @@ and residuals</p></li>
 <li><p>Applying <code><a href="https://marklhc.github.io/plavaan/reference/penalized_est.html" class="external-link">plavaan::penalized_est()</a></code> with penalties on pairwise differences</p></li>
 </ol><p>The penalty is applied to differences between corresponding parameters at
 different time points, encouraging approximate measurement invariance.</p>
+<p><strong>Fit measures:</strong> Setting <code>test</code> to <code>"Chisq"</code> or <code>"SatorraBentler"</code> enables
+<code><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">lavaan::fitmeasures()</a></code> and the chi-square test in <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, which are
+computed at the effective degrees of freedom. This relies on the
+experimental fit-evaluation support in <code>plavaan</code>.</p>
+<p><strong>Multistart and penalty continuation:</strong> Non-convex penalties (<code>l0a</code>, <code>alf</code>)
+can have local optima. Set <code>plavaan_args = list(n_starts = k)</code> (or supply
+<code>starts</code>) to run <code><a href="https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html" class="external-link">plavaan::penalized_est_multistart()</a></code> and keep the best
+solution, or <code>plavaan_args = list(eps = "telescoping")</code> to fit a continuation
+sequence of decreasing penalty smoothing. Fit measures (<code>test</code>) are not
+available together with multistart.</p>
 <p><strong>Note:</strong> If using summary statistics (<code>sample.cov</code>, <code>sample.mean</code>, <code>sample.nobs</code>),
 ordered/categorical items cannot be automatically handled because threshold
 counts must be derived from raw data.</p>
@@ -190,6 +231,33 @@ counts must be derived from raw data.</p>
 <span class="r-in"><span>    pen_fn <span class="op">=</span> <span class="st">"alf"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Fit measures are available when a model test is enabled (experimental)</span></span></span>
+<span class="r-in"><span><span class="va">pen_fit_test</span> <span class="op">&lt;-</span> <span class="fu">penalized_longcfa</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    ind_matrix <span class="op">=</span> <span class="va">ind_mat</span>,</span></span>
+<span class="r-in"><span>    lv_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dem60"</span>, <span class="st">"dem65"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    data <span class="op">=</span> <span class="va">PoliticalDemocracy</span>,</span></span>
+<span class="r-in"><span>    w <span class="op">=</span> <span class="fl">0.1</span>,</span></span>
+<span class="r-in"><span>    test <span class="op">=</span> <span class="st">"Chisq"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">lavaan</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">fitmeasures</a></span><span class="op">(</span><span class="va">pen_fit_test</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"chisq"</span>, <span class="st">"df"</span>, <span class="st">"cfi"</span>, <span class="st">"rmsea"</span>, <span class="st">"srmr"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Penalty continuation ("telescoping") and multistart via plavaan_args</span></span></span>
+<span class="r-in"><span><span class="va">pen_fit_tele</span> <span class="op">&lt;-</span> <span class="fu">penalized_longcfa</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    ind_matrix <span class="op">=</span> <span class="va">ind_mat</span>,</span></span>
+<span class="r-in"><span>    lv_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dem60"</span>, <span class="st">"dem65"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    data <span class="op">=</span> <span class="va">PoliticalDemocracy</span>,</span></span>
+<span class="r-in"><span>    w <span class="op">=</span> <span class="fl">0.1</span>,</span></span>
+<span class="r-in"><span>    plavaan_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>eps <span class="op">=</span> <span class="st">"telescoping"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pen_fit_ms</span> <span class="op">&lt;-</span> <span class="fu">penalized_longcfa</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    ind_matrix <span class="op">=</span> <span class="va">ind_mat</span>,</span></span>
+<span class="r-in"><span>    lv_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dem60"</span>, <span class="st">"dem65"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    data <span class="op">=</span> <span class="va">PoliticalDemocracy</span>,</span></span>
+<span class="r-in"><span>    w <span class="op">=</span> <span class="fl">0.1</span>,</span></span>
+<span class="r-in"><span>    plavaan_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n_starts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">pen_fit_ms</span>, <span class="st">"multistart"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Fit penalized longitudinal CFA with summary statistics</span></span></span>
 <span class="r-in"><span><span class="va">pen_fit_stat</span> <span class="op">&lt;-</span> <span class="fu">penalized_longcfa</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    ind_matrix <span class="op">=</span> <span class="va">ind_mat</span>,</span></span>
@@ -225,7 +293,7 @@ counts must be derived from raw data.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

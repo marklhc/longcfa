@@ -21,6 +21,8 @@ penalized_longcfa(
   pen_params = c("loadings", "intercepts"),
   se = "none",
   opt_control = list(),
+  test = "none",
+  plavaan_args = list(),
   ...
 )
 ```
@@ -86,6 +88,49 @@ penalized_longcfa(
   [`plavaan::penalized_est()`](https://marklhc.github.io/plavaan/reference/penalized_est.html)
   for defaults.
 
+- test:
+
+  Character string specifying the model test to compute. Options are
+  `"none"` (default), `"Chisq"`, and `"SatorraBentler"`. Fit measures
+  ([`lavaan::fitmeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html))
+  and the chi-square test in
+  [`summary()`](https://rdrr.io/r/base/summary.html) are only available
+  when `test` is not `"none"`; they are evaluated at the effective
+  degrees of freedom (see `plavaan::effective_df()`). Fit evaluation is
+  experimental and requires a `plavaan` build with fit-evaluation
+  support; on older builds a non-`"none"` `test` will error. See
+  [`plavaan::penalized_est()`](https://marklhc.github.io/plavaan/reference/penalized_est.html)
+  for details.
+
+- plavaan_args:
+
+  A named list of additional arguments forwarded to the underlying
+  `plavaan` estimator
+  ([`plavaan::penalized_est()`](https://marklhc.github.io/plavaan/reference/penalized_est.html),
+  or
+  [`plavaan::penalized_est_multistart()`](https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html)
+  when multistart is requested). This is an escape hatch for options not
+  exposed as dedicated arguments, for example:
+
+  - `eps` / `telescoping_control` — smoothing and continuation control
+    for the built-in penalties (e.g. `eps = "telescoping"`).
+
+  - `n_starts`, `starts`, `keep_all`, `verbose` — multistart control.
+    Supplying `starts` (or `n_starts > 1`) switches to
+    [`plavaan::penalized_est_multistart()`](https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html).
+
+  - `start` — custom starting values for a single-start fit.
+
+  Only arguments accepted by the installed `plavaan` build are
+  forwarded; an option the build does not support produces an error
+  suggesting an update. Options that have a dedicated argument (`w`,
+  `pen_fn`, `se`, `opt_control`, `test`) must be set via that argument,
+  not through `plavaan_args`. See
+  [`plavaan::penalized_est()`](https://marklhc.github.io/plavaan/reference/penalized_est.html)
+  and
+  [`plavaan::penalized_est_multistart()`](https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html)
+  for the full set of options.
+
 - ...:
 
   Additional arguments passed to
@@ -115,6 +160,23 @@ The penalty is applied to differences between corresponding parameters
 at different time points, encouraging approximate measurement
 invariance.
 
+**Fit measures:** Setting `test` to `"Chisq"` or `"SatorraBentler"`
+enables
+[`lavaan::fitmeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
+and the chi-square test in
+[`summary()`](https://rdrr.io/r/base/summary.html), which are computed
+at the effective degrees of freedom. This relies on the experimental
+fit-evaluation support in `plavaan`.
+
+**Multistart and penalty continuation:** Non-convex penalties (`l0a`,
+`alf`) can have local optima. Set `plavaan_args = list(n_starts = k)`
+(or supply `starts`) to run
+[`plavaan::penalized_est_multistart()`](https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html)
+and keep the best solution, or
+`plavaan_args = list(eps = "telescoping")` to fit a continuation
+sequence of decreasing penalty smoothing. Fit measures (`test`) are not
+available together with multistart.
+
 **Note:** If using summary statistics (`sample.cov`, `sample.mean`,
 `sample.nobs`), ordered/categorical items cannot be automatically
 handled because threshold counts must be derived from raw data.
@@ -143,6 +205,33 @@ pen_fit <- penalized_longcfa(
     pen_fn = "alf"
 )
 
+# Fit measures are available when a model test is enabled (experimental)
+pen_fit_test <- penalized_longcfa(
+    ind_matrix = ind_mat,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    w = 0.1,
+    test = "Chisq"
+)
+lavaan::fitmeasures(pen_fit_test, c("chisq", "df", "cfi", "rmsea", "srmr"))
+
+# Penalty continuation ("telescoping") and multistart via plavaan_args
+pen_fit_tele <- penalized_longcfa(
+    ind_matrix = ind_mat,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    w = 0.1,
+    plavaan_args = list(eps = "telescoping")
+)
+set.seed(1)
+pen_fit_ms <- penalized_longcfa(
+    ind_matrix = ind_mat,
+    lv_names = c("dem60", "dem65"),
+    data = PoliticalDemocracy,
+    w = 0.1,
+    plavaan_args = list(n_starts = 10)
+)
+attr(pen_fit_ms, "multistart")
 # Fit penalized longitudinal CFA with summary statistics
 pen_fit_stat <- penalized_longcfa(
     ind_matrix = ind_mat,

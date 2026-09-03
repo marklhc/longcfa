@@ -14,7 +14,7 @@ library(longcfa)
 
 # Load the lavaan package
 library(lavaan)
-#> This is lavaan 0.6-21
+#> This is lavaan 0.7-2
 #> lavaan is FREE software! Please report any bugs.
 
 # 1. Define the variable names (20 variables total)
@@ -98,7 +98,7 @@ lconfig_fit <- longcfa(
     lag_cov = TRUE
 )
 summary(lconfig_fit, fit.measures = TRUE)
-#> lavaan 0.6-21 ended normally after 161 iterations
+#> lavaan 0.7-2 ended normally after 162 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -143,6 +143,12 @@ summary(lconfig_fit, fit.measures = TRUE)
 #> Standardized Root Mean Square Residual:
 #> 
 #>   SRMR                                           0.042
+#> 
+#> Goodness of Fit Index:
+#> 
+#>   Goodness of Fit Index (GFI)                    0.970
+#>   90 Percent confidence interval - lower         0.958
+#>   90 Percent confidence interval - upper         0.980
 #> 
 #> Parameter Estimates:
 #> 
@@ -306,13 +312,12 @@ pen_fit <- penalized_longcfa(
     pen_fn = "l0a",
     w = 0.1
 )
-#> Warning in trans(x): NaNs produced
 ```
 
 ``` r
 
 summary(pen_fit)
-#> lavaan 0.6-21 ended normally after 439 iterations
+#> lavaan 0.7-2 ended normally after 366 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -327,37 +332,37 @@ summary(pen_fit)
 #> Latent Variables:
 #>                    Estimate
 #>   w1dep =~                 
-#>     w1com1  (.1_1)    0.217
-#>     w1com2  (.2_1)    0.293
-#>     w1uniq1 (.3_1)    0.290
-#>     w1uniq2 (.4_1)    0.272
+#>     w1com1  (.1_1)    0.207
+#>     w1com2  (.2_1)    0.294
+#>     w1uniq1 (.3_1)    0.293
+#>     w1uniq2 (.4_1)    0.266
 #>   w2dep =~                 
-#>     w2com1  (.1_2)    0.217
-#>     w2com2  (.2_2)    0.293
-#>     w2uniq1 (.3_2)    0.289
-#>     w2uniq2 (.4_2)    0.273
+#>     w2com1  (.1_2)    0.212
+#>     w2com2  (.2_2)    0.292
+#>     w2uniq1 (.3_2)    0.282
+#>     w2uniq2 (.4_2)    0.274
 #>   w3dep =~                 
-#>     w3com1  (.1_3)    0.217
+#>     w3com1  (.1_3)    0.213
 #>     w3com2  (.2_3)    0.293
-#>     w3uniq1 (.3_3)    0.289
-#>     w3uniq2 (.4_3)    0.272
+#>     w3uniq1 (.3_3)    0.285
+#>     w3uniq2 (.4_3)    0.266
 #>   w4dep =~                 
-#>     w4com1  (.1_4)    0.217
-#>     w4com2  (.2_4)    0.292
-#>     w4uniq1 (.5_4)    0.244
-#>     w4uniq2 (.6_4)    0.185
+#>     w4com1  (.1_4)    0.216
+#>     w4com2  (.2_4)    0.284
+#>     w4uniq1 (.5_4)    0.246
+#>     w4uniq2 (.6_4)    0.183
 #>   w5dep =~                 
-#>     w5com1  (.1_5)    0.217
-#>     w5com2  (.2_5)    0.294
-#>     w5uniq1 (.5_5)    0.241
-#>     w5uniq2 (.6_5)    0.185
+#>     w5com1  (.1_5)    0.215
+#>     w5com2  (.2_5)    0.293
+#>     w5uniq1 (.5_5)    0.224
+#>     w5uniq2 (.6_5)    0.180
 #> 
 #> Covariances:
 #>                    Estimate
 #>  .w1com1 ~~                
-#>    .w2com1            0.015
+#>    .w2com1            0.016
 #>    .w3com1            0.003
-#>    .w4com1            0.001
+#>    .w4com1            0.000
 #>    .w5com1            0.004
 #>  .w2com1 ~~                
 #>    .w3com1            0.008
@@ -365,12 +370,12 @@ summary(pen_fit)
 #>    .w5com1            0.001
 #>  .w3com1 ~~                
 #>    .w4com1            0.004
-#>    .w5com1           -0.000
+#>    .w5com1            0.000
 #>  .w4com1 ~~                
 #>    .w5com1            0.005
 #>  .w1com2 ~~                
 #>    .w2com2            0.018
-#>    .w3com2            0.015
+#>    .w3com2            0.014
 #>    .w4com2           -0.005
 #>    .w5com2           -0.006
 #>  .w2com2 ~~                
@@ -397,98 +402,98 @@ summary(pen_fit)
 #>  .w4uniq2 ~~               
 #>    .w5uniq2           0.007
 #>   w1dep ~~                 
-#>     w2dep             0.590
-#>     w3dep             0.526
-#>     w4dep             0.319
-#>     w5dep             0.284
+#>     w2dep             0.593
+#>     w3dep             0.530
+#>     w4dep             0.320
+#>     w5dep             0.295
 #>   w2dep ~~                 
-#>     w3dep             0.577
-#>     w4dep             0.283
-#>     w5dep             0.270
+#>     w3dep             0.588
+#>     w4dep             0.288
+#>     w5dep             0.288
 #>   w3dep ~~                 
-#>     w4dep             0.496
-#>     w5dep             0.405
+#>     w4dep             0.501
+#>     w5dep             0.426
 #>   w4dep ~~                 
-#>     w5dep             0.717
+#>     w5dep             0.744
 #> 
 #> Intercepts:
 #>                    Estimate
-#>    .w1com1  (.1_1)    1.400
-#>    .w1com2  (.2_1)    1.448
+#>    .w1com1  (.1_1)    1.399
+#>    .w1com2  (.2_1)    1.447
 #>    .w1uniq1 (.3_1)    1.411
-#>    .w1uniq2 (.4_1)    1.445
-#>    .w2com1  (.1_2)    1.396
-#>    .w2com2  (.2_2)    1.451
-#>    .w2uniq1 (.3_2)    1.403
-#>    .w2uniq2 (.4_2)    1.455
+#>    .w1uniq2 (.4_1)    1.444
+#>    .w2com1  (.1_2)    1.395
+#>    .w2com2  (.2_2)    1.449
+#>    .w2uniq1 (.3_2)    1.402
+#>    .w2uniq2 (.4_2)    1.454
 #>    .w3com1  (.1_3)    1.396
-#>    .w3com2  (.2_3)    1.442
-#>    .w3uniq1 (.3_3)    1.408
-#>    .w3uniq2 (.4_3)    1.464
+#>    .w3com2  (.2_3)    1.441
+#>    .w3uniq1 (.3_3)    1.407
+#>    .w3uniq2 (.4_3)    1.463
 #>    .w4com1  (.1_4)    1.375
-#>    .w4com2  (.2_4)    1.456
-#>    .w4uniq1 (.5_4)    1.369
-#>    .w4uniq2 (.6_4)    1.291
-#>    .w5com1  (.1_5)    1.387
-#>    .w5com2  (.2_5)    1.462
-#>    .w5uniq1 (.5_5)    1.334
-#>    .w5uniq2 (.6_5)    1.273
+#>    .w4com2  (.2_4)    1.453
+#>    .w4uniq1 (.5_4)    1.370
+#>    .w4uniq2 (.6_4)    1.290
+#>    .w5com1  (.1_5)    1.386
+#>    .w5com2  (.2_5)    1.461
+#>    .w5uniq1 (.5_5)    1.324
+#>    .w5uniq2 (.6_5)    1.269
 #>     w1dep             0.000
-#>     w2dep            -0.144
-#>     w3dep             0.042
-#>     w4dep            -0.624
-#>     w5dep            -0.584
+#>     w2dep            -0.143
+#>     w3dep             0.044
+#>     w4dep            -0.625
+#>     w5dep            -0.581
 #> 
 #> Variances:
 #>                    Estimate
-#>    .w1com1  (.1_1)    0.111
+#>    .w1com1  (.1_1)    0.112
 #>    .w1com2  (.2_1)    0.145
-#>    .w1uniq1 (.3_1)    0.100
-#>    .w1uniq2 (.4_1)    0.183
+#>    .w1uniq1 (.3_1)    0.099
+#>    .w1uniq2 (.4_1)    0.184
 #>    .w2com1  (.1_2)    0.104
-#>    .w2com2  (.2_2)    0.097
-#>    .w2uniq1 (.3_2)    0.110
-#>    .w2uniq2 (.4_2)    0.131
+#>    .w2com2  (.2_2)    0.096
+#>    .w2uniq1 (.3_2)    0.111
+#>    .w2uniq2 (.4_2)    0.130
 #>    .w3com1  (.1_3)    0.073
-#>    .w3com2  (.2_3)    0.111
+#>    .w3com2  (.2_3)    0.110
 #>    .w3uniq1 (.3_3)    0.110
 #>    .w3uniq2 (.4_3)    0.189
 #>    .w4com1  (.1_4)    0.054
-#>    .w4com2  (.2_4)    0.061
-#>    .w4uniq1 (.5_4)    0.026
+#>    .w4com2  (.2_4)    0.062
+#>    .w4uniq1 (.5_4)    0.025
 #>    .w4uniq2 (.6_4)    0.038
-#>    .w5com1  (.1_5)    0.062
-#>    .w5com2  (.2_5)    0.065
-#>    .w5uniq1 (.5_5)    0.027
+#>    .w5com1  (.1_5)    0.061
+#>    .w5com2  (.2_5)    0.062
+#>    .w5uniq1 (.5_5)    0.029
 #>    .w5uniq2 (.6_5)    0.040
 #>     w1dep             1.000
-#>     w2dep             1.084
-#>     w3dep             0.917
-#>     w4dep             1.289
-#>     w5dep             0.965
+#>     w2dep             1.107
+#>     w3dep             0.936
+#>     w4dep             1.300
+#>     w5dep             1.047
 # Penalized estimates of loadings and intercepts
 (load_mat <- longcfa::get_lav_par_mat(pen_fit, "=~", ind_matrix = ind_mat))
 #>           [,1]      [,2]      [,3]      [,4]      [,5]
-#> [1,] 0.2165253 0.2168179 0.2168724 0.2170678 0.2170292
-#> [2,] 0.2933352 0.2931462 0.2932684 0.2921349 0.2935263
-#> [3,] 0.2897478 0.2886876 0.2890463        NA        NA
-#> [4,] 0.2719914 0.2726679 0.2720269        NA        NA
-#> [5,]        NA        NA        NA 0.2435006 0.2406786
-#> [6,]        NA        NA        NA 0.1854648 0.1854557
+#> [1,] 0.2066203 0.2118559 0.2129275 0.2164448 0.2146146
+#> [2,] 0.2940826 0.2919120 0.2930608 0.2843889 0.2933078
+#> [3,] 0.2929553 0.2819509 0.2854623        NA        NA
+#> [4,] 0.2662628 0.2735654 0.2664907        NA        NA
+#> [5,]        NA        NA        NA 0.2455019 0.2240767
+#> [6,]        NA        NA        NA 0.1834115 0.1795535
 (int_mat <- longcfa::get_lav_par_mat(pen_fit, "~1", ind_matrix = ind_mat))
 #>          [,1]     [,2]     [,3]     [,4]     [,5]
-#> [1,] 1.400136 1.396193 1.396458 1.375497 1.387389
-#> [2,] 1.448369 1.450903 1.442467 1.455825 1.461692
-#> [3,] 1.411214 1.402568 1.407927       NA       NA
-#> [4,] 1.444567 1.454539 1.463549       NA       NA
-#> [5,]       NA       NA       NA 1.368720 1.334150
-#> [6,]       NA       NA       NA 1.291416 1.272949
+#> [1,] 1.399215 1.395149 1.395579 1.374842 1.385970
+#> [2,] 1.446841 1.449350 1.440906 1.453150 1.460737
+#> [3,] 1.410735 1.401796 1.407340       NA       NA
+#> [4,] 1.444322 1.454336 1.463245       NA       NA
+#> [5,]       NA       NA       NA 1.369946 1.324487
+#> [6,]       NA       NA       NA 1.289814 1.269321
 # Effective number of loadings
 eff_load_diff <- plavaan::composite_pair_loss(load_mat, fun = plavaan::l0a)
 cat("Effective number of non-invariant loadings:", eff_load_diff, "\n")
-#> Effective number of non-invariant loadings: 2.019139
+#> Effective number of non-invariant loadings: 2.11084
 # Effective number of intercepts
 eff_int_diff <- plavaan::composite_pair_loss(int_mat, fun = plavaan::l0a)
 cat("Effective number of non-invariant intercepts:", eff_int_diff, "\n")
-#> Effective number of non-invariant intercepts: 2.50879
+#> Effective number of non-invariant intercepts: 2.523758
 ```

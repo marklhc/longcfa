@@ -92,7 +92,7 @@ deviations, and means are provided in the paper, and imported below.</p>
 <span></span>
 <span><span class="co"># Load the lavaan package</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; This is lavaan 0.6-21</span></span>
+<span><span class="co">#&gt; This is lavaan 0.7-2</span></span>
 <span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span>
 <span></span>
 <span><span class="co"># 1. Define the variable names (20 variables total)</span></span>
@@ -170,7 +170,7 @@ deviations, and means are provided in the paper, and imported below.</p>
 <span>    lag_cov <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">lconfig_fit</span>, fit.measures <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 161 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 162 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -215,6 +215,12 @@ deviations, and means are provided in the paper, and imported below.</p>
 <span><span class="co">#&gt; Standardized Root Mean Square Residual:</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   SRMR                                           0.042</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Goodness of Fit Index:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Goodness of Fit Index (GFI)                    0.970</span></span>
+<span><span class="co">#&gt;   90 Percent confidence interval - lower         0.958</span></span>
+<span><span class="co">#&gt;   90 Percent confidence interval - upper         0.980</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -374,11 +380,10 @@ deviations, and means are provided in the paper, and imported below.</p>
 <span>    lag_cov <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>    pen_fn <span class="op">=</span> <span class="st">"l0a"</span>,</span>
 <span>    w <span class="op">=</span> <span class="fl">0.1</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in trans(x): NaNs produced</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pen_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.6-21 ended normally after 439 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 366 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -393,37 +398,37 @@ deviations, and means are provided in the paper, and imported below.</p>
 <span><span class="co">#&gt; Latent Variables:</span></span>
 <span><span class="co">#&gt;                    Estimate</span></span>
 <span><span class="co">#&gt;   w1dep =~                 </span></span>
-<span><span class="co">#&gt;     w1com1  (.1_1)    0.217</span></span>
-<span><span class="co">#&gt;     w1com2  (.2_1)    0.293</span></span>
-<span><span class="co">#&gt;     w1uniq1 (.3_1)    0.290</span></span>
-<span><span class="co">#&gt;     w1uniq2 (.4_1)    0.272</span></span>
+<span><span class="co">#&gt;     w1com1  (.1_1)    0.207</span></span>
+<span><span class="co">#&gt;     w1com2  (.2_1)    0.294</span></span>
+<span><span class="co">#&gt;     w1uniq1 (.3_1)    0.293</span></span>
+<span><span class="co">#&gt;     w1uniq2 (.4_1)    0.266</span></span>
 <span><span class="co">#&gt;   w2dep =~                 </span></span>
-<span><span class="co">#&gt;     w2com1  (.1_2)    0.217</span></span>
-<span><span class="co">#&gt;     w2com2  (.2_2)    0.293</span></span>
-<span><span class="co">#&gt;     w2uniq1 (.3_2)    0.289</span></span>
-<span><span class="co">#&gt;     w2uniq2 (.4_2)    0.273</span></span>
+<span><span class="co">#&gt;     w2com1  (.1_2)    0.212</span></span>
+<span><span class="co">#&gt;     w2com2  (.2_2)    0.292</span></span>
+<span><span class="co">#&gt;     w2uniq1 (.3_2)    0.282</span></span>
+<span><span class="co">#&gt;     w2uniq2 (.4_2)    0.274</span></span>
 <span><span class="co">#&gt;   w3dep =~                 </span></span>
-<span><span class="co">#&gt;     w3com1  (.1_3)    0.217</span></span>
+<span><span class="co">#&gt;     w3com1  (.1_3)    0.213</span></span>
 <span><span class="co">#&gt;     w3com2  (.2_3)    0.293</span></span>
-<span><span class="co">#&gt;     w3uniq1 (.3_3)    0.289</span></span>
-<span><span class="co">#&gt;     w3uniq2 (.4_3)    0.272</span></span>
+<span><span class="co">#&gt;     w3uniq1 (.3_3)    0.285</span></span>
+<span><span class="co">#&gt;     w3uniq2 (.4_3)    0.266</span></span>
 <span><span class="co">#&gt;   w4dep =~                 </span></span>
-<span><span class="co">#&gt;     w4com1  (.1_4)    0.217</span></span>
-<span><span class="co">#&gt;     w4com2  (.2_4)    0.292</span></span>
-<span><span class="co">#&gt;     w4uniq1 (.5_4)    0.244</span></span>
-<span><span class="co">#&gt;     w4uniq2 (.6_4)    0.185</span></span>
+<span><span class="co">#&gt;     w4com1  (.1_4)    0.216</span></span>
+<span><span class="co">#&gt;     w4com2  (.2_4)    0.284</span></span>
+<span><span class="co">#&gt;     w4uniq1 (.5_4)    0.246</span></span>
+<span><span class="co">#&gt;     w4uniq2 (.6_4)    0.183</span></span>
 <span><span class="co">#&gt;   w5dep =~                 </span></span>
-<span><span class="co">#&gt;     w5com1  (.1_5)    0.217</span></span>
-<span><span class="co">#&gt;     w5com2  (.2_5)    0.294</span></span>
-<span><span class="co">#&gt;     w5uniq1 (.5_5)    0.241</span></span>
-<span><span class="co">#&gt;     w5uniq2 (.6_5)    0.185</span></span>
+<span><span class="co">#&gt;     w5com1  (.1_5)    0.215</span></span>
+<span><span class="co">#&gt;     w5com2  (.2_5)    0.293</span></span>
+<span><span class="co">#&gt;     w5uniq1 (.5_5)    0.224</span></span>
+<span><span class="co">#&gt;     w5uniq2 (.6_5)    0.180</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate</span></span>
 <span><span class="co">#&gt;  .w1com1 ~~                </span></span>
-<span><span class="co">#&gt;    .w2com1            0.015</span></span>
+<span><span class="co">#&gt;    .w2com1            0.016</span></span>
 <span><span class="co">#&gt;    .w3com1            0.003</span></span>
-<span><span class="co">#&gt;    .w4com1            0.001</span></span>
+<span><span class="co">#&gt;    .w4com1            0.000</span></span>
 <span><span class="co">#&gt;    .w5com1            0.004</span></span>
 <span><span class="co">#&gt;  .w2com1 ~~                </span></span>
 <span><span class="co">#&gt;    .w3com1            0.008</span></span>
@@ -431,12 +436,12 @@ deviations, and means are provided in the paper, and imported below.</p>
 <span><span class="co">#&gt;    .w5com1            0.001</span></span>
 <span><span class="co">#&gt;  .w3com1 ~~                </span></span>
 <span><span class="co">#&gt;    .w4com1            0.004</span></span>
-<span><span class="co">#&gt;    .w5com1           -0.000</span></span>
+<span><span class="co">#&gt;    .w5com1            0.000</span></span>
 <span><span class="co">#&gt;  .w4com1 ~~                </span></span>
 <span><span class="co">#&gt;    .w5com1            0.005</span></span>
 <span><span class="co">#&gt;  .w1com2 ~~                </span></span>
 <span><span class="co">#&gt;    .w2com2            0.018</span></span>
-<span><span class="co">#&gt;    .w3com2            0.015</span></span>
+<span><span class="co">#&gt;    .w3com2            0.014</span></span>
 <span><span class="co">#&gt;    .w4com2           -0.005</span></span>
 <span><span class="co">#&gt;    .w5com2           -0.006</span></span>
 <span><span class="co">#&gt;  .w2com2 ~~                </span></span>
@@ -463,100 +468,100 @@ deviations, and means are provided in the paper, and imported below.</p>
 <span><span class="co">#&gt;  .w4uniq2 ~~               </span></span>
 <span><span class="co">#&gt;    .w5uniq2           0.007</span></span>
 <span><span class="co">#&gt;   w1dep ~~                 </span></span>
-<span><span class="co">#&gt;     w2dep             0.590</span></span>
-<span><span class="co">#&gt;     w3dep             0.526</span></span>
-<span><span class="co">#&gt;     w4dep             0.319</span></span>
-<span><span class="co">#&gt;     w5dep             0.284</span></span>
+<span><span class="co">#&gt;     w2dep             0.593</span></span>
+<span><span class="co">#&gt;     w3dep             0.530</span></span>
+<span><span class="co">#&gt;     w4dep             0.320</span></span>
+<span><span class="co">#&gt;     w5dep             0.295</span></span>
 <span><span class="co">#&gt;   w2dep ~~                 </span></span>
-<span><span class="co">#&gt;     w3dep             0.577</span></span>
-<span><span class="co">#&gt;     w4dep             0.283</span></span>
-<span><span class="co">#&gt;     w5dep             0.270</span></span>
+<span><span class="co">#&gt;     w3dep             0.588</span></span>
+<span><span class="co">#&gt;     w4dep             0.288</span></span>
+<span><span class="co">#&gt;     w5dep             0.288</span></span>
 <span><span class="co">#&gt;   w3dep ~~                 </span></span>
-<span><span class="co">#&gt;     w4dep             0.496</span></span>
-<span><span class="co">#&gt;     w5dep             0.405</span></span>
+<span><span class="co">#&gt;     w4dep             0.501</span></span>
+<span><span class="co">#&gt;     w5dep             0.426</span></span>
 <span><span class="co">#&gt;   w4dep ~~                 </span></span>
-<span><span class="co">#&gt;     w5dep             0.717</span></span>
+<span><span class="co">#&gt;     w5dep             0.744</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate</span></span>
-<span><span class="co">#&gt;    .w1com1  (.1_1)    1.400</span></span>
-<span><span class="co">#&gt;    .w1com2  (.2_1)    1.448</span></span>
+<span><span class="co">#&gt;    .w1com1  (.1_1)    1.399</span></span>
+<span><span class="co">#&gt;    .w1com2  (.2_1)    1.447</span></span>
 <span><span class="co">#&gt;    .w1uniq1 (.3_1)    1.411</span></span>
-<span><span class="co">#&gt;    .w1uniq2 (.4_1)    1.445</span></span>
-<span><span class="co">#&gt;    .w2com1  (.1_2)    1.396</span></span>
-<span><span class="co">#&gt;    .w2com2  (.2_2)    1.451</span></span>
-<span><span class="co">#&gt;    .w2uniq1 (.3_2)    1.403</span></span>
-<span><span class="co">#&gt;    .w2uniq2 (.4_2)    1.455</span></span>
+<span><span class="co">#&gt;    .w1uniq2 (.4_1)    1.444</span></span>
+<span><span class="co">#&gt;    .w2com1  (.1_2)    1.395</span></span>
+<span><span class="co">#&gt;    .w2com2  (.2_2)    1.449</span></span>
+<span><span class="co">#&gt;    .w2uniq1 (.3_2)    1.402</span></span>
+<span><span class="co">#&gt;    .w2uniq2 (.4_2)    1.454</span></span>
 <span><span class="co">#&gt;    .w3com1  (.1_3)    1.396</span></span>
-<span><span class="co">#&gt;    .w3com2  (.2_3)    1.442</span></span>
-<span><span class="co">#&gt;    .w3uniq1 (.3_3)    1.408</span></span>
-<span><span class="co">#&gt;    .w3uniq2 (.4_3)    1.464</span></span>
+<span><span class="co">#&gt;    .w3com2  (.2_3)    1.441</span></span>
+<span><span class="co">#&gt;    .w3uniq1 (.3_3)    1.407</span></span>
+<span><span class="co">#&gt;    .w3uniq2 (.4_3)    1.463</span></span>
 <span><span class="co">#&gt;    .w4com1  (.1_4)    1.375</span></span>
-<span><span class="co">#&gt;    .w4com2  (.2_4)    1.456</span></span>
-<span><span class="co">#&gt;    .w4uniq1 (.5_4)    1.369</span></span>
-<span><span class="co">#&gt;    .w4uniq2 (.6_4)    1.291</span></span>
-<span><span class="co">#&gt;    .w5com1  (.1_5)    1.387</span></span>
-<span><span class="co">#&gt;    .w5com2  (.2_5)    1.462</span></span>
-<span><span class="co">#&gt;    .w5uniq1 (.5_5)    1.334</span></span>
-<span><span class="co">#&gt;    .w5uniq2 (.6_5)    1.273</span></span>
+<span><span class="co">#&gt;    .w4com2  (.2_4)    1.453</span></span>
+<span><span class="co">#&gt;    .w4uniq1 (.5_4)    1.370</span></span>
+<span><span class="co">#&gt;    .w4uniq2 (.6_4)    1.290</span></span>
+<span><span class="co">#&gt;    .w5com1  (.1_5)    1.386</span></span>
+<span><span class="co">#&gt;    .w5com2  (.2_5)    1.461</span></span>
+<span><span class="co">#&gt;    .w5uniq1 (.5_5)    1.324</span></span>
+<span><span class="co">#&gt;    .w5uniq2 (.6_5)    1.269</span></span>
 <span><span class="co">#&gt;     w1dep             0.000</span></span>
-<span><span class="co">#&gt;     w2dep            -0.144</span></span>
-<span><span class="co">#&gt;     w3dep             0.042</span></span>
-<span><span class="co">#&gt;     w4dep            -0.624</span></span>
-<span><span class="co">#&gt;     w5dep            -0.584</span></span>
+<span><span class="co">#&gt;     w2dep            -0.143</span></span>
+<span><span class="co">#&gt;     w3dep             0.044</span></span>
+<span><span class="co">#&gt;     w4dep            -0.625</span></span>
+<span><span class="co">#&gt;     w5dep            -0.581</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate</span></span>
-<span><span class="co">#&gt;    .w1com1  (.1_1)    0.111</span></span>
+<span><span class="co">#&gt;    .w1com1  (.1_1)    0.112</span></span>
 <span><span class="co">#&gt;    .w1com2  (.2_1)    0.145</span></span>
-<span><span class="co">#&gt;    .w1uniq1 (.3_1)    0.100</span></span>
-<span><span class="co">#&gt;    .w1uniq2 (.4_1)    0.183</span></span>
+<span><span class="co">#&gt;    .w1uniq1 (.3_1)    0.099</span></span>
+<span><span class="co">#&gt;    .w1uniq2 (.4_1)    0.184</span></span>
 <span><span class="co">#&gt;    .w2com1  (.1_2)    0.104</span></span>
-<span><span class="co">#&gt;    .w2com2  (.2_2)    0.097</span></span>
-<span><span class="co">#&gt;    .w2uniq1 (.3_2)    0.110</span></span>
-<span><span class="co">#&gt;    .w2uniq2 (.4_2)    0.131</span></span>
+<span><span class="co">#&gt;    .w2com2  (.2_2)    0.096</span></span>
+<span><span class="co">#&gt;    .w2uniq1 (.3_2)    0.111</span></span>
+<span><span class="co">#&gt;    .w2uniq2 (.4_2)    0.130</span></span>
 <span><span class="co">#&gt;    .w3com1  (.1_3)    0.073</span></span>
-<span><span class="co">#&gt;    .w3com2  (.2_3)    0.111</span></span>
+<span><span class="co">#&gt;    .w3com2  (.2_3)    0.110</span></span>
 <span><span class="co">#&gt;    .w3uniq1 (.3_3)    0.110</span></span>
 <span><span class="co">#&gt;    .w3uniq2 (.4_3)    0.189</span></span>
 <span><span class="co">#&gt;    .w4com1  (.1_4)    0.054</span></span>
-<span><span class="co">#&gt;    .w4com2  (.2_4)    0.061</span></span>
-<span><span class="co">#&gt;    .w4uniq1 (.5_4)    0.026</span></span>
+<span><span class="co">#&gt;    .w4com2  (.2_4)    0.062</span></span>
+<span><span class="co">#&gt;    .w4uniq1 (.5_4)    0.025</span></span>
 <span><span class="co">#&gt;    .w4uniq2 (.6_4)    0.038</span></span>
-<span><span class="co">#&gt;    .w5com1  (.1_5)    0.062</span></span>
-<span><span class="co">#&gt;    .w5com2  (.2_5)    0.065</span></span>
-<span><span class="co">#&gt;    .w5uniq1 (.5_5)    0.027</span></span>
+<span><span class="co">#&gt;    .w5com1  (.1_5)    0.061</span></span>
+<span><span class="co">#&gt;    .w5com2  (.2_5)    0.062</span></span>
+<span><span class="co">#&gt;    .w5uniq1 (.5_5)    0.029</span></span>
 <span><span class="co">#&gt;    .w5uniq2 (.6_5)    0.040</span></span>
 <span><span class="co">#&gt;     w1dep             1.000</span></span>
-<span><span class="co">#&gt;     w2dep             1.084</span></span>
-<span><span class="co">#&gt;     w3dep             0.917</span></span>
-<span><span class="co">#&gt;     w4dep             1.289</span></span>
-<span><span class="co">#&gt;     w5dep             0.965</span></span>
+<span><span class="co">#&gt;     w2dep             1.107</span></span>
+<span><span class="co">#&gt;     w3dep             0.936</span></span>
+<span><span class="co">#&gt;     w4dep             1.300</span></span>
+<span><span class="co">#&gt;     w5dep             1.047</span></span>
 <span><span class="co"># Penalized estimates of loadings and intercepts</span></span>
 <span><span class="op">(</span><span class="va">load_mat</span> <span class="op">&lt;-</span> <span class="fu">longcfa</span><span class="fu">::</span><span class="fu"><a href="../reference/get_lav_par_mat.html">get_lav_par_mat</a></span><span class="op">(</span><span class="va">pen_fit</span>, <span class="st">"=~"</span>, ind_matrix <span class="op">=</span> <span class="va">ind_mat</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           [,1]      [,2]      [,3]      [,4]      [,5]</span></span>
-<span><span class="co">#&gt; [1,] 0.2165253 0.2168179 0.2168724 0.2170678 0.2170292</span></span>
-<span><span class="co">#&gt; [2,] 0.2933352 0.2931462 0.2932684 0.2921349 0.2935263</span></span>
-<span><span class="co">#&gt; [3,] 0.2897478 0.2886876 0.2890463        NA        NA</span></span>
-<span><span class="co">#&gt; [4,] 0.2719914 0.2726679 0.2720269        NA        NA</span></span>
-<span><span class="co">#&gt; [5,]        NA        NA        NA 0.2435006 0.2406786</span></span>
-<span><span class="co">#&gt; [6,]        NA        NA        NA 0.1854648 0.1854557</span></span>
+<span><span class="co">#&gt; [1,] 0.2066203 0.2118559 0.2129275 0.2164448 0.2146146</span></span>
+<span><span class="co">#&gt; [2,] 0.2940826 0.2919120 0.2930608 0.2843889 0.2933078</span></span>
+<span><span class="co">#&gt; [3,] 0.2929553 0.2819509 0.2854623        NA        NA</span></span>
+<span><span class="co">#&gt; [4,] 0.2662628 0.2735654 0.2664907        NA        NA</span></span>
+<span><span class="co">#&gt; [5,]        NA        NA        NA 0.2455019 0.2240767</span></span>
+<span><span class="co">#&gt; [6,]        NA        NA        NA 0.1834115 0.1795535</span></span>
 <span><span class="op">(</span><span class="va">int_mat</span> <span class="op">&lt;-</span> <span class="fu">longcfa</span><span class="fu">::</span><span class="fu"><a href="../reference/get_lav_par_mat.html">get_lav_par_mat</a></span><span class="op">(</span><span class="va">pen_fit</span>, <span class="st">"~1"</span>, ind_matrix <span class="op">=</span> <span class="va">ind_mat</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          [,1]     [,2]     [,3]     [,4]     [,5]</span></span>
-<span><span class="co">#&gt; [1,] 1.400136 1.396193 1.396458 1.375497 1.387389</span></span>
-<span><span class="co">#&gt; [2,] 1.448369 1.450903 1.442467 1.455825 1.461692</span></span>
-<span><span class="co">#&gt; [3,] 1.411214 1.402568 1.407927       NA       NA</span></span>
-<span><span class="co">#&gt; [4,] 1.444567 1.454539 1.463549       NA       NA</span></span>
-<span><span class="co">#&gt; [5,]       NA       NA       NA 1.368720 1.334150</span></span>
-<span><span class="co">#&gt; [6,]       NA       NA       NA 1.291416 1.272949</span></span>
+<span><span class="co">#&gt; [1,] 1.399215 1.395149 1.395579 1.374842 1.385970</span></span>
+<span><span class="co">#&gt; [2,] 1.446841 1.449350 1.440906 1.453150 1.460737</span></span>
+<span><span class="co">#&gt; [3,] 1.410735 1.401796 1.407340       NA       NA</span></span>
+<span><span class="co">#&gt; [4,] 1.444322 1.454336 1.463245       NA       NA</span></span>
+<span><span class="co">#&gt; [5,]       NA       NA       NA 1.369946 1.324487</span></span>
+<span><span class="co">#&gt; [6,]       NA       NA       NA 1.289814 1.269321</span></span>
 <span><span class="co"># Effective number of loadings</span></span>
 <span><span class="va">eff_load_diff</span> <span class="op">&lt;-</span> <span class="fu">plavaan</span><span class="fu">::</span><span class="fu"><a href="https://marklhc.github.io/plavaan/reference/composite_pair_loss.html" class="external-link">composite_pair_loss</a></span><span class="op">(</span><span class="va">load_mat</span>, fun <span class="op">=</span> <span class="fu">plavaan</span><span class="fu">::</span><span class="va"><a href="https://marklhc.github.io/plavaan/reference/loss.html" class="external-link">l0a</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Effective number of non-invariant loadings:"</span>, <span class="va">eff_load_diff</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Effective number of non-invariant loadings: 2.019139</span></span>
+<span><span class="co">#&gt; Effective number of non-invariant loadings: 2.11084</span></span>
 <span><span class="co"># Effective number of intercepts</span></span>
 <span><span class="va">eff_int_diff</span> <span class="op">&lt;-</span> <span class="fu">plavaan</span><span class="fu">::</span><span class="fu"><a href="https://marklhc.github.io/plavaan/reference/composite_pair_loss.html" class="external-link">composite_pair_loss</a></span><span class="op">(</span><span class="va">int_mat</span>, fun <span class="op">=</span> <span class="fu">plavaan</span><span class="fu">::</span><span class="va"><a href="https://marklhc.github.io/plavaan/reference/loss.html" class="external-link">l0a</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Effective number of non-invariant intercepts:"</span>, <span class="va">eff_int_diff</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Effective number of non-invariant intercepts: 2.50879</span></span></code></pre></div>
+<span><span class="co">#&gt; Effective number of non-invariant intercepts: 2.523758</span></span></code></pre></div>
   </main>
 </div>
 
@@ -567,7 +572,7 @@ deviations, and means are provided in the paper, and imported below.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
