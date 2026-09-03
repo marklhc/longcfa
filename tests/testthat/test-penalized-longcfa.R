@@ -1,5 +1,11 @@
 library(lavaan)
 
+# penalized_est_multistart() was added in plavaan 0.0.2; helper to branch tests.
+plavaan_has_multistart <- function() {
+    requireNamespace("plavaan", quietly = TRUE) &&
+        "penalized_est_multistart" %in% getNamespaceExports("plavaan")
+}
+
 test_that("penalized_longcfa() threads `test` through to penalized_est()", {
     skip_if_not_installed("plavaan")
 
@@ -83,18 +89,29 @@ test_that("penalized_longcfa() routes plavaan_args to the plavaan estimator", {
     )
     expect_null(attr(single, "multistart"))
 
-    # n_starts > 1 switches to penalized_est_multistart(); table is attached
-    set.seed(1)
-    ms <- suppressWarnings(
-        penalized_longcfa(
-            ind_mat, lv, PoliticalDemocracy, w = 0.1,
-            plavaan_args = list(n_starts = 2)
+    # n_starts > 1 switches to penalized_est_multistart() when available;
+    # otherwise requesting it fails with a clear message
+    if (plavaan_has_multistart()) {
+        set.seed(1)
+        ms <- suppressWarnings(
+            penalized_longcfa(
+                ind_mat, lv, PoliticalDemocracy, w = 0.1,
+                plavaan_args = list(n_starts = 2)
+            )
         )
-    )
-    ms_tab <- attr(ms, "multistart")
-    expect_true(is.data.frame(ms_tab))
-    expect_equal(nrow(ms_tab), 2L)
-    expect_true(all(c("start_id", "objective", "converged") %in% names(ms_tab)))
+        ms_tab <- attr(ms, "multistart")
+        expect_true(is.data.frame(ms_tab))
+        expect_equal(nrow(ms_tab), 2L)
+        expect_true(all(c("start_id", "objective", "converged") %in% names(ms_tab)))
+    } else {
+        expect_error(
+            penalized_longcfa(
+                ind_mat, lv, PoliticalDemocracy, w = 0.1,
+                plavaan_args = list(n_starts = 2)
+            ),
+            "penalized_est_multistart"
+        )
+    }
 
     # custom single start via `start`
     fit_un <- longcfa(
@@ -171,14 +188,27 @@ test_that("penalized_longcfa() rejects `test` together with multistart", {
     ind_mat <- cbind(c("y1", "y2", "y3", "y4"), c("y5", "y6", "y7", "y8"))
     lv <- c("dem60", "dem65")
 
-    expect_error(
-        penalized_longcfa(
-            ind_mat, lv, PoliticalDemocracy, w = 0.1,
-            test = "Chisq",
-            plavaan_args = list(n_starts = 2)
-        ),
-        "multistart"
-    )
+    # with multistart available: the fit-measures (test) combination is rejected
+    # without multistart: the availability error is raised first
+    if (plavaan_has_multistart()) {
+        expect_error(
+            penalized_longcfa(
+                ind_mat, lv, PoliticalDemocracy, w = 0.1,
+                test = "Chisq",
+                plavaan_args = list(n_starts = 2)
+            ),
+            "multistart"
+        )
+    } else {
+        expect_error(
+            penalized_longcfa(
+                ind_mat, lv, PoliticalDemocracy, w = 0.1,
+                test = "Chisq",
+                plavaan_args = list(n_starts = 2)
+            ),
+            "penalized_est_multistart"
+        )
+    }
 })
 
 test_that("penalized_longcfa() validates the plavaan_args type", {

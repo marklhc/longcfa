@@ -222,6 +222,22 @@ penalized_longcfa <- function(
         plavaan_args[setdiff(pa_names, c("n_starts", "starts"))]
     }
 
+    # Multistart needs plavaan to export penalized_est_multistart() (plavaan >=
+    # 0.0.2). Check up front so a build without it fails with a clear message
+    # rather than erroring later when the estimator is resolved.
+    if (use_multistart) {
+        multistart_available <-
+            requireNamespace("plavaan", quietly = TRUE) &&
+                "penalized_est_multistart" %in% getNamespaceExports("plavaan")
+        if (!multistart_available) {
+            stop(
+                "Multistart (n_starts > 1 or starts) requires a plavaan build ",
+                "that exports penalized_est_multistart() (plavaan >= 0.0.2). ",
+                "Please update plavaan."
+            )
+        }
+    }
+
     # Validate the requested test (type, length, NA, then membership) so that
     # NULL / NA / length > 1 inputs give a clean message instead of a raw
     # `if()` error.
