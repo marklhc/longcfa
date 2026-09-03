@@ -1,5 +1,12 @@
 next_to_relax <- function(x, fn, fn_min, ...) {
     fn_x <- fn(x, ...)
+    # A search stage can reach a state with no candidates left, in which case
+    # the candidate function may return a non-data.frame. Guard so `$mi` is
+    # never called on such a value (which raises "$ operator is invalid for
+    # atomic vectors") and stop the stage with an empty frame.
+    if (is.null(fn_x) || !is.data.frame(fn_x) || nrow(fn_x) == 0L) {
+        return(if (is.data.frame(fn_x)) fn_x else data.frame())
+    }
     if (all(fn_x$mi < fn_min)) {
         return(fn_x[NULL, ])
     }
