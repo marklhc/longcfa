@@ -188,26 +188,23 @@ test_that("penalized_longcfa() rejects `test` together with multistart", {
     ind_mat <- cbind(c("y1", "y2", "y3", "y4"), c("y5", "y6", "y7", "y8"))
     lv <- c("dem60", "dem65")
 
-    # with multistart available: the fit-measures (test) combination is rejected
-    # without multistart: the availability error is raised first
-    if (plavaan_has_multistart()) {
-        expect_error(
-            penalized_longcfa(
-                ind_mat, lv, PoliticalDemocracy, w = 0.1,
-                test = "Chisq",
-                plavaan_args = list(n_starts = 2)
-            ),
-            "multistart"
+    has_fit_eval <- "test" %in% names(formals(plavaan::penalized_est))
+    req <- function() {
+        penalized_longcfa(
+            ind_mat, lv, PoliticalDemocracy, w = 0.1,
+            test = "Chisq",
+            plavaan_args = list(n_starts = 2)
         )
+    }
+    # no multistart at all -> availability error
+    # multistart + fit evaluation available -> "use a single start"
+    # multistart but no fit evaluation at all -> "does not support" (update plavaan)
+    if (!plavaan_has_multistart()) {
+        expect_error(req(), "penalized_est_multistart")
+    } else if (has_fit_eval) {
+        expect_error(req(), "multistart")
     } else {
-        expect_error(
-            penalized_longcfa(
-                ind_mat, lv, PoliticalDemocracy, w = 0.1,
-                test = "Chisq",
-                plavaan_args = list(n_starts = 2)
-            ),
-            "penalized_est_multistart"
-        )
+        expect_error(req(), "does not support")
     }
 })
 

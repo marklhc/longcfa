@@ -249,9 +249,13 @@ penalized_longcfa <- function(
     }
 
     # Fit measures (test) are not available on penalized_est_multistart() in any
-    # released plavaan, so reject the combination up front.
+    # released plavaan. Suggest a single start only when fit evaluation is
+    # actually available (i.e. penalized_est() supports `test`); otherwise fall
+    # through so the `missing` check below reports that this build lacks fit
+    # evaluation entirely (single start would fail too).
     if (
         use_multistart && !identical(test, "none") &&
+            ("test" %in% names(formals(plavaan::penalized_est))) &&
             !("test" %in% names(formals(plavaan::penalized_est_multistart)))
     ) {
         stop(
