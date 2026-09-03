@@ -31,6 +31,12 @@ jobs:
         with:
           use-public-rspm: true
 
+      # pinsearch is a required dependency but is not (yet) on CRAN; install it
+      # from GitHub first so setup-r-dependencies finds it already satisfied.
+      - name: Install pinsearch from GitHub
+        run: Rscript -e 'if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes"); remotes::install_github("marklhc/pinsearch", quiet = TRUE)'
+        shell: Rscript {0}
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.
