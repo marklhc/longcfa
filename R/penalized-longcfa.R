@@ -192,9 +192,11 @@ penalized_longcfa <- function(
         stop("Either `data` or `sample.cov` must be provided.")
     }
 
-    # `plavaan_args` must be a (possibly empty) named list with non-empty names
-    # (no NA or ""), so that `$` access and forwarding are well-defined.
-    if (!is.list(plavaan_args)) {
+    # `plavaan_args` must be a (possibly empty) named plain list with non-empty
+    # names (no NA or ""), so that `$` access and forwarding are well-defined.
+    # Data frames (and tibbles) are lists to is.list() and are rejected so the
+    # type check matches the documented "named list" contract.
+    if (is.data.frame(plavaan_args) || !is.list(plavaan_args)) {
         stop("`plavaan_args` must be a named list.")
     }
     pa_names <- names(plavaan_args)
@@ -222,20 +224,27 @@ penalized_longcfa <- function(
         plavaan_args[setdiff(pa_names, c("n_starts", "starts"))]
     }
 
-    # Multistart needs plavaan to export penalized_est_multistart() (plavaan >=
-    # 0.0.2). Check up front so a build without it fails with a clear message
-    # rather than erroring later when the estimator is resolved.
-    if (use_multistart) {
-        multistart_available <-
-            requireNamespace("plavaan", quietly = TRUE) &&
-                "penalized_est_multistart" %in% getNamespaceExports("plavaan")
-        if (!multistart_available) {
-            stop(
-                "Multistart (n_starts > 1 or starts) requires a plavaan build ",
-                "that exports penalized_est_multistart() (plavaan >= 0.0.2). ",
-                "Please update plavaan."
-            )
-        }
+    # penalized_longcfa() needs plavaan (a Suggested package, so the package
+    # loads without it). Fail fast with a clear message if it is missing,
+    # distinct from the "installed but too old" case below.
+    if (!requireNamespace("plavaan", quietly = TRUE)) {
+        stop(
+            "penalized_longcfa() requires the plavaan package, which is not ",
+            "installed. Please install plavaan."
+        )
+    }
+
+    # Multistart needs penalized_est_multistart() (plavaan >= 0.0.2); a build
+    # without it fails with a clear message rather than a later resolution error.
+    if (
+        use_multistart &&
+            !("penalized_est_multistart" %in% getNamespaceExports("plavaan"))
+    ) {
+        stop(
+            "Multistart (n_starts > 1 or starts) requires a plavaan build that ",
+            "exports penalized_est_multistart() (plavaan >= 0.0.2). Please ",
+            "update plavaan."
+        )
     }
 
     # Validate the requested test (type, length, NA, then membership) so that
@@ -355,15 +364,26 @@ penalized_longcfa <- function(
         test = test
     )
 
-    # Core options are controlled by dedicated arguments, not plavaan_args; reject
-    # them there so (e.g.) `test` cannot be silently overridden or bypass the
-    # validation and multistart checks above.
-    pa_conflict <- intersect(names(plavaan_args), names(base_args))
-    if (length(pa_conflict)) {
+    # Options in base_args are not settable via plavaan_args. The user-facing
+    # ones have dedicated arguments; the internal inputs (x, pen_diff_id) are
+    # reserved. Reject both so (e.g.) `test` cannot be silently overridden or
+    # bypass the validation and multistart checks above, with an accurate message
+    # for each category.
+    dedicated <- c("w", "pen_fn", "se", "opt_control", "test")
+    reserved <- setdiff(names(base_args), dedicated)
+    pa_dedicated <- intersect(names(plavaan_args), dedicated)
+    if (length(pa_dedicated)) {
         stop(
             "The following are dedicated arguments of penalized_longcfa(), not ",
-            "plavaan_args options: ", paste(pa_conflict, collapse = ", "),
+            "plavaan_args options: ", paste(pa_dedicated, collapse = ", "),
             ". Set them directly, not via plavaan_args."
+        )
+    }
+    pa_reserved <- intersect(names(plavaan_args), reserved)
+    if (length(pa_reserved)) {
+        stop(
+            "The following are reserved for internal use and cannot be set via ",
+            "plavaan_args: ", paste(pa_reserved, collapse = ", ")
         )
     }
 

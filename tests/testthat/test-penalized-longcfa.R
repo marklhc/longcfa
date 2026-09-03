@@ -31,7 +31,14 @@ test_that("penalized_longcfa() threads `test` through to penalized_est()", {
         w = 0.1
     ))
     expect_equal(attr(pen_none, "penalized")$test, "none")
-    expect_null(suppressMessages(fitmeasures(pen_none, "cfi")))
+    # With fit evaluation disabled, fitmeasures() reports the measure as
+    # unavailable. The exact return is version-dependent (NULL, NA, or an
+    # error), so accept any of those rather than requiring a specific one.
+    fm_none <- tryCatch(
+        suppressMessages(fitmeasures(pen_none, "cfi")),
+        error = function(e) NULL
+    )
+    expect_true(is.null(fm_none) || (length(fm_none) == 1 && is.na(fm_none)))
 
     # test = "Chisq": fit measures are available at the effective df
     pen_chisq <- suppressWarnings(penalized_longcfa(
