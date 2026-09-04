@@ -378,12 +378,16 @@ plinv_search <- function(
             long_partial = part_lst,
             ...
         )
-        # number of tied candidates at the start of the stage; 0 if the
-        # candidate function returns no frame (mirrors next_to_relax())
-        cand <- mi_fun(x_base, op = op, ind = inds)
-        n_cand <- if (is.data.frame(cand)) nrow(cand) else 0L
         # per-iteration mi cutoffs; `mi_min` is ignored entirely when
-        # `control_fdr` is TRUE
+        # `control_fdr` is TRUE. Sizing them needs the number of tied
+        # candidates at the stage start, so `mi_fun` is called up front only
+        # in that case; otherwise the step below computes the candidates
+        # itself (and stops immediately if there are none).
+        n_cand <- 0L
+        if (control_fdr) {
+            cand <- mi_fun(x_base, op = op, ind = inds)
+            n_cand <- if (is.data.frame(cand)) nrow(cand) else 0L
+        }
         cutoffs <- if (control_fdr) {
             if (n_cand > 0) {
                 stats::qchisq(
@@ -406,7 +410,11 @@ plinv_search <- function(
         # min2 applies to the metric and scalar invariance stages only
         check_min2 <-
             min2 && type_i %in% c("loadings", "intercepts", "thresholds")
-        if (n_cand > 0) {
+        if (control_fdr && n_cand == 0) {
+            # nothing tied at stage start: skip the search and record an
+            # empty trace, as before
+            res_i <- list(fit = x_base, trace = NULL)
+        } else {
             res_i <- plinv_search_step(
                 x_base,
                 op = op,
@@ -417,10 +425,6 @@ plinv_search <- function(
                 check_min2 = check_min2,
                 ind_matrix = ind_matrix
             )
-        } else {
-            # nothing tied at stage start: skip the search and record an
-            # empty trace, as before
-            res_i <- list(fit = x_base, trace = NULL)
         }
         traces[[length(traces) + 1L]] <- res_i$trace
         part_lst[[type_i]] <- rbind(
