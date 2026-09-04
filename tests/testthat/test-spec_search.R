@@ -313,6 +313,31 @@ test_that("get_lav_lrt works", {
     )
 })
 
+test_that("get_lav_lrt reports the in-`ind` endpoint when `ind` is a subset", {
+    ind_mat <- matrix(
+        c("y1", "y2", "y3", "y4", "y5", "y6", "y7", "y8"),
+        nrow = 4
+    )
+    fit1 <- longcfa(
+        ind_mat,
+        lv_names = c("dem60", "dem65"),
+        data = PoliticalDemocracy,
+        lag_cov = TRUE,
+        long_equal = c("loadings", "intercepts")
+    )
+    # wave-1 only: the `==` row's rhs is the (excluded) wave-2 plabel, so the
+    # reported candidate must fall back to the wave-1 endpoint, not NA
+    lrt_w1 <- get_lav_lrt(fit1, ind = c("y1", "y2", "y3", "y4"), op = "=~")
+    expect_equal(nrow(lrt_w1), 4)
+    expect_equal(lrt_w1$rhs, c("y1", "y2", "y3", "y4"))
+    expect_false(anyNA(lrt_w1$plabel))
+    expect_false(anyNA(lrt_w1$id))
+    # restricting to wave-2 keeps the original rhs-based reporting
+    lrt_w2 <- get_lav_lrt(fit1, ind = c("y5", "y6", "y7", "y8"), op = "=~")
+    expect_equal(lrt_w2$rhs, c("y5", "y6", "y7", "y8"))
+    expect_false(anyNA(lrt_w2$plabel))
+})
+
 test_that("get_lav_mod returns a p column", {
     ind_mat <- matrix(
         c("y1", "y2", "y3", "y4", "y5", "y6", "y7", "y8"),

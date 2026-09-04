@@ -156,6 +156,17 @@ get_lav_lrt <- function(x, ind, op = c("=~", "~1", "~~", "|")) {
     # each candidate is one `==` row; releasing either endpoint plabel
     # removes that constraint (1 df)
     eq_test <- pt_eq[to_test, ]
+    # The reported row must be a free candidate in `pt_op`. A `==` row
+    # carries one tied endpoint on `rhs` and the other on `lhs`; when `ind`
+    # is a subset, `rhs` can point at the endpoint outside `ind`. Prefer the
+    # endpoint present in `pt_op` (at least one always is, by construction
+    # of `to_test`) so the index below is never NA.
+    rhs_idx <- match(eq_test$rhs, pt_op$plabel)
+    cand_idx <- ifelse(
+        !is.na(rhs_idx),
+        rhs_idx,
+        match(eq_test$lhs, pt_op$plabel)
+    )
     # refit per candidate (O(#candidates) fits; models are small)
     lrt_out <- vapply(
         seq_len(nrow(eq_test)),
@@ -176,10 +187,7 @@ get_lav_lrt <- function(x, ind, op = c("=~", "~1", "~~", "|")) {
         FUN.VALUE = c(mi = numeric(1), p = numeric(1))
     )
     cbind(
-        pt_op[
-            match(eq_test$rhs, pt_op$plabel),
-            c("id", "lhs", "op", "rhs", "group", "plabel")
-        ],
+        pt_op[cand_idx, c("id", "lhs", "op", "rhs", "group", "plabel")],
         mi = lrt_out["mi", ],
         p = lrt_out["p", ]
     )
