@@ -15,7 +15,7 @@ get_lav_test_score(x, ind, op = c("=~", "~1", "~~", "|"))
 }
 \value{
 A data frame containing the score test results, including the
-modification index (\code{mi}) for each constraint.
+modification index (\code{mi}) and the p-value (\code{p}) for each constraint.
 }
 \description{
 Computes score tests (Lagrange Multiplier tests) for releasing equality

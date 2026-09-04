@@ -4,7 +4,18 @@
 \alias{plinv_search}
 \title{Specification Search for Partial Invariance}
 \usage{
-plinv_search(ind_matrix, lv_names, data, type, mi_fun, mi_min, ...)
+plinv_search(
+  ind_matrix,
+  lv_names,
+  data,
+  type,
+  mi_fun,
+  mi_min = 3.84,
+  control_fdr = FALSE,
+  sig_level = 0.05,
+  min2 = FALSE,
+  ...
+)
 }
 \arguments{
 \item{ind_matrix}{Matrix defining the structure of indicators. See
@@ -27,17 +38,42 @@ columns of \code{lhs}, \code{op}, \code{rhs}, \code{id}, and \code{plabel} as de
 \code{\link[lavaan:parTable]{lavaan::parTable()}}, and a column of \code{mi}.}
 
 \item{mi_min}{A numeric value specifying the minimum threshold for the
-modification index or score test statistic to free a parameter.}
+modification index or score test statistic to free a parameter.
+Default is \code{3.84} (the 1-df chi-squared value for p = .05).
+Ignored when \code{control_fdr = TRUE}.}
+
+\item{control_fdr}{Logical; whether to control the false discovery rate
+for multiple testing. If \code{TRUE}, instead of a fixed \code{mi_min}, the
+k-th freed parameter at each stage must have a test statistic above a
+Benjamini and Gavrilov (2009) adjusted threshold, computed as
+\code{qchisq(pinsearch::fdr_alpha(k, m, q = sig_level), 1, lower.tail = FALSE)}, where \code{m} is the number of tied candidates at
+the start of the stage.}
+
+\item{sig_level}{Significance level (target false discovery rate) used
+when \code{control_fdr = TRUE}. Default is .05.}
+
+\item{min2}{Logical; whether to stop a stage when 2 or fewer items are
+still tied for the parameter type, analogous to \code{min2} in
+\code{\link[pinsearch:pinSearch]{pinsearch::pinSearch()}}. Applies only to \code{type} values \code{"loadings"},
+\code{"intercepts"}, and \code{"thresholds"}.}
 
 \item{...}{Additional arguments passed to \code{\link[=longcfa]{longcfa()}}.}
 }
 \value{
 A list containing:
 \item{fit}{The final fitted lavaan object with partial invariance constraints.}
-\item{traces}{A data frame tracking the parameters freed during the search process.}
+\item{traces}{A data frame tracking the parameters freed during the search process, with one row per freed parameter and the columns returned by \code{mi_fun} (including the test statistic \code{mi} and the p-value \code{p} for the built-in candidates).}
 }
 \description{
 Performs a specification search for partial longitudinal invariance by
 iteratively freeing parameters with high modification indices or score
 test statistics, or other user-defined criteria.
+}
+\references{
+Benjamini, Y. & Gavrilov, N. M. (2009). Sequential selection
+procedures for testing dependent hypotheses.
+}
+\seealso{
+\code{\link[pinsearch:pinSearch]{pinsearch::pinSearch()}} for cross-sectional (multi-group)
+specification search.
 }

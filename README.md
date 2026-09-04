@@ -9,7 +9,9 @@
 
 The goal of longcfa is to simplify the specification of longitudinal
 confirmatory factor analysis (CFA) using the `lavaan` package using a
-matrix-like approach.
+matrix-like approach. For cross-sectional (multi-group) invariance
+specification search, see the companion package
+[pinsearch](https://github.com/marklhc/pinsearch).
 
 ## Installation
 

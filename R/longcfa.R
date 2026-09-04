@@ -53,6 +53,9 @@
 #'
 #' @return A fit object as returned by `lavaan::cfa()`.
 #'
+#' @seealso [pinsearch::pinSearch()] for cross-sectional (multi-group)
+#'   specification search.
+#'
 #' @importFrom stats var
 #' @importFrom utils modifyList
 #' @examples

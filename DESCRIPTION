@@ -11,18 +11,23 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Imports: 
     lavaan,
-    methods
+    methods,
+    pinsearch (>= 0.1.6)
 Suggests: 
     knitr,
     plavaan,
     rmarkdown,
+    semTools,
     sirt,
     testthat (>= 3.0.0)
+Remotes: 
+    marklhc/pinsearch@v0.1.6
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Config/Needs/website: rmarkdown
 URL: https://marklhc.github.io/longcfa/
+BugReports: https://github.com/marklhc/longcfa/issues
 Depends: 
     R (>= 4.1)
 LazyData: true
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0
