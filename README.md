@@ -39,7 +39,7 @@ The package also supports
 ``` r
 library(longcfa)
 library(lavaan)
-#> This is lavaan 0.7-2
+#> This is lavaan 0.6-21
 #> lavaan is FREE software! Please report any bugs.
 # Indicator matrix
 spec <- matrix(
@@ -63,7 +63,7 @@ fit <- longcfa(
     long_equal = c("loadings", "intercepts")
 )
 summary(fit)
-#> lavaan 0.7-2 ended normally after 29 iterations
+#> lavaan 0.6-21 ended normally after 29 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -139,7 +139,7 @@ fit2 <- longcfa(
     )
 )
 summary(fit2)
-#> lavaan 0.7-2 ended normally after 37 iterations
+#> lavaan 0.6-21 ended normally after 37 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -283,9 +283,8 @@ pen_fit3 <- penalized_est(
         intercepts = rbind(5:8, 23:26)
     )
 )
-#> pen_gr is ignored when pen_fn is 'l0a'; using the built-in gradient function.
 summary(pen_fit3)
-#> lavaan 0.7-2 ended normally after 99 iterations
+#> lavaan 0.6-21 ended normally after 95 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -300,15 +299,15 @@ summary(pen_fit3)
 #> Latent Variables:
 #>                    Estimate
 #>   dem60 =~                 
-#>     y1      (.1_1)    2.089
-#>     y2      (.2_1)    2.896
-#>     y3      (.3_1)    2.544
-#>     y4      (.4_1)    2.889
+#>     y1      (.1_1)    2.096
+#>     y2      (.2_1)    2.911
+#>     y3      (.3_1)    2.515
+#>     y4      (.4_1)    2.894
 #>   dem65 =~                 
-#>     y5      (.1_2)    2.082
-#>     y6      (.2_2)    2.892
-#>     y7      (.3_2)    2.555
-#>     y8      (.4_2)    2.887
+#>     y5      (.1_2)    2.072
+#>     y6      (.2_2)    2.887
+#>     y7      (.3_2)    2.583
+#>     y8      (.4_2)    2.884
 #> 
 #> Covariances:
 #>                    Estimate
@@ -320,7 +319,7 @@ summary(pen_fit3)
 #>    .y3     (.23_1)   -0.004
 #>    .y4     (.24_1)    0.008
 #>  .y3 ~~                    
-#>    .y4     (.34_1)   -0.001
+#>    .y4     (.34_1)   -0.000
 #>  .y5 ~~                    
 #>    .y6     (.12_2)   -0.009
 #>    .y7     (.13_2)    0.006
@@ -331,39 +330,39 @@ summary(pen_fit3)
 #>  .y7 ~~                    
 #>    .y8     (.34_2)    0.002
 #>  .y1 ~~                    
-#>    .y5                0.842
+#>    .y5                0.845
 #>  .y2 ~~                    
-#>    .y6                1.681
+#>    .y6                1.676
 #>  .y3 ~~                    
-#>    .y7                1.206
+#>    .y7                1.222
 #>  .y4 ~~                    
-#>    .y8                0.267
+#>    .y8                0.266
 #>   dem60 ~~                 
-#>     dem65             0.918
+#>     dem65             0.919
 #> 
 #> Intercepts:
 #>                    Estimate
-#>    .y1      (.1_1)    5.505
-#>    .y2      (.2_1)    3.806
-#>    .y3      (.3_1)    6.668
-#>    .y4      (.4_1)    4.551
-#>    .y5      (.1_2)    5.511
-#>    .y6      (.2_2)    3.791
-#>    .y7      (.3_2)    6.672
-#>    .y8      (.4_2)    4.558
+#>    .y1      (.1_1)    5.499
+#>    .y2      (.2_1)    3.799
+#>    .y3      (.3_1)    6.666
+#>    .y4      (.4_1)    4.543
+#>    .y5      (.1_2)    5.505
+#>    .y6      (.2_2)    3.783
+#>    .y7      (.3_2)    6.670
+#>    .y8      (.4_2)    4.550
 #>     dem60             0.000
-#>     dem65            -0.211
+#>     dem65            -0.210
 #> 
 #> Variances:
 #>                    Estimate
 #>    .y1      (.1_1)    2.128
-#>    .y2      (.2_1)    6.821
-#>    .y3      (.3_1)    5.413
-#>    .y4      (.4_1)    2.613
-#>    .y5      (.1_2)    2.813
-#>    .y6      (.2_2)    4.020
-#>    .y7      (.3_2)    3.642
-#>    .y8      (.4_2)    2.479
+#>    .y2      (.2_1)    6.804
+#>    .y3      (.3_1)    5.416
+#>    .y4      (.4_1)    2.607
+#>    .y5      (.1_2)    2.816
+#>    .y6      (.2_2)    4.021
+#>    .y7      (.3_2)    3.617
+#>    .y8      (.4_2)    2.481
 #>     dem60             1.000
-#>     dem65             0.947
+#>     dem65             0.948
 ```
