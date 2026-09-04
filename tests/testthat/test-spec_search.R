@@ -474,6 +474,15 @@ test_that("count_tied_inds counts items still tied", {
     # NA cells are ignored; the item is counted by its present variable
     ind_na <- matrix(c("y1", NA, "y2", "y6"), ncol = 2)
     expect_equal(count_tied_inds(pt, "=~", ind_na), 2)
+    # a row with only NA (no variable present) is never "tied": %in% maps an
+    # NA needle to FALSE (not NA), so any(...) is FALSE and the count is 0,
+    # keeping the integer result that the min2 guard relies on
+    ind_allna <- matrix(NA, nrow = 2, ncol = 2)
+    expect_equal(count_tied_inds(pt, "=~", ind_allna), 0)
+    expect_true(is.integer(count_tied_inds(pt, "=~", ind_allna)))
+    # an all-NA row alongside a tied row counts only the tied one
+    ind_mix <- rbind(c("y1", "y5"), c(NA, NA))
+    expect_equal(count_tied_inds(pt, "=~", ind_mix), 1)
     # variables absent from the partable are not tied and do not error
     ind_absent <- matrix(c("zx", "zy", "aa", "bb"), ncol = 2)
     expect_equal(count_tied_inds(pt, "=~", ind_absent), 0)
