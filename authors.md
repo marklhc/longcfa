@@ -7,6 +7,9 @@
 
 ## Citation
 
+Source:
+[`DESCRIPTION`](https://github.com/marklhc/longcfa/blob/main/DESCRIPTION)
+
 Lai H (2026). *longcfa: Helper for Longitudinal Confirmatory Factor
 Analysis*. R package version 0.0.2,
 <https://marklhc.github.io/longcfa/>.

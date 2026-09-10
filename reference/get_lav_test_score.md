@@ -27,4 +27,4 @@ get_lav_test_score(x, ind, op = c("=~", "~1", "~~", "|"))
 ## Value
 
 A data frame containing the score test results, including the
-modification index (`mi`) for each constraint.
+modification index (`mi`) and the p-value (`p`) for each constraint.

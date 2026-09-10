@@ -115,8 +115,8 @@ colnames(fs_aligned) <- paste0("fs_", colnames(fs_aligned))
 attr(fs_aligned, "acov")
 #> [[1]]
 #>              dem60        dem65
-#> dem60 1.294956e-01 1.221245e-15
-#> dem65 1.443290e-15 1.084581e-01
+#> dem60 1.294956e-01 6.661338e-16
+#> dem65 6.661338e-16 1.084581e-01
 step2_fit <- cfa(
     "dem60 =~ 1 * fs_dem60
    dem65 =~ 1 * fs_dem65

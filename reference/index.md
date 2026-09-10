@@ -19,6 +19,8 @@ Functions for penalized estimation of longitudinal CFA models.
 
 Functions for specification search for longitudinal invariance.
 
+- [`get_lav_lrt()`](https://marklhc.github.io/longcfa/reference/get_lav_lrt.md)
+  : Compute 1-df Likelihood Ratio Tests for Equality Constraints
 - [`get_lav_mod()`](https://marklhc.github.io/longcfa/reference/get_lav_mod.md)
   : Compute Modification Indices for Specific Parameters
 - [`get_lav_test_score()`](https://marklhc.github.io/longcfa/reference/get_lav_test_score.md)

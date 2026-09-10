@@ -59,6 +59,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/marklhc/longcfa/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -75,7 +76,7 @@
       <h1>A harmonization example with summary statistics</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/marklhc/longcfa/blob/main/vignettes/articles/tyrell.Rmd" class="external-link"><code>vignettes/articles/tyrell.Rmd</code></a></small>
       <div class="d-none name"><code>tyrell.Rmd</code></div>
     </div>
 
@@ -170,7 +171,7 @@ deviations, and means are provided in the paper, and imported below.</p>
 <span>    lag_cov <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">lconfig_fit</span>, fit.measures <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 162 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 161 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -383,7 +384,7 @@ deviations, and means are provided in the paper, and imported below.</p>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pen_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 366 iterations</span></span>
+<span><span class="co">#&gt; lavaan 0.7-2 ended normally after 374 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                         ML</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -469,7 +470,7 @@ deviations, and means are provided in the paper, and imported below.</p>
 <span><span class="co">#&gt;    .w5uniq2           0.007</span></span>
 <span><span class="co">#&gt;   w1dep ~~                 </span></span>
 <span><span class="co">#&gt;     w2dep             0.593</span></span>
-<span><span class="co">#&gt;     w3dep             0.530</span></span>
+<span><span class="co">#&gt;     w3dep             0.531</span></span>
 <span><span class="co">#&gt;     w4dep             0.320</span></span>
 <span><span class="co">#&gt;     w5dep             0.295</span></span>
 <span><span class="co">#&gt;   w2dep ~~                 </span></span>
@@ -540,28 +541,28 @@ deviations, and means are provided in the paper, and imported below.</p>
 <span><span class="co"># Penalized estimates of loadings and intercepts</span></span>
 <span><span class="op">(</span><span class="va">load_mat</span> <span class="op">&lt;-</span> <span class="fu">longcfa</span><span class="fu">::</span><span class="fu"><a href="../reference/get_lav_par_mat.html">get_lav_par_mat</a></span><span class="op">(</span><span class="va">pen_fit</span>, <span class="st">"=~"</span>, ind_matrix <span class="op">=</span> <span class="va">ind_mat</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           [,1]      [,2]      [,3]      [,4]      [,5]</span></span>
-<span><span class="co">#&gt; [1,] 0.2066203 0.2118559 0.2129275 0.2164448 0.2146146</span></span>
-<span><span class="co">#&gt; [2,] 0.2940826 0.2919120 0.2930608 0.2843889 0.2933078</span></span>
-<span><span class="co">#&gt; [3,] 0.2929553 0.2819509 0.2854623        NA        NA</span></span>
-<span><span class="co">#&gt; [4,] 0.2662628 0.2735654 0.2664907        NA        NA</span></span>
-<span><span class="co">#&gt; [5,]        NA        NA        NA 0.2455019 0.2240767</span></span>
-<span><span class="co">#&gt; [6,]        NA        NA        NA 0.1834115 0.1795535</span></span>
+<span><span class="co">#&gt; [1,] 0.2066197 0.2118558 0.2129270 0.2164443 0.2146132</span></span>
+<span><span class="co">#&gt; [2,] 0.2940822 0.2919121 0.2930604 0.2843885 0.2933063</span></span>
+<span><span class="co">#&gt; [3,] 0.2929577 0.2819543 0.2854649        NA        NA</span></span>
+<span><span class="co">#&gt; [4,] 0.2662650 0.2735681 0.2664931        NA        NA</span></span>
+<span><span class="co">#&gt; [5,]        NA        NA        NA 0.2455012 0.2240734</span></span>
+<span><span class="co">#&gt; [6,]        NA        NA        NA 0.1834107 0.1795512</span></span>
 <span><span class="op">(</span><span class="va">int_mat</span> <span class="op">&lt;-</span> <span class="fu">longcfa</span><span class="fu">::</span><span class="fu"><a href="../reference/get_lav_par_mat.html">get_lav_par_mat</a></span><span class="op">(</span><span class="va">pen_fit</span>, <span class="st">"~1"</span>, ind_matrix <span class="op">=</span> <span class="va">ind_mat</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          [,1]     [,2]     [,3]     [,4]     [,5]</span></span>
-<span><span class="co">#&gt; [1,] 1.399215 1.395149 1.395579 1.374842 1.385970</span></span>
-<span><span class="co">#&gt; [2,] 1.446841 1.449350 1.440906 1.453150 1.460737</span></span>
-<span><span class="co">#&gt; [3,] 1.410735 1.401796 1.407340       NA       NA</span></span>
+<span><span class="co">#&gt; [1,] 1.399215 1.395149 1.395579 1.374841 1.385969</span></span>
+<span><span class="co">#&gt; [2,] 1.446841 1.449349 1.440906 1.453149 1.460736</span></span>
+<span><span class="co">#&gt; [3,] 1.410734 1.401796 1.407339       NA       NA</span></span>
 <span><span class="co">#&gt; [4,] 1.444322 1.454336 1.463245       NA       NA</span></span>
-<span><span class="co">#&gt; [5,]       NA       NA       NA 1.369946 1.324487</span></span>
-<span><span class="co">#&gt; [6,]       NA       NA       NA 1.289814 1.269321</span></span>
+<span><span class="co">#&gt; [5,]       NA       NA       NA 1.369945 1.324485</span></span>
+<span><span class="co">#&gt; [6,]       NA       NA       NA 1.289813 1.269320</span></span>
 <span><span class="co"># Effective number of loadings</span></span>
 <span><span class="va">eff_load_diff</span> <span class="op">&lt;-</span> <span class="fu">plavaan</span><span class="fu">::</span><span class="fu"><a href="https://marklhc.github.io/plavaan/reference/composite_pair_loss.html" class="external-link">composite_pair_loss</a></span><span class="op">(</span><span class="va">load_mat</span>, fun <span class="op">=</span> <span class="fu">plavaan</span><span class="fu">::</span><span class="va"><a href="https://marklhc.github.io/plavaan/reference/loss.html" class="external-link">l0a</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Effective number of non-invariant loadings:"</span>, <span class="va">eff_load_diff</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Effective number of non-invariant loadings: 2.11084</span></span>
+<span><span class="co">#&gt; Effective number of non-invariant loadings: 2.110869</span></span>
 <span><span class="co"># Effective number of intercepts</span></span>
 <span><span class="va">eff_int_diff</span> <span class="op">&lt;-</span> <span class="fu">plavaan</span><span class="fu">::</span><span class="fu"><a href="https://marklhc.github.io/plavaan/reference/composite_pair_loss.html" class="external-link">composite_pair_loss</a></span><span class="op">(</span><span class="va">int_mat</span>, fun <span class="op">=</span> <span class="fu">plavaan</span><span class="fu">::</span><span class="va"><a href="https://marklhc.github.io/plavaan/reference/loss.html" class="external-link">l0a</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Effective number of non-invariant intercepts:"</span>, <span class="va">eff_int_diff</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Effective number of non-invariant intercepts: 2.523758</span></span></code></pre></div>
+<span><span class="co">#&gt; Effective number of non-invariant intercepts: 2.523766</span></span></code></pre></div>
   </main>
 </div>
 

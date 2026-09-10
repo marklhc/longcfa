@@ -140,11 +140,11 @@ to identify constraints to release. We set a minimum threshold
 ``` r
 
 get_lav_test_score(fit_strict, ind = paste0("y", 1:8), op = "~~")
-#>    id lhs op rhs group plabel         mi
-#> 21 21  y5 ~~  y5     1  .p21. 0.96575556
-#> 22 22  y6 ~~  y6     1  .p22. 3.63593977
-#> 23 23  y7 ~~  y7     1  .p23. 2.62279730
-#> 24 24  y8 ~~  y8     1  .p24. 0.01845535
+#>    id lhs op rhs group plabel         mi          p
+#> 21 21  y5 ~~  y5     1  .p21. 0.96575556 0.32574102
+#> 22 22  y6 ~~  y6     1  .p22. 3.63593977 0.05654467
+#> 23 23  y7 ~~  y7     1  .p23. 2.62279730 0.10533859
+#> 24 24  y8 ~~  y8     1  .p24. 0.01845535 0.89193951
 ```
 
 Note that the
@@ -180,14 +180,14 @@ We can examine which constraints were relaxed during the search process.
 ``` r
 
 search_res$traces
-#>    id lhs op rhs group plabel       mi
-#> 18 18  y6 ~1         1  .p18. 5.822431
-#> 22 22  y6 ~~  y6     1  .p22. 3.984035
+#>    id lhs op rhs group plabel       mi          p
+#> 18 18  y6 ~1         1  .p18. 5.822431 0.01582306
+#> 22 22  y6 ~~  y6     1  .p22. 3.984035 0.04593339
 ```
 
 The output shows the left-hand side (`lhs`), operator (`op`), and
 right-hand side (`rhs`) of the parameters that were freed, along with
-the modification index (`mi`) at that step.
+the modification index (`mi`) and p-value (`p`) at that step.
 
 ### Final Model Summary
 
@@ -286,6 +286,38 @@ anova(fit_strict, search_res$fit)
 #> fit_strict     25 2703.9 2748.0 40.802     9.9739 0.23056       2   0.006827 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+## FDR Control
+
+The search can also be run with `control_fdr = TRUE`, in which case
+`mi_min` is ignored and, at each stage, the k-th freed parameter must
+have a test statistic above a Benjamini & Gavrilov (2009) adjusted
+threshold. Below we rerun the same search with FDR control and
+additionally compute 1-df likelihood ratio tests for releasing each tied
+unique variance constraint using
+[`get_lav_lrt()`](https://marklhc.github.io/longcfa/reference/get_lav_lrt.md):
+
+``` r
+
+search_res_fdr <- plinv_search(
+    ind_matrix = ind_mat,
+    lv_names = lv_names,
+    data = PoliticalDemocracy,
+    type = c("loadings", "intercepts", "residuals"),
+    mi_fun = get_lav_test_score,
+    control_fdr = TRUE,
+    lag_cov = TRUE
+)
+search_res_fdr$traces
+#> NULL
+# 1-df LRTs for releasing each tied unique variance constraint
+get_lav_lrt(fit_strict, ind = paste0("y", 1:8), op = "~~")
+#>    id lhs op rhs group plabel        mi          p
+#> 21 21  y5 ~~  y5     1  .p21. 0.9845765 0.32107154
+#> 22 22  y6 ~~  y6     1  .p22. 4.0154178 0.04508605
+#> 23 23  y7 ~~  y7     1  .p23. 2.7976981 0.09439975
+#> 24 24  y8 ~~  y8     1  .p24. 0.0189899 0.89039546
 ```
 
 ## Specification Search with Categorical Data
@@ -568,13 +600,13 @@ misspecification. We examine the trace of relaxed constraints:
 ``` r
 
 search_thresh$traces
-#>    id    lhs op rhs group plabel       mi
-#> 19 19 y5_cat  |  t1     1  .p19. 5.953566
+#>    id    lhs op rhs group plabel       mi          p
+#> 19 19 y5_cat  |  t1     1  .p19. 5.953566 0.01468755
 ```
 
 The output shows which indicator and which threshold level was freed at
-each step, along with the modification index that justified the
-relaxation.
+each step, along with the modification index and p-value that justified
+the relaxation.
 
 ### Final Partial Threshold Invariance Model
 

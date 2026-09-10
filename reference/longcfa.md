@@ -145,12 +145,15 @@ A fit object as returned by
 Currently only supports model with one latent variable at each time
 point.
 
+## See also
+
+[`pinsearch::pinSearch()`](https://marklhc.github.io/pinsearch/reference/pinSearch.html)
+for cross-sectional (multi-group) specification search.
+
 ## Examples
 
 ``` r
 library(lavaan)
-#> This is lavaan 0.7-2
-#> lavaan is FREE software! Please report any bugs.
 # Indicator matrix
 spec <- matrix(c(
     "y1", "y2", "y3", "y4",

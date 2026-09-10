@@ -98,7 +98,7 @@ lconfig_fit <- longcfa(
     lag_cov = TRUE
 )
 summary(lconfig_fit, fit.measures = TRUE)
-#> lavaan 0.7-2 ended normally after 162 iterations
+#> lavaan 0.7-2 ended normally after 161 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -317,7 +317,7 @@ pen_fit <- penalized_longcfa(
 ``` r
 
 summary(pen_fit)
-#> lavaan 0.7-2 ended normally after 366 iterations
+#> lavaan 0.7-2 ended normally after 374 iterations
 #> 
 #>   Estimator                                         ML
 #>   Optimization method                           NLMINB
@@ -403,7 +403,7 @@ summary(pen_fit)
 #>    .w5uniq2           0.007
 #>   w1dep ~~                 
 #>     w2dep             0.593
-#>     w3dep             0.530
+#>     w3dep             0.531
 #>     w4dep             0.320
 #>     w5dep             0.295
 #>   w2dep ~~                 
@@ -474,26 +474,26 @@ summary(pen_fit)
 # Penalized estimates of loadings and intercepts
 (load_mat <- longcfa::get_lav_par_mat(pen_fit, "=~", ind_matrix = ind_mat))
 #>           [,1]      [,2]      [,3]      [,4]      [,5]
-#> [1,] 0.2066203 0.2118559 0.2129275 0.2164448 0.2146146
-#> [2,] 0.2940826 0.2919120 0.2930608 0.2843889 0.2933078
-#> [3,] 0.2929553 0.2819509 0.2854623        NA        NA
-#> [4,] 0.2662628 0.2735654 0.2664907        NA        NA
-#> [5,]        NA        NA        NA 0.2455019 0.2240767
-#> [6,]        NA        NA        NA 0.1834115 0.1795535
+#> [1,] 0.2066197 0.2118558 0.2129270 0.2164443 0.2146132
+#> [2,] 0.2940822 0.2919121 0.2930604 0.2843885 0.2933063
+#> [3,] 0.2929577 0.2819543 0.2854649        NA        NA
+#> [4,] 0.2662650 0.2735681 0.2664931        NA        NA
+#> [5,]        NA        NA        NA 0.2455012 0.2240734
+#> [6,]        NA        NA        NA 0.1834107 0.1795512
 (int_mat <- longcfa::get_lav_par_mat(pen_fit, "~1", ind_matrix = ind_mat))
 #>          [,1]     [,2]     [,3]     [,4]     [,5]
-#> [1,] 1.399215 1.395149 1.395579 1.374842 1.385970
-#> [2,] 1.446841 1.449350 1.440906 1.453150 1.460737
-#> [3,] 1.410735 1.401796 1.407340       NA       NA
+#> [1,] 1.399215 1.395149 1.395579 1.374841 1.385969
+#> [2,] 1.446841 1.449349 1.440906 1.453149 1.460736
+#> [3,] 1.410734 1.401796 1.407339       NA       NA
 #> [4,] 1.444322 1.454336 1.463245       NA       NA
-#> [5,]       NA       NA       NA 1.369946 1.324487
-#> [6,]       NA       NA       NA 1.289814 1.269321
+#> [5,]       NA       NA       NA 1.369945 1.324485
+#> [6,]       NA       NA       NA 1.289813 1.269320
 # Effective number of loadings
 eff_load_diff <- plavaan::composite_pair_loss(load_mat, fun = plavaan::l0a)
 cat("Effective number of non-invariant loadings:", eff_load_diff, "\n")
-#> Effective number of non-invariant loadings: 2.11084
+#> Effective number of non-invariant loadings: 2.110869
 # Effective number of intercepts
 eff_int_diff <- plavaan::composite_pair_loss(int_mat, fun = plavaan::l0a)
 cat("Effective number of non-invariant intercepts:", eff_int_diff, "\n")
-#> Effective number of non-invariant intercepts: 2.523758
+#> Effective number of non-invariant intercepts: 2.523766
 ```

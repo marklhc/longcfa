@@ -59,6 +59,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/marklhc/longcfa/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -75,7 +76,7 @@
       <h1>Approximate Longitudinal Invariance With Alignment Optimization</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/marklhc/longcfa/blob/main/vignettes/longcfa-sirt.Rmd" class="external-link"><code>vignettes/longcfa-sirt.Rmd</code></a></small>
       <div class="d-none name"><code>longcfa-sirt.Rmd</code></div>
     </div>
 
@@ -179,8 +180,8 @@ shown below.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">fs_aligned</span>, <span class="st">"acov"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [[1]]</span></span>
 <span><span class="co">#&gt;              dem60        dem65</span></span>
-<span><span class="co">#&gt; dem60 1.294956e-01 1.221245e-15</span></span>
-<span><span class="co">#&gt; dem65 1.443290e-15 1.084581e-01</span></span>
+<span><span class="co">#&gt; dem60 1.294956e-01 6.661338e-16</span></span>
+<span><span class="co">#&gt; dem65 6.661338e-16 1.084581e-01</span></span>
 <span><span class="va">step2_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">cfa</a></span><span class="op">(</span></span>
 <span>    <span class="st">"dem60 =~ 1 * fs_dem60</span></span>
 <span><span class="st">   dem65 =~ 1 * fs_dem65</span></span>

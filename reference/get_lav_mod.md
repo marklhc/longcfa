@@ -26,4 +26,5 @@ get_lav_mod(x, ind, op = c("=~", "~1", "~~", "|"))
 
 ## Value
 
-A data frame containing the modification indices.
+A data frame containing the modification index (`mi`) and the p-value
+(`p`) for each candidate parameter.

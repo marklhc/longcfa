@@ -59,6 +59,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/marklhc/longcfa/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -77,7 +78,7 @@
 Lai</h4>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/marklhc/longcfa/blob/main/vignettes/articles/invariance.Rmd" class="external-link"><code>vignettes/articles/invariance.Rmd</code></a></small>
       <div class="d-none name"><code>invariance.Rmd</code></div>
     </div>
 
@@ -601,17 +602,17 @@ for illustration, let’s fit a partial metric invariance model</p>
 <span><span class="co">#&gt;    y4 y8</span></span>
 <span><span class="co">#&gt;      lhs  op rhs    mi    epc sepc.lv sepc.all sepc.nox</span></span>
 <span><span class="co">#&gt; 60 dem65  =~  y3 8.128 -1.162  -1.308   -0.808   -0.808</span></span>
-<span><span class="co">#&gt; 36    y3 ~*~  y3 7.742 -0.248  -0.248   -1.000   -1.000</span></span>
 <span><span class="co">#&gt; 11    y3  ~~  y3 7.742  2.099   1.000    0.382    0.382</span></span>
-<span><span class="co">#&gt; 40    y7 ~*~  y7 7.742  0.197   0.197    1.000    1.000</span></span>
+<span><span class="co">#&gt; 36    y3 ~*~  y3 7.742 -0.248  -0.248   -1.000   -1.000</span></span>
 <span><span class="co">#&gt; 23    y7  ~~  y7 7.742 -2.099  -1.000   -0.328   -0.328</span></span>
+<span><span class="co">#&gt; 40    y7 ~*~  y7 7.742  0.197   0.197    1.000    1.000</span></span>
 <span><span class="co">#&gt; 56 dem60  =~  y7 7.700  1.369   1.369    0.784    0.784</span></span>
 <span><span class="co">#&gt; 58 dem65  =~  y1 6.778  1.123   1.265    0.738    0.738</span></span>
 <span><span class="co">#&gt; 54 dem60  =~  y5 6.371 -1.369  -1.369   -0.736   -0.736</span></span>
 <span><span class="co">#&gt; 9     y1  ~~  y1 6.340 -1.896  -1.000   -0.340   -0.340</span></span>
 <span><span class="co">#&gt; 34    y1 ~*~  y1 6.340  0.188   0.188    1.000    1.000</span></span>
-<span><span class="co">#&gt; 38    y5 ~*~  y5 6.340 -0.147  -0.147   -1.000   -1.000</span></span>
 <span><span class="co">#&gt; 21    y5  ~~  y5 6.340  1.896   1.000    0.289    0.289</span></span>
+<span><span class="co">#&gt; 38    y5 ~*~  y5 6.340 -0.147  -0.147   -1.000   -1.000</span></span>
 <span><span class="co"># Free the loading of y3 at time 2</span></span>
 <span><span class="va">pmetric_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/longcfa.html">longcfa</a></span><span class="op">(</span></span>
 <span>    <span class="va">pd_ind</span>,</span>
