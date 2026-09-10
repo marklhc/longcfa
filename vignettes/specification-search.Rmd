@@ -91,7 +91,7 @@ We can examine which constraints were relaxed during the search process.
 search_res$traces
 ```
 
-The output shows the left-hand side (`lhs`), operator (`op`), and right-hand side (`rhs`) of the parameters that were freed, along with the modification index (`mi`) at that step.
+The output shows the left-hand side (`lhs`), operator (`op`), and right-hand side (`rhs`) of the parameters that were freed, along with the modification index (`mi`) and p-value (`p`) at that step.
 
 ### Final Model Summary
 
@@ -107,6 +107,25 @@ Finally, we can compare the initial strict invariance model with the partial inv
 
 ```{r}
 anova(fit_strict, search_res$fit)
+```
+
+## FDR Control
+
+The search can also be run with `control_fdr = TRUE`, in which case `mi_min` is ignored and, at each stage, the k-th freed parameter must have a test statistic above a Benjamini & Gavrilov (2009) adjusted threshold. Below we rerun the same search with FDR control and additionally compute 1-df likelihood ratio tests for releasing each tied unique variance constraint using `get_lav_lrt()`:
+
+```{r}
+search_res_fdr <- plinv_search(
+    ind_matrix = ind_mat,
+    lv_names = lv_names,
+    data = PoliticalDemocracy,
+    type = c("loadings", "intercepts", "residuals"),
+    mi_fun = get_lav_test_score,
+    control_fdr = TRUE,
+    lag_cov = TRUE
+)
+search_res_fdr$traces
+# 1-df LRTs for releasing each tied unique variance constraint
+get_lav_lrt(fit_strict, ind = paste0("y", 1:8), op = "~~")
 ```
 
 ## Specification Search with Categorical Data
@@ -236,7 +255,7 @@ The search may free certain threshold parameters that show significant misspecif
 search_thresh$traces
 ```
 
-The output shows which indicator and which threshold level was freed at each step, along with the modification index that justified the relaxation.
+The output shows which indicator and which threshold level was freed at each step, along with the modification index and p-value that justified the relaxation.
 
 ### Final Partial Threshold Invariance Model
 

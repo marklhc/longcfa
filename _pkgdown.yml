@@ -15,6 +15,7 @@ reference:
   - title: Specification Search
     desc: Functions for specification search for longitudinal invariance.
     contents:
+      - get_lav_lrt
       - get_lav_mod
       - get_lav_test_score
       - plinv_search
