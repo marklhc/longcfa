@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">longcfa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,13 +54,25 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="longcfa-development-version">longcfa (development version)<a class="anchor" aria-label="anchor" href="#longcfa-development-version"></a></h2>
+<ul><li>New <code>test</code> argument (<code>"Chisq"</code> / <code>"SatorraBentler"</code>) to <code><a href="../reference/penalized_longcfa.html">penalized_longcfa()</a></code> enables experimental fit measures at the effective degrees of freedom via <code><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">lavaan::fitmeasures()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> (requires a recent <code>plavaan</code> with fit-evaluation support)</li>
+<li>New <code>plavaan_args</code> list to <code><a href="../reference/penalized_longcfa.html">penalized_longcfa()</a></code> to forward extra options to <code>plavaan</code>, including penalty continuation (<code>eps = "telescoping"</code>) and multistart (<code>n_starts</code> / <code>starts</code>, via <code><a href="https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html" class="external-link">plavaan::penalized_est_multistart()</a></code>); only options the installed <code>plavaan</code> supports are forwarded, with a clear error otherwise</li>
+<li>New <code><a href="../reference/get_lav_lrt.html">get_lav_lrt()</a></code> function for computing 1-df likelihood ratio tests for releasing equality constraints</li>
+<li>
+<code><a href="../reference/plinv_search.html">plinv_search()</a></code> now supports false discovery rate control via <code>control_fdr</code> and <code>sig_level</code>, using the adjusted thresholds of Benjamini and Gavrilov (2009)</li>
+<li>
+<code><a href="../reference/plinv_search.html">plinv_search()</a></code> now supports the <code>min2</code> argument, which stops a stage when 2 or fewer items are still tied (applies to loadings, intercepts, and thresholds)</li>
+<li>
+<code><a href="../reference/get_lav_mod.html">get_lav_mod()</a></code> and <code><a href="../reference/get_lav_test_score.html">get_lav_test_score()</a></code> now return a <code>p</code> column alongside <code>mi</code>
+</li>
+<li>longcfa now depends on <code>pinsearch</code> (&gt;= 0.1.6) and reuses its <code>fdr_alpha()</code> and <code>type2op()</code> functions</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.2" id="longcfa-002">longcfa 0.0.2<a class="anchor" aria-label="anchor" href="#longcfa-002"></a></h2>
 <ul><li>Added penalized estimation via <code><a href="../reference/penalized_longcfa.html">penalized_longcfa()</a></code> (wrapper around <code><a href="https://marklhc.github.io/plavaan/reference/penalized_est.html" class="external-link">plavaan::penalized_est()</a></code>)
 <ul><li>Support for alignment loss function (<code><a href="https://marklhc.github.io/plavaan/reference/loss.html" class="external-link">alf()</a></code>) and L0 approximation penalty (<code><a href="https://marklhc.github.io/plavaan/reference/loss.html" class="external-link">l0a()</a></code>)</li>
 <li>Robust sandwich standard errors via <code>se = "robust.huber.white"</code> argument (experimental)</li>
 <li>Uses <code><a href="https://marklhc.github.io/plavaan/reference/composite_pair_loss.html" class="external-link">composite_pair_loss()</a></code> for computing pairwise penalties</li>
-<li>New <code>test</code> argument (<code>"Chisq"</code> / <code>"SatorraBentler"</code>) enables experimental fit measures at the effective degrees of freedom via <code><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">lavaan::fitmeasures()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> (requires a recent <code>plavaan</code> with fit-evaluation support)</li>
-<li>New <code>plavaan_args</code> list to forward extra options to <code>plavaan</code>, including penalty continuation (<code>eps = "telescoping"</code>) and multistart (<code>n_starts</code> / <code>starts</code>, via <code><a href="https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html" class="external-link">plavaan::penalized_est_multistart()</a></code>); only options the installed <code>plavaan</code> supports are forwarded, with a clear error otherwise</li>
 </ul></li>
 <li>Added <code><a href="../reference/plinv_search.html">plinv_search()</a></code> function for searching partial invariance models using the score test/modification indices, with experimental support for categorical indicators</li>
 <li>New datasets <code>mackinnon_etal_long</code> and <code>mackinnon_etal_wide</code> from MacKinnon et al. ecological momentary assessment study (CC-BY 4.0)</li>
@@ -71,15 +83,6 @@
 <code><a href="../reference/longcfa.html">longcfa()</a></code> now accepts arguments to freely estimate latent means and variances</li>
 </ul></li>
 <li>Enhanced documentation with cross-references and examples</li>
-<li>New <code><a href="../reference/get_lav_lrt.html">get_lav_lrt()</a></code> function for computing 1-df likelihood ratio tests for releasing equality constraints</li>
-<li>
-<code><a href="../reference/plinv_search.html">plinv_search()</a></code> now supports false discovery rate control via <code>control_fdr</code> and <code>sig_level</code>, using the adjusted thresholds of Benjamini and Gavrilov (2009)</li>
-<li>
-<code><a href="../reference/plinv_search.html">plinv_search()</a></code> now supports the <code>min2</code> argument, which stops a stage when 2 or fewer items are still tied (applies to loadings, intercepts, and thresholds)</li>
-<li>
-<code><a href="../reference/get_lav_mod.html">get_lav_mod()</a></code> and <code><a href="../reference/get_lav_test_score.html">get_lav_test_score()</a></code> now return a <code>p</code> column alongside <code>mi</code>
-</li>
-<li>longcfa now depends on <code>pinsearch</code> (&gt;= 0.1.6) and reuses its <code>fdr_alpha()</code> and <code>type2op()</code> functions</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.1" id="longcfa-001">longcfa 0.0.1<a class="anchor" aria-label="anchor" href="#longcfa-001"></a></h2>

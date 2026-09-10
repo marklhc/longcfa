@@ -1,5 +1,39 @@
 # Changelog
 
+## longcfa (development version)
+
+- New `test` argument (`"Chisq"` / `"SatorraBentler"`) to
+  [`penalized_longcfa()`](https://marklhc.github.io/longcfa/reference/penalized_longcfa.md)
+  enables experimental fit measures at the effective degrees of freedom
+  via
+  [`lavaan::fitmeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
+  and [`summary()`](https://rdrr.io/r/base/summary.html) (requires a
+  recent `plavaan` with fit-evaluation support)
+- New `plavaan_args` list to
+  [`penalized_longcfa()`](https://marklhc.github.io/longcfa/reference/penalized_longcfa.md)
+  to forward extra options to `plavaan`, including penalty continuation
+  (`eps = "telescoping"`) and multistart (`n_starts` / `starts`, via
+  [`plavaan::penalized_est_multistart()`](https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html));
+  only options the installed `plavaan` supports are forwarded, with a
+  clear error otherwise
+- New
+  [`get_lav_lrt()`](https://marklhc.github.io/longcfa/reference/get_lav_lrt.md)
+  function for computing 1-df likelihood ratio tests for releasing
+  equality constraints
+- [`plinv_search()`](https://marklhc.github.io/longcfa/reference/plinv_search.md)
+  now supports false discovery rate control via `control_fdr` and
+  `sig_level`, using the adjusted thresholds of Benjamini and Gavrilov
+  (2009)
+- [`plinv_search()`](https://marklhc.github.io/longcfa/reference/plinv_search.md)
+  now supports the `min2` argument, which stops a stage when 2 or fewer
+  items are still tied (applies to loadings, intercepts, and thresholds)
+- [`get_lav_mod()`](https://marklhc.github.io/longcfa/reference/get_lav_mod.md)
+  and
+  [`get_lav_test_score()`](https://marklhc.github.io/longcfa/reference/get_lav_test_score.md)
+  now return a `p` column alongside `mi`
+- longcfa now depends on `pinsearch` (\>= 0.1.6) and reuses its
+  `fdr_alpha()` and `type2op()` functions
+
 ## longcfa 0.0.2
 
 - Added penalized estimation via
@@ -15,17 +49,6 @@
   - Uses
     [`composite_pair_loss()`](https://marklhc.github.io/plavaan/reference/composite_pair_loss.html)
     for computing pairwise penalties
-  - New `test` argument (`"Chisq"` / `"SatorraBentler"`) enables
-    experimental fit measures at the effective degrees of freedom via
-    [`lavaan::fitmeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
-    and [`summary()`](https://rdrr.io/r/base/summary.html) (requires a
-    recent `plavaan` with fit-evaluation support)
-  - New `plavaan_args` list to forward extra options to `plavaan`,
-    including penalty continuation (`eps = "telescoping"`) and
-    multistart (`n_starts` / `starts`, via
-    [`plavaan::penalized_est_multistart()`](https://marklhc.github.io/plavaan/reference/penalized_est_multistart.html));
-    only options the installed `plavaan` supports are forwarded, with a
-    clear error otherwise
 - Added
   [`plinv_search()`](https://marklhc.github.io/longcfa/reference/plinv_search.md)
   function for searching partial invariance models using the score
@@ -47,23 +70,6 @@
   - [`longcfa()`](https://marklhc.github.io/longcfa/reference/longcfa.md)
     now accepts arguments to freely estimate latent means and variances
 - Enhanced documentation with cross-references and examples
-- New
-  [`get_lav_lrt()`](https://marklhc.github.io/longcfa/reference/get_lav_lrt.md)
-  function for computing 1-df likelihood ratio tests for releasing
-  equality constraints
-- [`plinv_search()`](https://marklhc.github.io/longcfa/reference/plinv_search.md)
-  now supports false discovery rate control via `control_fdr` and
-  `sig_level`, using the adjusted thresholds of Benjamini and Gavrilov
-  (2009)
-- [`plinv_search()`](https://marklhc.github.io/longcfa/reference/plinv_search.md)
-  now supports the `min2` argument, which stops a stage when 2 or fewer
-  items are still tied (applies to loadings, intercepts, and thresholds)
-- [`get_lav_mod()`](https://marklhc.github.io/longcfa/reference/get_lav_mod.md)
-  and
-  [`get_lav_test_score()`](https://marklhc.github.io/longcfa/reference/get_lav_test_score.md)
-  now return a `p` column alongside `mi`
-- longcfa now depends on `pinsearch` (\>= 0.1.6) and reuses its
-  `fdr_alpha()` and `type2op()` functions
 
 ## longcfa 0.0.1
 
